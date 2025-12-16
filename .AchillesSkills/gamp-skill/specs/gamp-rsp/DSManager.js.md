@@ -1,7 +1,7 @@
 # Specification for gamp-rsp/DSManager.js
 
 ## Module Description
-This module provides the `DSManager` class, which is dedicated to managing Design Specification (DS) documents. These documents are detailed technical plans that link high-level requirements to concrete implementation details. The manager handles the full lifecycle of DS files, from creation and updating to managing embedded test cases and file descriptions.
+This module provides the `DSManager` class, which is dedicated to managing Design Specification (DS) documents. These documents are detailed technical plans that link high-level requirements to concrete implementation details. The manager handles the full lifecycle of DS files, from creation and updating to managing embedded test cases and file descriptions. It relies on synchronous file system operations, consistent with its design as a CLI-first tool.
 
 ## Dependencies
 -   `node:fs`: For synchronous file system operations like reading directories and checking file existence.

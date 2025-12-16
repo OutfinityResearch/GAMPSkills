@@ -1,7 +1,7 @@
 # Specification for gamp-rsp/DocumentManager.js
 
 ## Module Description
-This module provides the `DocumentManager` class, which is responsible for the lifecycle management of high-level specification documents: User Requirements (URS), Functional Specifications (FS), and Non-Functional Specifications (NFS). It abstracts the file I/O and markdown parsing required to treat individual entries within these documents as distinct objects.
+This module provides the `DocumentManager` class, which is responsible for the lifecycle management of high-level specification documents: User Requirements (URS), Functional Specifications (FS), and Non-Functional Specifications (NFS). It abstracts the file I/O and markdown parsing required to treat individual entries within these documents as distinct objects. All file I/O is performed synchronously, aligning with the tool's intended use in a CLI environment where sequential operations are standard.
 
 ## Dependencies
 -   `../utils/file-io.mjs`: Imports `readFileSafe` and `writeFileSafe` for all file operations.

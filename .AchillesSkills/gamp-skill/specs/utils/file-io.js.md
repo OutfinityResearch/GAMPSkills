@@ -1,7 +1,7 @@
 # Specification for utils/file-io.js
 
 ## Module Description
-This module provides a small set of robust, higher-level utility functions for interacting with the file system. These functions are designed to be "safe," meaning they handle common errors (like a file not existing or a directory needing to be created) internally, simplifying file I/O operations in other parts of the application.
+This module provides a small set of robust, higher-level utility functions for interacting with the file system. These functions are designed to be "safe," meaning they handle common errors (like a file not existing or a directory needing to be created) internally, simplifying file I/O operations in other parts of the application. All file operations are **synchronous**, which is a deliberate design choice suitable for a command-line interface (CLI) tool where a blocking, sequential workflow is expected and simplifies the overall architecture.
 
 ## Dependencies
 -   `node:fs`: The core Node.js module for all file system interactions.

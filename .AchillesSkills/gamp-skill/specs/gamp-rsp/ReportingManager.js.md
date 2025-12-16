@@ -1,10 +1,10 @@
 # Specification for gamp-rsp/ReportingManager.js
 
 ## Module Description
-This module provides the `ReportingManager` class, responsible for aggregating data from all specification documents and generating human-readable reports. Its key functions are creating a comprehensive traceability matrix and generating a set of interlinked HTML documents for easy browsing.
+This module provides the `ReportingManager` class, responsible for aggregating data from all specification documents and generating human-readable reports. Its key functions are creating a comprehensive traceability matrix and generating a set of interlinked HTML documents for easy browsing. As this is a CLI-based tool, all data aggregation is performed using synchronous file I/O for simplicity.
 
 ## Dependencies
--   `node:fs`: For reading directories and checking file existence.
+-   `node:fs`: For **synchronous** operations like reading directories and checking file existence.
 -   `node:path`: For joining paths.
 -   `../utils/file-io.mjs`: Imports `readFileSafe`, `writeFileSafe`, `ensureDir`.
 -   `../utils/markdown-parser.mjs`: Imports `extractChapters`, `parseHeading`.
