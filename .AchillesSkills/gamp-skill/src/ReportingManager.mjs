@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { readFileSafe, writeFileSafe, ensureDir } from '../../../utils/file-io.mjs';
-import { extractChapters, parseHeading } from '../../../utils/markdown-parser.mjs';
-import { formatTimestamp, renderTable } from '../../../utils/formatting.mjs';
-import { parseDSTrace, parseTraceLines, extractDSIdFromFileName } from '../../../utils/req-traceability.mjs';
-import { buildSoplangComment } from '../../../utils/soplang.mjs';
-import { DEFAULT_DOCS } from '../../../utils/constants.mjs';
+import { readFileSafe, writeFileSafe, ensureDir } from '../../utils/file-io.mjs';
+import { extractChapters, parseHeading } from '../../utils/markdown-parser.mjs';
+import { formatTimestamp, renderTable } from '../../utils/formatting.mjs';
+import { parseDSTrace, parseTraceLines, extractDSIdFromFileName } from '../../utils/req-traceability.mjs';
+import { buildSoplangComment } from '../../utils/soplang.mjs';
+import { DEFAULT_DOCS } from '../../utils/constants.mjs';
 
 export class ReportingManager {
     constructor(gampRSPCore, documentManager) {

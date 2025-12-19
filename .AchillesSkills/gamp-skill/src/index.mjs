@@ -1,7 +1,7 @@
-import { GampRSPCore } from './gamp-rsp/GampRSPCore.mjs';
-import { DocumentManager } from './gamp-rsp/DocumentManager.mjs';
-import { DSManager } from './gamp-rsp/DSManager.mjs';
-import { ReportingManager } from './gamp-rsp/ReportingManager.mjs';
+import { GampRSPCore } from './GampRSPCore.mjs';
+import { DocumentManager } from './DocumentManager.mjs';
+import { DSManager } from './DSManager.mjs';
+import { ReportingManager } from './ReportingManager.mjs';
 
 class GampRSPFacade {
     constructor() {

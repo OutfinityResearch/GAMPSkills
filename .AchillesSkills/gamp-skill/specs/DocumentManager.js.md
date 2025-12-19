@@ -1,15 +1,15 @@
-# Specification for gamp-rsp/DocumentManager.js
+# Specification for DocumentManager.js
 
 ## Module Description
 This module provides the `DocumentManager` class, which is responsible for the lifecycle management of high-level specification documents: User Requirements (URS), Functional Specifications (FS), and Non-Functional Specifications (NFS). It abstracts the file I/O and markdown parsing required to treat individual entries within these documents as distinct objects. All file I/O is performed synchronously, aligning with the tool's intended use in a CLI environment where sequential operations are standard.
 
 ## Dependencies
--   `../utils/file-io.mjs`: Imports `readFileSafe` and `writeFileSafe` for all file operations.
--   `../utils/markdown-parser.mjs`: Imports `extractChapters`, `replaceChapter`, and `parseHeading` for reading and manipulating document structure.
--   `../utils/id-generator.mjs`: Imports `nextId` to generate unique, sequential IDs for new requirements.
--   `../utils/chapter-builder.mjs`: Imports `buildChapter` to create standardized markdown content for new requirement entries.
--   `../utils/req-traceability.mjs`: Imports `ensureTraceabilityBlock`, `requirementDocName`, and `normaliseId` for handling traceability links.
--   `../utils/soplang.mjs`: Imports `buildSoplangComment` to generate metadata comments.
+-   `../../utils/file-io.mjs`: Imports `readFileSafe` and `writeFileSafe` for all file operations.
+-   `../../utils/markdown-parser.mjs`: Imports `extractChapters`, `replaceChapter`, and `parseHeading` for reading and manipulating document structure.
+-   `../../utils/id-generator.mjs`: Imports `nextId` to generate unique, sequential IDs for new requirements.
+-   `../../utils/chapter-builder.mjs`: Imports `buildChapter` to create standardized markdown content for new requirement entries.
+-   `../../utils/req-traceability.mjs`: Imports `ensureTraceabilityBlock`, `requirementDocName`, and `normaliseId` for handling traceability links.
+-   `../../utils/soplang.mjs`: Imports `buildSoplangComment` to generate metadata comments.
 
 ---
 

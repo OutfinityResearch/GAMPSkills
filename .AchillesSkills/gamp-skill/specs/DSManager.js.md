@@ -1,4 +1,4 @@
-# Specification for gamp-rsp/DSManager.js
+# Specification for DSManager.js
 
 ## Module Description
 This module provides the `DSManager` class, which is dedicated to managing Design Specification (DS) documents. These documents are detailed technical plans that link high-level requirements to concrete implementation details. The manager handles the full lifecycle of DS files, from creation and updating to managing embedded test cases and file descriptions. It relies on synchronous file system operations, consistent with its design as a CLI-first tool.
@@ -6,12 +6,12 @@ This module provides the `DSManager` class, which is dedicated to managing Desig
 ## Dependencies
 -   `node:fs`: For synchronous file system operations like reading directories and checking file existence.
 -   `node:path`: For cross-platform path manipulation.
--   `../utils/file-io.mjs`: Imports `readFileSafe`, `writeFileSafe`, `ensureDir`.
--   `../utils/id-generator.mjs`: Imports `nextId`.
--   `../utils/formatting.mjs`: Imports `slugifyTitle`, `normaliseId`, `formatTimestamp`.
--   `../utils/soplang.mjs`: Imports `buildSoplangComment`.
--   `../utils/req-traceability.mjs`: Imports `extractDSIdFromFileName`.
--   `../utils/markdown-parser.mjs`: Imports `extractChapters`, `replaceChapter`.
+-   `../../utils/file-io.mjs`: Imports `readFileSafe`, `writeFileSafe`, `ensureDir`.
+-   `../../utils/id-generator.mjs`: Imports `nextId`.
+-   `../../utils/formatting.mjs`: Imports `slugifyTitle`, `normaliseId`, `formatTimestamp`.
+-   `../../utils/soplang.mjs`: Imports `buildSoplangComment`.
+-   `../../utils/req-traceability.mjs`: Imports `extractDSIdFromFileName`.
+-   `../../utils/markdown-parser.mjs`: Imports `extractChapters`, `replaceChapter`.
 
 ---
 

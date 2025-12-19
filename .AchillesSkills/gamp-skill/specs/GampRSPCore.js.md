@@ -1,4 +1,4 @@
-# Specification for gamp-rsp/GampRSPCore.js
+# Specification for GampRSPCore.js
 
 ## Module Description
 This module provides the `GampRSPCore` class, which serves as the foundational layer of the GAMP-RSP system. Its primary role is to manage the file system structure of the workspace, ensuring all necessary directories and configuration files are present. It acts as the single source of truth for all file paths within the `.specs` directory, performing all file system interactions synchronously for simplicity and predictability in a CLI context.
@@ -6,11 +6,11 @@ This module provides the `GampRSPCore` class, which serves as the foundational l
 ## Dependencies
 -   `node:path`: Used for constructing and manipulating file system paths in a platform-agnostic way.
 -   `node:fs`: Used for **synchronous** interaction with the file system, such as checking for file existence, creating directories, and reading/writing files. This approach is suitable for a CLI tool.
--   `../utils/file-io.mjs`: Imports `ensureDir`, `writeFileSafe`, and `readFileSafe` for robust file operations.
--   `../utils/chapter-builder.mjs`: Imports `VERSION_HEADER` to create default content for new specification documents.
--   `../utils/constants.mjs`: Imports `DEFAULT_DOCS` which defines the set of core documents to create.
--   `../utils/req-traceability.mjs`: Imports `extractDSIdFromFileName` for resolving file paths.
--   `../utils/formatting.mjs`: Imports `slugifyTitle` and `normaliseId` for creating and resolving file paths.
+-   `../../utils/file-io.mjs`: Imports `ensureDir`, `writeFileSafe`, and `readFileSafe` for robust file operations.
+-   `../../utils/chapter-builder.mjs`: Imports `VERSION_HEADER` to create default content for new specification documents.
+-   `../../utils/constants.mjs`: Imports `DEFAULT_DOCS` which defines the set of core documents to create.
+-   `../../utils/req-traceability.mjs`: Imports `extractDSIdFromFileName` for resolving file paths.
+-   `../../utils/formatting.mjs`: Imports `slugifyTitle` and `normaliseId` for creating and resolving file paths.
 
 ---
 

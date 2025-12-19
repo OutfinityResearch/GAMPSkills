@@ -4,10 +4,10 @@
 This module serves as the central entry point for the GAMP-RSP skill. It sets up a facade pattern to expose a unified and simplified API for a collection of more complex underlying managers. The primary export is an `action` function, which is designed to be the single point of contact for the Code Specs Subsystem, dynamically dispatching calls to the appropriate methods on the facade.
 
 ## Dependencies
--   `./gamp-rsp/GampRSPCore.mjs`: Imports the `GampRSPCore` class.
--   `./gamp-rsp/DocumentManager.mjs`: Imports the `DocumentManager` class.
--   `./gamp-rsp/DSManager.mjs`: Imports the `DSManager` class.
--   `./gamp-rsp/ReportingManager.mjs`: Imports the `ReportingManager` class.
+-   `./GampRSPCore.mjs`: Imports the `GampRSPCore` class.
+-   `./DocumentManager.mjs`: Imports the `DocumentManager` class.
+-   `./DSManager.mjs`: Imports the `DSManager` class.
+-   `./ReportingManager.mjs`: Imports the `ReportingManager` class.
 
 ---
 

@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { readFileSafe, writeFileSafe, ensureDir } from '../../../utils/file-io.mjs';
-import { nextId } from '../../../utils/id-generator.mjs';
-import { slugifyTitle, normaliseId, formatTimestamp } from '../../../utils/formatting.mjs';
-import { buildSoplangComment } from '../../../utils/soplang.mjs';
-import { extractDSIdFromFileName } from '../../../utils/req-traceability.mjs';
-import { extractChapters, replaceChapter } from '../../../utils/markdown-parser.mjs';
+import { readFileSafe, writeFileSafe, ensureDir } from '../../utils/file-io.mjs';
+import { nextId } from '../../utils/id-generator.mjs';
+import { slugifyTitle, normaliseId, formatTimestamp } from '../../utils/formatting.mjs';
+import { buildSoplangComment } from '../../utils/soplang.mjs';
+import { extractDSIdFromFileName } from '../../utils/req-traceability.mjs';
+import { extractChapters, replaceChapter } from '../../utils/markdown-parser.mjs';
 
 export class DSManager {
     constructor(gampRSPCore, documentManager) {
