@@ -20,7 +20,7 @@ class GampRSPFacade {
         this.bindMethods(this.docManager, [
             'createURS', 'updateURS', 'retireURS', 'createFS', 'updateFS',
             'obsoleteFS', 'createNFS', 'updateNFS', 'obsoleteNFS',
-            'readDocument', 'writeDocument', 'linkRequirementToDS'
+            'readDocument', 'writeDocument', 'linkRequirementToDS', 'collectIds'
         ]);
         this.bindMethods(this.dsManager, [
             'createDS', 'updateDS', 'listDSIds', 'createTest', 'updateTest',

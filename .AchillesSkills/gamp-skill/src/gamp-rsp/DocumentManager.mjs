@@ -1,9 +1,9 @@
-import { readFileSafe, writeFileSafe } from '../utils/file-io.mjs';
-import { extractChapters, replaceChapter, parseHeading } from '../utils/markdown-parser.mjs';
-import { nextId } from '../utils/id-generator.mjs';
-import { buildChapter } from '../utils/chapter-builder.mjs';
-import { ensureTraceabilityBlock, requirementDocName, normaliseId, parseTraceLines } from '../utils/req-traceability.mjs';
-import { buildSoplangComment } from '../utils/soplang.mjs';
+import { readFileSafe, writeFileSafe } from '../../../utils/file-io.mjs';
+import { extractChapters, replaceChapter, parseHeading } from '../../../utils/markdown-parser.mjs';
+import { nextId } from '../../../utils/id-generator.mjs';
+import { buildChapter } from '../../../utils/chapter-builder.mjs';
+import { ensureTraceabilityBlock, requirementDocName, normaliseId, parseTraceLines } from '../../../utils/req-traceability.mjs';
+import { buildSoplangComment } from '../../../utils/soplang.mjs';
 
 export class DocumentManager {
     constructor(gampRSPCore) {

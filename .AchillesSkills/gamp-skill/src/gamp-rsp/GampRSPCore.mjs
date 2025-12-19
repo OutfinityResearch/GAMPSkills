@@ -1,10 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { ensureDir, writeFileSafe, readFileSafe } from '../utils/file-io.mjs';
-import { VERSION_HEADER } from '../utils/chapter-builder.mjs';
-import { DEFAULT_DOCS } from '../utils/constants.mjs';
-import { extractDSIdFromFileName } from '../utils/req-traceability.mjs';
-import { slugifyTitle } from '../utils/formatting.mjs';
+import { ensureDir, writeFileSafe, readFileSafe } from '../../../utils/file-io.mjs';
+import { VERSION_HEADER } from '../../../utils/chapter-builder.mjs';
+import { DEFAULT_DOCS } from '../../../utils/constants.mjs';
+import { extractDSIdFromFileName } from '../../../utils/req-traceability.mjs';
+import { slugifyTitle } from '../../../utils/formatting.mjs';
 
 export class GampRSPCore {
     constructor(workspaceRoot = process.cwd()) {
