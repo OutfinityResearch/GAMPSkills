@@ -8,11 +8,14 @@ import { RecursiveSkilledAgent } from '../../RecursiveSkilledAgents/RecursiveSki
 const __filename = fileURLToPath(import.meta.url);
 const evalsRoot = path.join(path.dirname(__filename));
 const repoRoot = path.join(evalsRoot, '..', '..');
+const gampSkillsRoot = path.join(evalsRoot, '..');
 
 async function runInitProject(tmpDir) {
-  const agent = new RecursiveSkilledAgent({ startDir: repoRoot });
-  const result = await agent.executeWithReviewMode('', { skillName: 'init-project', input: `${tmpDir} stub prompt` }, 'none');
-  return { code: 0, stdout: result, stderr: '' };
+  const agent = new RecursiveSkilledAgent({ startDir: gampSkillsRoot });
+  const result = await agent.executeWithReviewMode(`${tmpDir} stub prompt`, { skillName: 'init-project' }, 'none');
+  // Extract output from orchestrator result structure
+  const output = result?.result?.output ?? result?.output ?? result;
+  return { code: 0, stdout: output, stderr: '' };
 }
 
 async function readFileSafe(p) {
