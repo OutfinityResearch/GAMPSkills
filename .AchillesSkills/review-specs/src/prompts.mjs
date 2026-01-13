@@ -15,5 +15,5 @@ ${specContent}
 
 ${checklist}
 
-Respond with JSON: {"status": "ok|needs-info|broken", "issues": [..], "proposedFixes": [..]}`;
+Respond with JSON: {"description": "Brief summary of the file content", "status": "ok|needs-info|broken", "issues": [..], "proposedFixes": [..]}`;
 }

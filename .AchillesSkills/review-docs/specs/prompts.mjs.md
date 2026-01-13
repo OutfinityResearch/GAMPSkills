@@ -19,4 +19,4 @@ The generated prompt includes:
     -   Completeness (missing sections).
     -   Formatting and structural consistency.
     -   Terminology consistency.
-5.  **Output Format**: Enforces a strict JSON response schema where the keys map to the input file paths and the values contain the evaluation details (`status`, `issues`, `proposedFixes`).
+5.  **Output Format**: Enforces a strict JSON response schema where the keys map to the input file paths and the values contain the evaluation details (`description`, `status`, `issues`, `proposedFixes`).

@@ -33,6 +33,19 @@ This module orchestrates the review of specification files within a target direc
 5.  **Output**:
     - Returns a summary string indicating how many specs were processed and confirming the update of the backlog file.
 
+## Backlog File Format (`specs_backlog.md`)
+
+-   Create or update in `targetDir/docs/specs_backlog.md`.
+-   One section per spec file:
+    -   Heading: `## <relative-md-path>` (e.g., `src/auth/index.js.md` or `specs/auth/index.js.md`).
+    -   Lines:
+        -   `- Description: Brief summary of the file's contents and purpose.`
+        -   `- Status: ok | needs-info | broken`
+        -   `- Issues:` list bullets (or `- Issues: none` when ok)
+        -   `- Proposed fixes:` list bullets (or `- Proposed fixes: none` when ok)
+-   Preserve/merge: if section exists, replace its contents with the new evaluation for that file.
+-   Order: sorted by relative path for determinism.
+
 ## Dependencies
 
 -   `fs/promises`: For file system operations (read, write, access, readdir, mkdir).

@@ -61,8 +61,9 @@ function normalizeLLMResult(raw, docFiles) {
   if (!raw || typeof raw !== 'object') return [];
 
   for (const doc of docFiles) {
-    const evalRaw = raw[doc.relative] || { status: 'needs-info', issues: ['Not analyzed by LLM'], proposedFixes: [] };
+    const evalRaw = raw[doc.relative] || { description: 'No description provided', status: 'needs-info', issues: ['Not analyzed by LLM'], proposedFixes: [] };
     
+    const description = typeof evalRaw.description === 'string' ? evalRaw.description : 'No description provided';
     const status = typeof evalRaw.status === 'string' ? evalRaw.status.toLowerCase() : 'needs-info';
     const issues = Array.isArray(evalRaw.issues) ? evalRaw.issues : [];
     const proposedFixes = Array.isArray(evalRaw.proposedFixes) ? evalRaw.proposedFixes : [];
@@ -70,6 +71,7 @@ function normalizeLLMResult(raw, docFiles) {
     normalized.push({
       relative: doc.relative,
       evaluation: {
+        description,
         status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
         issues,
         proposedFixes,
@@ -84,6 +86,7 @@ function renderSection(relative, evaluation) {
   const fixes = evaluation.proposedFixes?.length ? evaluation.proposedFixes : ['none'];
   const lines = [
     `## ${relative}`,
+    `- Description: ${evaluation.description}`,
     `- Status: ${evaluation.status}`,
     `- Issues:`,
     ...issues.map((i) => `  - ${i}`),

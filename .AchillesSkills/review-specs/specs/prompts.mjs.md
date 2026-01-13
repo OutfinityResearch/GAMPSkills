@@ -21,6 +21,7 @@ The generated prompt includes:
     -   Conceptual completeness (requirements, inputs/outputs, edge cases).
     -   Formatting and structure.
 5.  **Output Format**: Enforces a strict JSON response schema:
+    -   `description`: A brief summary of the file content.
     -   `status`: One of "ok", "needs-info", or "broken".
     -   `issues`: An array of strings describing specific problems.
     -   `proposedFixes`: An array of strings suggesting improvements.

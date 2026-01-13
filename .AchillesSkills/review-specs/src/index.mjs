@@ -71,12 +71,14 @@ async function discoverSpecs(targetDir) {
 }
 
 function normalizeLLMResult(raw) {
-  const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Retry with valid LLM output'] };
+  const fallback = { description: 'No description provided', status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Retry with valid LLM output'] };
   if (!raw || typeof raw !== 'object') return fallback;
+  const description = typeof raw.description === 'string' ? raw.description : 'No description provided';
   const status = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'needs-info';
   const issues = Array.isArray(raw.issues) ? raw.issues : [];
   const proposedFixes = Array.isArray(raw.proposedFixes) ? raw.proposedFixes : [];
   return {
+    description,
     status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
     issues,
     proposedFixes,
@@ -88,6 +90,7 @@ function renderSection(relative, evaluation) {
   const fixes = evaluation.proposedFixes?.length ? evaluation.proposedFixes : ['none'];
   const lines = [
     `## ${relative}`,
+    `- Description: ${evaluation.description}`,
     `- Status: ${evaluation.status}`,
     `- Issues:`,
     ...issues.map((i) => `  - ${i}`),

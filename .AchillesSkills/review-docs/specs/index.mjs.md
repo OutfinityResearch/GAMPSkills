@@ -33,6 +33,19 @@ This module orchestrates the review of HTML documentation files within a target 
 5.  **Output**:
     - Returns a summary string indicating how many documentation files were processed and confirming the update of the backlog file.
 
+## Backlog File Format (`docs_backlog.md`)
+
+-   Create or update in `targetDir/docs/docs_backlog.md`.
+-   One section per documentation file:
+    -   Heading: `## <relative-html-path>` (e.g., `docs/index.html` or `docs/api/user.html`).
+    -   Lines:
+        -   `- Description: Brief summary of the file's contents and purpose.`
+        -   `- Status: ok | needs-info | broken`
+        -   `- Issues:` list bullets (or `- Issues: none` when ok)
+        -   `- Proposed fixes:` list bullets (or `- Proposed fixes: none` when ok)
+-   Preserve/merge: if section exists, replace its contents with the new evaluation for that file.
+-   Order: sorted by relative path for determinism.
+
 ## Dependencies
 
 -   `fs/promises`: For file system operations (read, write, access, readdir, mkdir).
