@@ -1,23 +1,19 @@
+# Review Specs Orchestrator Module
+
+## file-path: src/prompts.mjs
+```javascript
+export function buildReviewPrompt({ specContent, codeContent, relativePath }) {
+  const checklist = `Checklist:\n- Purpose and scope clearly stated.\n- Inputs/outputs, parameters, return types documented.\n- Control flow and edge cases covered.\n- Dependencies and side effects noted.\n- Consistency between spec and code.\n- Missing details or contradictions.`;
+  const codeBlock = codeContent ? `\n\nJS Source (full):\n\n${codeContent}` : '\n\nJS Source: not found';
+  return `You are an expert project manager and specification auditor. Review JS specs for completeness and consistency.\n\nSpec file: ${relativePath}\n\nSpec content:\n\n${specContent}${codeBlock}\n\n${checklist}\n\nRespond with JSON: {"status": "ok|needs-info|broken", "issues": [..], "proposedFixes": [..]}`;
+}
+```
+
+## file-path: src/index.mjs
+```javascript
 import fs from 'fs/promises';
 import path from 'path';
-import { LLMAgent } from '../../LLMAgents/LLMAgent.mjs';
 import { buildReviewPrompt } from './prompts.mjs';
-
-export const specs = {
-  name: 'review-specs',
-  description: 'Review JS specs (.js.md or specs/) against JS sources and update specs_backlog.md',
-  arguments: {
-    targetDir: {
-      description: 'Target directory to scan for specs and code',
-      required: true,
-      type: 'string',
-      example: '.'
-    }
-  },
-  exampleUsage: 'run review-specs .'
-};
-
-export const roles = [];
 
 function toAbsolute(base, inputPath) {
   if (!inputPath) return base;
@@ -31,6 +27,13 @@ async function pathExists(p) {
   } catch {
     return false;
   }
+}
+
+function parseInput(input) {
+  if (typeof input !== 'string' || !input.trim()) {
+    throw new Error('review-specs requires a non-empty string input representing targetDir');
+  }
+  return { targetDir: input.trim() };
 }
 
 async function readIfExists(p) {
@@ -48,8 +51,6 @@ function sortByRelativePath(entries) {
 async function discoverSpecs(targetDir) {
   const specsDir = path.join(targetDir, 'specs');
   const results = [];
-
-  // Co-located **/*.js.md
   async function walk(dir) {
     const items = await fs.readdir(dir, { withFileTypes: true });
     for (const item of items) {
@@ -58,15 +59,12 @@ async function discoverSpecs(targetDir) {
         await walk(full);
       } else if (item.isFile() && item.name.endsWith('.js.md')) {
         const relative = path.relative(targetDir, full);
-        const jsPath = full.slice(0, -3); // remove .md
+        const jsPath = full.slice(0, -3);
         results.push({ specPath: full, codePath: jsPath, relative });
       }
     }
   }
-
   await walk(targetDir);
-
-  // Mirrored specs/ directory
   if (await pathExists(specsDir)) {
     async function walkSpecs(dir) {
       const items = await fs.readdir(dir, { withFileTypes: true });
@@ -84,10 +82,8 @@ async function discoverSpecs(targetDir) {
     }
     await walkSpecs(specsDir);
   }
-
   return results;
 }
-
 
 function normalizeLLMResult(raw) {
   const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Retry with valid LLM output'] };
@@ -132,11 +128,9 @@ function mergeBacklog(existingContent, updates) {
       sections.get(current).push(line);
     }
   }
-
   for (const { relative, evaluation } of updates) {
     sections.set(relative, renderSection(relative, evaluation).split('\n'));
   }
-
   const ordered = sortByRelativePath(Array.from(sections.entries()).map(([relative, linesArr]) => ({ relative, content: linesArr })));
   const outputLines = [];
   for (const entry of ordered) {
@@ -150,14 +144,12 @@ async function writeBacklog(targetDir, updates, noSpecsNote = false) {
   await fs.mkdir(path.dirname(backlogPath), { recursive: true });
   const existing = await readIfExists(backlogPath);
   let content;
-
   if (noSpecsNote) {
     const header = '# specs_backlog\n- Note: no spec files found\n';
     content = existing ? `${header}\n${existing}` : `${header}\n`;
   } else {
     content = mergeBacklog(existing, updates);
   }
-
   await fs.writeFile(backlogPath, content, 'utf8');
   return backlogPath;
 }
@@ -168,7 +160,6 @@ async function evaluateSpec(llmAgent, { specPath, codePath, relative }) {
   if (await pathExists(codePath)) {
     codeContent = await fs.readFile(codePath, 'utf8');
   }
-
   const prompt = buildReviewPrompt({ specContent, codeContent, relativePath: relative });
   const raw = await llmAgent.executePrompt(prompt, { responseShape: 'json' });
   const evaluation = normalizeLLMResult(raw);
@@ -179,22 +170,25 @@ async function evaluateSpec(llmAgent, { specPath, codePath, relative }) {
   return { relative, evaluation };
 }
 
-export async function action(args, context) {
-  const repoRoot = context?.repoRoot || process.cwd();
-  const targetDir = toAbsolute(repoRoot, args?.targetDir);
-  if (!targetDir) {
+export async function action(context) {
+  const { llmAgent, prompt } = context;
+  const { targetDir } = parseInput(prompt || '');
+  const baseDir = process.cwd();
+  const resolvedTarget = toAbsolute(baseDir, targetDir);
+  if (!resolvedTarget) {
     throw new Error('missing targetDir');
   }
-  const exists = await pathExists(targetDir);
+  const exists = await pathExists(resolvedTarget);
   if (!exists) {
     throw new Error('Directory not found');
   }
+  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
+    throw new Error('llmAgent is required for review-specs');
+  }
 
-  const llmAgent = new LLMAgent({ name: 'review-specs' });
-
-  const discovered = await discoverSpecs(targetDir);
+  const discovered = await discoverSpecs(resolvedTarget);
   if (!discovered.length) {
-    await writeBacklog(targetDir, [], true);
+    await writeBacklog(resolvedTarget, [], true);
     return 'review-specs: no specs found (see docs/specs_backlog.md)';
   }
 
@@ -215,6 +209,7 @@ export async function action(args, context) {
     }
   }
 
-  const backlogPath = await writeBacklog(targetDir, evaluations, false);
+  await writeBacklog(resolvedTarget, evaluations, false);
   return `review-specs: processed ${evaluations.length} specs, wrote docs/specs_backlog.md`;
 }
+```

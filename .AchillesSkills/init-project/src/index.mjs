@@ -1,27 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { LLMAgent } from '../../LLMAgents/LLMAgent.mjs';
 import { buildInitPrompt } from './prompts.mjs';
-
-export const specs = {
-  name: 'init-project',
-  description: 'Initialize project docs/spec backlogs and ask for missing spec details',
-  arguments: {
-    targetDir: {
-      description: 'Target directory to initialize',
-      required: true,
-      type: 'string',
-      example: '.'
-    },
-    prompt: {
-      description: 'Optional project blueprint/description to guide questions',
-      required: false,
-      type: 'string',
-      example: 'A todo app with auth'
-    }
-  },
-  exampleUsage: 'run init-project . "A todo app with auth"'
-};
 
 export const roles = [];
 
@@ -67,7 +46,7 @@ function renderBacklogSection(relative, evaluation) {
     ...issues.map((i) => `  - ${i}`),
     `- Proposed fixes:`,
     ...fixes.map((f) => `  - ${f}`),
-    ''
+    '',
   ];
   return lines.join('\n');
 }
@@ -114,37 +93,43 @@ async function createDirectories(targetDir) {
   }
 }
 
-export async function action(args, context) {
-  const repoRoot = context?.repoRoot || process.cwd();
-  const targetDir = toAbsolute(repoRoot, args?.targetDir);
-  if (!targetDir) {
+function parseInput(input) {
+  if (typeof input !== 'string' || !input.trim()) {
+    throw new Error('init-project requires a non-empty string input');
+  }
+  const trimmed = input.trim();
+  const [first, ...rest] = trimmed.split(/\s+/);
+  const targetDir = first;
+  const prompt = rest.join(' ').trim();
+  return { targetDir, prompt };
+}
+
+export async function action(context) {
+  const { llmAgent, prompt } = context;
+  const { targetDir, prompt: userPrompt } = parseInput(prompt || '');
+  const baseDir = process.cwd();
+  const resolvedTarget = toAbsolute(baseDir, targetDir);
+  if (!resolvedTarget) {
     throw new Error('missing targetDir');
   }
 
-  const existed = await pathExists(targetDir);
+  const existed = await pathExists(resolvedTarget);
   if (!existed) {
-    await ensureDir(targetDir);
-    process.stdout.write(`Created directory ${targetDir}\n`);
+    await ensureDir(resolvedTarget);
   }
 
-  await createDirectories(targetDir);
+  await createDirectories(resolvedTarget);
 
-  const llmAgent = new LLMAgent({ name: 'init-project' });
-  const prompt = buildInitPrompt(args?.prompt || '');
-  let evaluation;
-  try {
-    const raw = await llmAgent.executePrompt(prompt, { responseShape: 'json' });
-    evaluation = normalizeLLMResult(raw);
-  } catch (error) {
-    evaluation = {
-      status: 'needs-info',
-      issues: [error.message || 'LLM error'],
-      proposedFixes: ['Provide project details manually'],
-    };
+  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
+    throw new Error('llmAgent is required for init-project');
   }
 
-  const specsBacklogPath = await writeSpecsBacklog(targetDir, evaluation);
-  const docsBacklogPath = await writeDocsBacklog(targetDir);
+  const llmPrompt = buildInitPrompt(userPrompt || '');
+  const raw = await llmAgent.executePrompt(llmPrompt, { responseShape: 'json' });
+  const evaluation = normalizeLLMResult(raw);
 
-  return `init-project: initialized docs, wrote ${path.relative(targetDir, specsBacklogPath)} and ${path.relative(targetDir, docsBacklogPath)}`;
+  const specsBacklogPath = await writeSpecsBacklog(resolvedTarget, evaluation);
+  const docsBacklogPath = await writeDocsBacklog(resolvedTarget);
+
+  return `init-project: initialized docs, wrote ${path.relative(resolvedTarget, specsBacklogPath)} and ${path.relative(resolvedTarget, docsBacklogPath)}`;
 }

@@ -1,30 +1,19 @@
 import fs from 'fs/promises';
+import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
+import { RecursiveSkilledAgent } from '../../RecursiveSkilledAgents/RecursiveSkilledAgent.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const evalsRoot = path.join(path.dirname(__filename));
 const repoRoot = path.join(evalsRoot, '..', '..');
-const binPath = path.join(repoRoot, 'bin', 'run-skill');
 
 async function runInitProject(tmpDir) {
-  const { spawn } = await import('child_process');
-  return new Promise((resolve, reject) => {
-    const child = spawn('node', [binPath, 'init-project', tmpDir, 'stub prompt'], {
-      cwd: repoRoot,
-      env: { ...process.env },
-    });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', (d) => { stdout += d.toString(); });
-    child.stderr.on('data', (d) => { stderr += d.toString(); });
-    child.on('error', reject);
-    child.on('exit', (code) => {
-      resolve({ code, stdout, stderr });
-    });
-  });
+  const agent = new RecursiveSkilledAgent({ startDir: repoRoot });
+  const result = await agent.executeWithReviewMode('', { skillName: 'init-project', input: `${tmpDir} stub prompt` }, 'none');
+  return { code: 0, stdout: result, stderr: '' };
 }
 
 async function readFileSafe(p) {
@@ -47,16 +36,14 @@ async function pathExists(p) {
 async function testInitProject() {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'init-project-'));
   console.log(`[init-project-test] temp dir: ${tmpDir}`);
-  console.log(`[init-project-test] bin path: ${binPath}`);
-  console.log(`[init-project-test] cwd: ${repoRoot}`);
 
-  console.log('[init-project-test] running CLI');
+  console.log('[init-project-test] running agent skill');
   const result = await runInitProject(tmpDir);
-  console.log('[init-project-test] stdout:', result.stdout.trim());
-  console.log('[init-project-test] stderr:', result.stderr.trim());
+  console.log('[init-project-test] stdout:', String(result.stdout).trim());
+  console.log('[init-project-test] stderr:', String(result.stderr).trim());
 
   assert.strictEqual(result.code, 0, `exit code should be 0; stderr=${result.stderr}`);
-  assert.ok(result.stdout.includes('init-project: initialized docs'), 'should report initialized docs');
+  assert.ok(String(result.stdout).includes('init-project: initialized docs'), 'should report initialized docs');
 
   const expectedDirs = [
     'docs',
