@@ -2,134 +2,200 @@ import fs from 'fs/promises';
 import path from 'path';
 import { buildInitPrompt } from './prompts.mjs';
 
-export const roles = [];
-
-function toAbsolute(base, inputPath) {
-  if (!inputPath) return base;
-  return path.isAbsolute(inputPath) ? inputPath : path.join(base, inputPath);
-}
-
-async function ensureDir(dirPath) {
-  await fs.mkdir(dirPath, { recursive: true });
-}
-
-async function pathExists(p) {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
+/**
+ * Initialize project docs/spec backlogs and ask for missing spec details.
+ *
+ * @param {object} deps
+ * @param {(prompt: string) => Promise<string|object>} deps.llmAgent - Injected LLM agent.
+ * @returns {(input: string) => Promise<string>}
+ */
+export function createInitProjectOrchestrator({ llmAgent }) {
+  if (typeof llmAgent !== 'function') {
+    throw new TypeError('createInitProjectOrchestrator: llmAgent (function) is required');
   }
-}
 
-function toTextEntries(values, fallbackValue) {
-  if (!Array.isArray(values) || values.length === 0) return [fallbackValue];
-  return values.map((value) => {
-    if (value === null || value === undefined) return fallbackValue;
-    if (typeof value === 'string') return value;
-    try {
-      const json = JSON.stringify(value);
-      return json === '{}' ? fallbackValue : json;
-    } catch {
-      return String(value);
+  /**
+   * Main orchestrator entry point.
+   *
+   * @param {string} input - "<targetDir> [optional project blueprint text...]"
+   * @returns {Promise<string>} Summary of actions taken.
+   */
+  return async function initProjectOrchestrator(input) {
+    if (typeof input !== 'string' || !input.trim()) {
+      throw new TypeError('initProjectOrchestrator: input must be a non-empty string');
     }
-  });
-}
 
-function renderBacklogSection(relative, evaluation) {
-  const issues = toTextEntries(evaluation.issues, 'none');
-  const fixes = toTextEntries(evaluation.proposedFixes, 'none');
-  const lines = [
-    `## ${relative}`,
-    `- Status: ${evaluation.status}`,
-    `- Issues:`,
-    ...issues.map((i) => `  - ${i}`),
-    `- Proposed fixes:`,
-    ...fixes.map((f) => `  - ${f}`),
-    '',
-  ];
-  return lines.join('\n');
-}
+    const { targetDir, userPrompt } = parseInput(input);
+    const absTargetDir = path.resolve(process.cwd(), targetDir);
 
-function normalizeLLMResult(raw) {
-  const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Provide missing project details'] };
-  if (!raw || typeof raw !== 'object') return fallback;
-  const status = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'needs-info';
-  const issues = Array.isArray(raw.issues) ? raw.issues : [];
-  const proposedFixes = Array.isArray(raw.proposedFixes) ? raw.proposedFixes : [];
-  return {
-    status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
-    issues,
-    proposedFixes,
+    await ensureBaseStructure(absTargetDir);
+
+    const prompt = buildInitPrompt(userPrompt);
+    const llmRawResult = await llmAgent(prompt);
+
+    const llmResult = await normalizeLlmResult(llmRawResult);
+
+    await writeBacklogs(absTargetDir, llmResult);
+
+    return buildSummary(absTargetDir, llmResult);
   };
 }
 
-async function writeSpecsBacklog(targetDir, evaluation) {
-  const backlogPath = path.join(targetDir, 'docs', 'specs_backlog.m');
-  await ensureDir(path.dirname(backlogPath));
-  const content = renderBacklogSection('project-questions', evaluation);
-  await fs.writeFile(backlogPath, content, 'utf8');
-  return backlogPath;
-}
-
-async function writeDocsBacklog(targetDir) {
-  const docsBacklogPath = path.join(targetDir, 'docs', 'docs_backlog');
-  await ensureDir(path.dirname(docsBacklogPath));
-  const content = 'Here will be backlog for docs\n';
-  await fs.writeFile(docsBacklogPath, content, 'utf8');
-  return docsBacklogPath;
-}
-
-async function createDirectories(targetDir) {
-  const dirs = [
-    path.join(targetDir, 'docs'),
-    path.join(targetDir, 'docs', 'specs'),
-    path.join(targetDir, 'docs', 'gamp'),
-    path.join(targetDir, 'docs', 'specs', 'src'),
-    path.join(targetDir, 'docs', 'specs', 'tests'),
-  ];
-  for (const dir of dirs) {
-    await ensureDir(dir);
-  }
-}
-
+/**
+ * Parse the single-line input into targetDir and userPrompt.
+ *
+ * @param {string} input
+ * @returns {{ targetDir: string, userPrompt: string }}
+ */
 function parseInput(input) {
-  if (typeof input !== 'string' || !input.trim()) {
-    throw new Error('init-project requires a non-empty string input');
-  }
   const trimmed = input.trim();
-  const [first, ...rest] = trimmed.split(/\s+/);
-  const targetDir = first;
-  const prompt = rest.join(' ').trim();
-  return { targetDir, prompt };
+  const [firstToken, ...rest] = trimmed.split(/\s+/);
+  if (!firstToken) {
+    throw new Error('No target directory provided in input');
+  }
+  const targetDir = firstToken;
+  const userPrompt = rest.join(' ').trim();
+  return { targetDir, userPrompt };
 }
 
-export async function action(context) {
-  const { llmAgent, prompt } = context;
-  const { targetDir, prompt: userPrompt } = parseInput(prompt || '');
-  const baseDir = process.cwd();
-  const resolvedTarget = toAbsolute(baseDir, targetDir);
-  if (!resolvedTarget) {
-    throw new Error('missing targetDir');
+/**
+ * Ensure the directory structure exists.
+ *
+ * @param {string} absTargetDir
+ */
+async function ensureBaseStructure(absTargetDir) {
+  const dirsToCreate = [
+    absTargetDir,
+    path.join(absTargetDir, 'docs'),
+    path.join(absTargetDir, 'docs', 'specs'),
+    path.join(absTargetDir, 'docs', 'gamp'),
+    path.join(absTargetDir, 'docs', 'specs', 'src'),
+    path.join(absTargetDir, 'docs', 'specs', 'tests'),
+  ];
+
+  // Use mkdir with { recursive: true } for idempotency.
+  for (const dir of dirsToCreate) {
+    await fs.mkdir(dir, { recursive: true });
   }
-
-  const existed = await pathExists(resolvedTarget);
-  if (!existed) {
-    await ensureDir(resolvedTarget);
-  }
-
-  await createDirectories(resolvedTarget);
-
-  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
-    throw new Error('llmAgent is required for init-project');
-  }
-
-  const llmPrompt = buildInitPrompt(userPrompt || '');
-  const raw = await llmAgent.executePrompt(llmPrompt, { responseShape: 'json' });
-  const evaluation = normalizeLLMResult(raw);
-
-  const specsBacklogPath = await writeSpecsBacklog(resolvedTarget, evaluation);
-  const docsBacklogPath = await writeDocsBacklog(resolvedTarget);
-
-  return `init-project: initialized docs, wrote ${path.relative(resolvedTarget, specsBacklogPath)} and ${path.relative(resolvedTarget, docsBacklogPath)}`;
 }
+
+/**
+ * Normalize the LLM result into an object { status, issues, proposedFixes }.
+ *
+ * @param {string|object} llmRawResult
+ * @returns {Promise<{status: string, issues: any[], proposedFixes: any[]}>}
+ */
+async function normalizeLlmResult(llmRawResult) {
+  let parsed;
+
+  if (typeof llmRawResult === 'string') {
+    const trimmed = llmRawResult.trim();
+
+    // Try to find a JSON block inside code fences or plain text.
+    const jsonMatch =
+      trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i) ||
+      trimmed.match(/(\{[\s\S]*\})/);
+
+    const jsonCandidate = jsonMatch ? jsonMatch[1] : trimmed;
+
+    try {
+      parsed = JSON.parse(jsonCandidate);
+    } catch {
+      // Fallback to a minimal broken structure.
+      return {
+        status: 'broken',
+        issues: [
+          'LLM response could not be parsed as JSON. Please re-run spec assessment.',
+        ],
+        proposedFixes: [],
+      };
+    }
+  } else if (typeof llmRawResult === 'object' && llmRawResult !== null) {
+    parsed = llmRawResult;
+  } else {
+    return {
+      status: 'broken',
+      issues: ['LLM response had unexpected type.'],
+      proposedFixes: [],
+    };
+  }
+
+  const status = typeof parsed.status === 'string' ? parsed.status : 'needs-info';
+  const issues = Array.isArray(parsed.issues) ? parsed.issues : [];
+  const proposedFixes = Array.isArray(parsed.proposedFixes) ? parsed.proposedFixes : [];
+
+  return { status, issues, proposedFixes };
+}
+
+/**
+ * Write the specs and docs backlog files.
+ *
+ * @param {string} absTargetDir
+ * @param {{status: string, issues: any[], proposedFixes: any[]}} llmResult
+ */
+async function writeBacklogs(absTargetDir, llmResult) {
+  const specsBacklogPath = path.join(absTargetDir, 'docs', 'specs_backlog.m');
+  const docsBacklogPath = path.join(absTargetDir, 'docs', 'docs_backlog');
+
+  const specsContent = buildSpecsBacklogContent(llmResult);
+  await fs.writeFile(specsBacklogPath, specsContent, 'utf8');
+
+  const docsPlaceholder =
+    '# docs_backlog\n\n' +
+    '- [ ] Populate documentation backlog items once initial specs are clarified.\n';
+  await fs.writeFile(docsBacklogPath, docsPlaceholder, 'utf8');
+}
+
+/**
+ * Build the content for docs/specs_backlog.m
+ *
+ * @param {{status: string, issues: any[], proposedFixes: any[]}} llmResult
+ * @returns {string}
+ */
+function buildSpecsBacklogContent(llmResult) {
+  const { status, issues, proposedFixes } = llmResult;
+
+  const serializedIssues = JSON.stringify(issues, null, 2);
+  const serializedFixes = JSON.stringify(proposedFixes, null, 2);
+
+  return [
+    '## project-questions',
+    '',
+    `status: ${status}`,
+    '',
+    '### issues',
+    '',
+    '```json',
+    serializedIssues,
+    '```',
+    '',
+    '### proposedFixes',
+    '',
+    '```json',
+    serializedFixes,
+    '```',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Build a short, human-readable summary of what was done.
+ *
+ * @param {string} absTargetDir
+ * @param {{status: string, issues: any[], proposedFixes: any[]}} llmResult
+ * @returns {string}
+ */
+function buildSummary(absTargetDir, llmResult) {
+  const relDir = absTargetDir;
+  const issueCount = Array.isArray(llmResult.issues) ? llmResult.issues.length : 0;
+  const fixCount = Array.isArray(llmResult.proposedFixes) ? llmResult.proposedFixes.length : 0;
+
+  return [
+    `Initialized project structure at: ${relDir}`,
+    'Created directories: docs/, docs/specs/, docs/gamp/, docs/specs/src/, docs/specs/tests/',
+    'Generated backlogs: docs/specs_backlog.m, docs/docs_backlog',
+    `LLM assessment status: ${llmResult.status} (issues: ${issueCount}, proposedFixes: ${fixCount})`,
+  ].join('\n');
+}
+
+export default createInitProjectOrchestrator;
