@@ -1,17 +1,28 @@
 # Init Project Prompts
 
-## file-path: src/prompts.mjs
-```javascript
-export function buildInitPrompt(userPrompt = '') {
-  const blueprint = (userPrompt || '').trim();
-  return [
-    'You are an expert project manager and specification auditor.',
-    'Goal: produce a concise set of questions and missing details needed to define a coherent JavaScript project spec.',
-    'Do NOT invent features. Ask for clarifications only.',
-    'Return JSON with keys: status (ok|needs-info|broken), issues (array of detailed questions), proposedFixes (array of what info to provide).',
-    'Use English.',
-    blueprint ? `User blueprint: ${blueprint}` : 'User blueprint: <empty>. Ask general foundational questions for a JS project.',
-    'Focus areas: goals/scope, user roles, primary flows, data model, integrations, non-functional requirements, risks, timeline, acceptance criteria.',
-  ].join('\n');
-}
-```
+This module defines the prompt strategy for initializing a new project. It constructs the instructions sent to the Large Language Model (LLM) to assess the initial project blueprint.
+
+## Functionality
+
+The module exports a single function `buildInitPrompt` which takes:
+-   `userPrompt`: A string containing the user's initial description or blueprint of the project.
+
+## Prompt Structure
+
+The generated prompt includes:
+1.  **Role Definition**: Sets the AI persona as an "expert project manager and specification auditor".
+2.  **Goal**: Instructs the AI to produce a concise set of questions and identify missing details required to define a coherent project specification.
+3.  **Constraint**: Explicitly instructs the AI to **NOT** invent features but only ask for clarifications.
+4.  **Context**: Includes the user's blueprint. If empty, it instructs the AI to ask general foundational questions for a JavaScript project.
+5.  **Focus Areas**: Lists specific domains to probe:
+    -   Goals and scope.
+    -   User roles.
+    -   Primary flows.
+    -   Data model.
+    -   Integrations.
+    -   Non-functional requirements.
+    -   Risks, timeline, and acceptance criteria.
+6.  **Output Format**: Enforces a strict JSON response schema:
+    -   `status`: "ok", "needs-info", or "broken".
+    -   `issues`: Array of detailed questions.
+    -   `proposedFixes`: Array of suggestions on what information to provide.

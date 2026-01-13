@@ -46,8 +46,7 @@ async function discoverSpecs(targetDir) {
         await walk(full);
       } else if (item.isFile() && item.name.endsWith('.js.md')) {
         const relative = path.relative(targetDir, full);
-        const jsPath = full.slice(0, -3);
-        results.push({ specPath: full, codePath: jsPath, relative });
+        results.push({ specPath: full, relative });
       }
     }
   }
@@ -61,9 +60,8 @@ async function discoverSpecs(targetDir) {
           await walkSpecs(full);
         } else if (item.isFile() && item.name.endsWith('.md')) {
           const relWithinSpecs = path.relative(specsDir, full);
-          const codePath = path.join(targetDir, relWithinSpecs.replace(/\.md$/, ''));
           const relative = path.join('specs', relWithinSpecs);
-          results.push({ specPath: full, codePath, relative });
+          results.push({ specPath: full, relative });
         }
       }
     }
@@ -141,20 +139,11 @@ async function writeBacklog(targetDir, updates, noSpecsNote = false) {
   return backlogPath;
 }
 
-async function evaluateSpec(llmAgent, { specPath, codePath, relative }) {
+async function evaluateSpec(llmAgent, { specPath, relative }) {
   const specContent = await fs.readFile(specPath, 'utf8');
-  let codeContent = null;
-  if (await pathExists(codePath)) {
-    codeContent = await fs.readFile(codePath, 'utf8');
-  }
-  const prompt = buildReviewPrompt({ specContent, codeContent, relativePath: relative });
+  const prompt = buildReviewPrompt({ specContent, relativePath: relative });
   const raw = await llmAgent.executePrompt(prompt, { responseShape: 'json' });
-  const evaluation = normalizeLLMResult(raw);
-  if (!codeContent) {
-    evaluation.issues = [...(evaluation.issues || []), 'Associated JS file missing'];
-    evaluation.status = evaluation.status === 'ok' ? 'needs-info' : evaluation.status;
-  }
-  return { relative, evaluation };
+  return { relative, evaluation: normalizeLLMResult(raw) };
 }
 
 export async function action(context) {

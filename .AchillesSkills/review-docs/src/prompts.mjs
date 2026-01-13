@@ -1,5 +1,25 @@
-export function buildReviewPrompt({ specContent, codeContent, relativePath }) {
-  const checklist = `Checklist:\n- Purpose and scope clearly stated.\n- Inputs/outputs, parameters, return types documented.\n- Control flow and edge cases covered.\n- Dependencies and side effects noted.\n- Consistency between spec and code.\n- Missing details or contradictions.`;
-  const codeBlock = codeContent ? `\n\nJS Source (full):\n\n${codeContent}` : '\n\nJS Source: not found';
-  return `You are an expert project manager and specification auditor. Review JS specs for completeness and consistency.\n\nSpec file: ${relativePath}\n\nSpec content:\n\n${specContent}${codeBlock}\n\n${checklist}\n\nRespond with JSON: {"status": "ok|needs-info|broken", "issues": [..], "proposedFixes": [..]}`;
+export function buildReviewPrompt({ docsMap }) {
+  const checklist = `Checklist:
+- Clarity and flow of information.
+- Broken internal logic or contradictions between documents.
+- Completeness of sections (empty placeholders, missing descriptions).
+- Formatting and structural consistency (headings, lists, code blocks).
+- Terminology consistency across files.`;
+
+  let docsBlock = '\n\nDOCUMENTATION FILES:\n';
+  for (const [relPath, content] of Object.entries(docsMap)) {
+    docsBlock += `\n--- FILE: ${relPath} ---\n${content}\n`;
+  }
+
+  return `You are an expert technical writer and documentation auditor. Review the following HTML documentation files for internal consistency, clarity, and structural integrity. Do NOT check against source code.
+
+${docsBlock}
+
+${checklist}
+
+Respond with a JSON object where keys are the relative file paths of the documentation files, and values are objects containing "status" (ok|needs-info|broken), "issues" (array of strings), and "proposedFixes" (array of strings).
+Example format:
+{
+  "docs/index.html": { "status": "broken", "issues": ["Reference to 'User' entity conflicts with 'Account' entity used in other files"], "proposedFixes": ["Standardize on 'User'"] }
+}`;
 }

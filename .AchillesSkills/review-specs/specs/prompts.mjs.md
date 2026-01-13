@@ -1,10 +1,26 @@
 # Review Specs Prompts
 
-## file-path: src/prompts.mjs
-```javascript
-export function buildReviewPrompt({ specContent, codeContent, relativePath }) {
-  const checklist = `Checklist:\n- Purpose and scope clearly stated.\n- Inputs/outputs, parameters, return types documented.\n- Control flow and edge cases covered.\n- Dependencies and side effects noted.\n- Consistency between spec and code.\n- Missing details or contradictions.`;
-  const codeBlock = codeContent ? `\n\nJS Source (full):\n\n${codeContent}` : '\n\nJS Source: not found';
-  return `You are an expert project manager and specification auditor. Review JS specs for completeness and consistency.\n\nSpec file: ${relativePath}\n\nSpec content:\n\n${specContent}${codeBlock}\n\n${checklist}\n\nRespond with JSON: {"status": "ok|needs-info|broken", "issues": [..], "proposedFixes": [..]}`;
-}
-```
+This module defines the prompt strategy for the specification review process. It constructs the specific instructions sent to the Large Language Model (LLM).
+
+## Functionality
+
+The module exports a single function `buildReviewPrompt` which takes an object containing:
+-   `specContent`: The raw text content of the specification file.
+-   `relativePath`: The path of the file being reviewed (for context).
+
+## Prompt Structure
+
+The generated prompt includes:
+1.  **Role Definition**: Sets the AI persona as an "expert project manager and specification auditor".
+2.  **Constraint**: Explicitly instructs the AI to **NOT** assume code exists and to evaluate the spec on its own merits.
+3.  **Context**: Provides the file name and its full content.
+4.  **Checklist**: A specific list of criteria to evaluate:
+    -   Clarity of purpose and scope.
+    -   Logical flow.
+    -   Internal ambiguities or contradictions.
+    -   Conceptual completeness (requirements, inputs/outputs, edge cases).
+    -   Formatting and structure.
+5.  **Output Format**: Enforces a strict JSON response schema:
+    -   `status`: One of "ok", "needs-info", or "broken".
+    -   `issues`: An array of strings describing specific problems.
+    -   `proposedFixes`: An array of strings suggesting improvements.

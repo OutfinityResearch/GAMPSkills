@@ -18,7 +18,7 @@ async function pathExists(p) {
 
 function parseInput(input) {
   if (typeof input !== 'string' || !input.trim()) {
-    throw new Error('review-specs requires a non-empty string input representing targetDir');
+    throw new Error('review-docs requires a non-empty string input representing targetDir');
   }
   return { targetDir: input.trim() };
 }
@@ -35,8 +35,10 @@ function sortByRelativePath(entries) {
   return [...entries].sort((a, b) => a.relative.localeCompare(b.relative));
 }
 
-async function discoverSpecs(targetDir) {
-  const specsDir = path.join(targetDir, 'specs');
+async function discoverDocs(targetDir) {
+  const docsDir = path.join(targetDir, 'docs');
+  if (!await pathExists(docsDir)) return [];
+  
   const results = [];
   async function walk(dir) {
     const items = await fs.readdir(dir, { withFileTypes: true });
@@ -44,45 +46,37 @@ async function discoverSpecs(targetDir) {
       const full = path.join(dir, item.name);
       if (item.isDirectory()) {
         await walk(full);
-      } else if (item.isFile() && item.name.endsWith('.js.md')) {
+      } else if (item.isFile() && item.name.endsWith('.html')) {
         const relative = path.relative(targetDir, full);
-        const jsPath = full.slice(0, -3);
-        results.push({ specPath: full, codePath: jsPath, relative });
+        results.push({ fullPath: full, relative });
       }
     }
   }
-  await walk(targetDir);
-  if (await pathExists(specsDir)) {
-    async function walkSpecs(dir) {
-      const items = await fs.readdir(dir, { withFileTypes: true });
-      for (const item of items) {
-        const full = path.join(dir, item.name);
-        if (item.isDirectory()) {
-          await walkSpecs(full);
-        } else if (item.isFile() && item.name.endsWith('.md')) {
-          const relWithinSpecs = path.relative(specsDir, full);
-          const codePath = path.join(targetDir, relWithinSpecs.replace(/\.md$/, ''));
-          const relative = path.join('specs', relWithinSpecs);
-          results.push({ specPath: full, codePath, relative });
-        }
-      }
-    }
-    await walkSpecs(specsDir);
-  }
+  await walk(docsDir);
   return results;
 }
 
-function normalizeLLMResult(raw) {
-  const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Retry with valid LLM output'] };
-  if (!raw || typeof raw !== 'object') return fallback;
-  const status = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'needs-info';
-  const issues = Array.isArray(raw.issues) ? raw.issues : [];
-  const proposedFixes = Array.isArray(raw.proposedFixes) ? raw.proposedFixes : [];
-  return {
-    status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
-    issues,
-    proposedFixes,
-  };
+function normalizeLLMResult(raw, docFiles) {
+  const normalized = [];
+  if (!raw || typeof raw !== 'object') return [];
+
+  for (const doc of docFiles) {
+    const evalRaw = raw[doc.relative] || { status: 'needs-info', issues: ['Not analyzed by LLM'], proposedFixes: [] };
+    
+    const status = typeof evalRaw.status === 'string' ? evalRaw.status.toLowerCase() : 'needs-info';
+    const issues = Array.isArray(evalRaw.issues) ? evalRaw.issues : [];
+    const proposedFixes = Array.isArray(evalRaw.proposedFixes) ? evalRaw.proposedFixes : [];
+    
+    normalized.push({
+      relative: doc.relative,
+      evaluation: {
+        status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
+        issues,
+        proposedFixes,
+      }
+    });
+  }
+  return normalized;
 }
 
 function renderSection(relative, evaluation) {
@@ -126,35 +120,21 @@ function mergeBacklog(existingContent, updates) {
   return outputLines.join('\n');
 }
 
-async function writeBacklog(targetDir, updates, noSpecsNote = false) {
-  const backlogPath = path.join(targetDir, 'docs', 'specs_backlog.md');
+async function writeBacklog(targetDir, updates, noDocsNote = false) {
+  const backlogPath = path.join(targetDir, 'docs', 'docs_backlog.md');
   await fs.mkdir(path.dirname(backlogPath), { recursive: true });
   const existing = await readIfExists(backlogPath);
   let content;
-  if (noSpecsNote) {
-    const header = '# specs_backlog\n- Note: no spec files found\n';
+  if (noDocsNote) {
+    const header = '# docs_backlog\n- Note: no documentation files found in docs/\n';
     content = existing ? `${header}\n${existing}` : `${header}\n`;
   } else {
-    content = mergeBacklog(existing, updates);
+    const header = '# docs_backlog\n';
+    const merged = mergeBacklog(existing ? existing.replace('# docs_backlog\n', '') : '', updates);
+    content = header + merged;
   }
   await fs.writeFile(backlogPath, content, 'utf8');
   return backlogPath;
-}
-
-async function evaluateSpec(llmAgent, { specPath, codePath, relative }) {
-  const specContent = await fs.readFile(specPath, 'utf8');
-  let codeContent = null;
-  if (await pathExists(codePath)) {
-    codeContent = await fs.readFile(codePath, 'utf8');
-  }
-  const prompt = buildReviewPrompt({ specContent, codeContent, relativePath: relative });
-  const raw = await llmAgent.executePrompt(prompt, { responseShape: 'json' });
-  const evaluation = normalizeLLMResult(raw);
-  if (!codeContent) {
-    evaluation.issues = [...(evaluation.issues || []), 'Associated JS file missing'];
-    evaluation.status = evaluation.status === 'ok' ? 'needs-info' : evaluation.status;
-  }
-  return { relative, evaluation };
 }
 
 export async function action(context) {
@@ -162,40 +142,34 @@ export async function action(context) {
   const { targetDir } = parseInput(prompt || '');
   const baseDir = process.cwd();
   const resolvedTarget = toAbsolute(baseDir, targetDir);
-  if (!resolvedTarget) {
-    throw new Error('missing targetDir');
-  }
-  const exists = await pathExists(resolvedTarget);
-  if (!exists) {
-    throw new Error('Directory not found');
-  }
-  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
-    throw new Error('llmAgent is required for review-specs');
-  }
 
-  const discovered = await discoverSpecs(resolvedTarget);
-  if (!discovered.length) {
+  if (!resolvedTarget) throw new Error('missing targetDir');
+  if (!await pathExists(resolvedTarget)) throw new Error('Directory not found');
+  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') throw new Error('llmAgent is required for review-docs');
+
+  const docsFiles = await discoverDocs(resolvedTarget);
+  if (!docsFiles.length) {
     await writeBacklog(resolvedTarget, [], true);
-    return 'review-specs: no specs found (see docs/specs_backlog.md)';
+    return 'review-docs: no html docs found (see docs/docs_backlog.md)';
   }
 
-  const evaluations = [];
-  for (const spec of discovered) {
-    try {
-      const evalResult = await evaluateSpec(llmAgent, spec);
-      evaluations.push(evalResult);
-    } catch (error) {
-      evaluations.push({
-        relative: spec.relative,
-        evaluation: {
-          status: 'needs-info',
-          issues: [error.message || 'LLM error'],
-          proposedFixes: ['Retry evaluation or fix file read issues'],
-        },
-      });
-    }
+  const docsMap = {};
+  for (const doc of docsFiles) {
+    docsMap[doc.relative] = await fs.readFile(doc.fullPath, 'utf8');
+  }
+
+  let evaluations = [];
+  try {
+    const reviewPrompt = buildReviewPrompt({ docsMap });
+    const rawResult = await llmAgent.executePrompt(reviewPrompt, { responseShape: 'json' });
+    evaluations = normalizeLLMResult(rawResult, docsFiles);
+  } catch (error) {
+    evaluations = docsFiles.map(d => ({
+      relative: d.relative,
+      evaluation: { status: 'needs-info', issues: [`LLM Execution Error: ${error.message}`], proposedFixes: [] }
+    }));
   }
 
   await writeBacklog(resolvedTarget, evaluations, false);
-  return `review-specs: processed ${evaluations.length} specs, wrote docs/specs_backlog.md`;
+  return `review-docs: processed ${docsFiles.length} docs, wrote docs/docs_backlog.md`;
 }

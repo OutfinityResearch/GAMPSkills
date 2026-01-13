@@ -1,13 +1,13 @@
-# Review Specs Orchestrator
+# Review Docs Orchestrator
 
 ## Summary
-Review JS specification markdown files against JS sources and update `docs/specs_backlog.md` using an injected llmAgent.
+Review HTML documentation files in `docs/` for internal consistency, structure, and clarity. Updates `docs/docs_backlog.md` with findings using an injected llmAgent.
 
 ## Instructions
-Execute the module to review specs in the provided target directory. Input is a plain string path to the target directory (relative or absolute).
+Execute the module to review documentation in the provided target directory. Input is a plain string path to the target directory (relative or absolute). It scans `docs/*.html`.
 
 ## Allowed-Skills
 - (none)
 
 ## Intents
-- review: Review specs and update backlog
+- review-docs: Review documentation and update backlog

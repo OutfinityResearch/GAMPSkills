@@ -1,154 +1,37 @@
-## file-path: prompts.mjs
-```javascript
-export function buildInitPrompt(userPrompt = '') {
-  const blueprint = (userPrompt || '').trim();
-  return [
-    'You are an expert project manager and specification auditor.',
-    'Goal: produce a concise set of questions and missing details needed to define a coherent JavaScript project spec.',
-    'Do NOT invent features. Ask for clarifications only.',
-    'Return JSON with keys: status (ok|needs-info|broken), issues (array of detailed questions), proposedFixes (array of what info to provide).',
-    'Use English.',
-    blueprint ? `User blueprint: ${blueprint}` : 'User blueprint: <empty>. Ask general foundational questions for a JS project.',
-    'Focus areas: goals/scope, user roles, primary flows, data model, integrations, non-functional requirements, risks, timeline, acceptance criteria.',
-  ].join('\n');
-}
-```
+# Init Project Orchestrator Module
 
-## file-path: index.mjs
-```javascript
-import fs from 'fs/promises';
-import path from 'path';
-import { buildInitPrompt } from './prompts.mjs';
+This module initializes a new JavaScript project structure and kickstarts the specification process using an LLM.
 
-export const roles = [];
+## Workflow
 
-function toAbsolute(base, inputPath) {
-  if (!inputPath) return base;
-  return path.isAbsolute(inputPath) ? inputPath : path.join(base, inputPath);
-}
+1.  **Input Parsing**:
+    - Accepts a string input containing the `targetDir` and an optional `userPrompt` (project blueprint).
+    - Splits the input: the first token is the target directory, the rest is the user's project description.
+    - Resolves the target directory to an absolute path.
 
-async function ensureDir(dirPath) {
-  await fs.mkdir(dirPath, { recursive: true });
-}
+2.  **Directory Initialization**:
+    - Checks if the target directory exists; creates it if it doesn't.
+    - Creates a standard directory structure:
+        - `docs/`
+        - `docs/specs/`
+        - `docs/gamp/`
+        - `docs/specs/src/`
+        - `docs/specs/tests/`
 
-async function pathExists(p) {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
+3.  **Project Assessment**:
+    - Constructs a prompt for the LLM using the user's provided blueprint (or a generic request if empty).
+    - Invokes the `llmAgent` to analyze the blueprint and identify missing details, questions, or clarifications needed to define a coherent project spec.
+    - Expects a JSON response with `status`, `issues` (questions), and `proposedFixes` (missing info).
 
-function toTextEntries(values, fallbackValue) {
-  if (!Array.isArray(values) || values.length === 0) return [fallbackValue];
-  return values.map((value) => {
-    if (value === null || value === undefined) return fallbackValue;
-    if (typeof value === 'string') return value;
-    try {
-      const json = JSON.stringify(value);
-      return json === '{}' ? fallbackValue : json;
-    } catch {
-      return String(value);
-    }
-  });
-}
+4.  **Backlog Generation**:
+    - **Specs Backlog**: Writes the LLM's analysis (questions and missing info) to `docs/specs_backlog.m` under a `## project-questions` section.
+    - **Docs Backlog**: Creates a placeholder `docs/docs_backlog` file for future documentation issues.
 
-function renderBacklogSection(relative, evaluation) {
-  const issues = toTextEntries(evaluation.issues, 'none');
-  const fixes = toTextEntries(evaluation.proposedFixes, 'none');
-  const lines = [
-    `## ${relative}`,
-    `- Status: ${evaluation.status}`,
-    `- Issues:`,
-    ...issues.map((i) => `  - ${i}`),
-    `- Proposed fixes:`,
-    ...fixes.map((f) => `  - ${f}`),
-    '',
-  ];
-  return lines.join('\n');
-}
+5.  **Output**:
+    - Returns a summary string confirming the initialization of directories and the creation of the backlog files.
 
-function normalizeLLMResult(raw) {
-  const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Provide missing project details'] };
-  if (!raw || typeof raw !== 'object') return fallback;
-  const status = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'needs-info';
-  const issues = Array.isArray(raw.issues) ? raw.issues : [];
-  const proposedFixes = Array.isArray(raw.proposedFixes) ? raw.proposedFixes : [];
-  return {
-    status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
-    issues,
-    proposedFixes,
-  };
-}
+## Dependencies
 
-async function writeSpecsBacklog(targetDir, evaluation) {
-  const backlogPath = path.join(targetDir, 'docs', 'specs_backlog.m');
-  await ensureDir(path.dirname(backlogPath));
-  const content = renderBacklogSection('project-questions', evaluation);
-  await fs.writeFile(backlogPath, content, 'utf8');
-  return backlogPath;
-}
-
-async function writeDocsBacklog(targetDir) {
-  const docsBacklogPath = path.join(targetDir, 'docs', 'docs_backlog');
-  await ensureDir(path.dirname(docsBacklogPath));
-  const content = 'Here will be backlog for docs\n';
-  await fs.writeFile(docsBacklogPath, content, 'utf8');
-  return docsBacklogPath;
-}
-
-async function createDirectories(targetDir) {
-  const dirs = [
-    path.join(targetDir, 'docs'),
-    path.join(targetDir, 'docs', 'specs'),
-    path.join(targetDir, 'docs', 'gamp'),
-    path.join(targetDir, 'docs', 'specs', 'src'),
-    path.join(targetDir, 'docs', 'specs', 'tests'),
-  ];
-  for (const dir of dirs) {
-    await ensureDir(dir);
-  }
-}
-
-function parseInput(input) {
-  if (typeof input !== 'string' || !input.trim()) {
-    throw new Error('init-project requires a non-empty string input');
-  }
-  const trimmed = input.trim();
-  const [first, ...rest] = trimmed.split(/\s+/);
-  const targetDir = first;
-  const prompt = rest.join(' ').trim();
-  return { targetDir, prompt };
-}
-
-export async function action(context) {
-  const { llmAgent, prompt } = context;
-  const { targetDir, prompt: userPrompt } = parseInput(prompt || '');
-  const baseDir = process.cwd();
-  const resolvedTarget = toAbsolute(baseDir, targetDir);
-  if (!resolvedTarget) {
-    throw new Error('missing targetDir');
-  }
-
-  const existed = await pathExists(resolvedTarget);
-  if (!existed) {
-    await ensureDir(resolvedTarget);
-  }
-
-  await createDirectories(resolvedTarget);
-
-  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
-    throw new Error('llmAgent is required for init-project');
-  }
-
-  const llmPrompt = buildInitPrompt(userPrompt || '');
-  const raw = await llmAgent.executePrompt(llmPrompt, { responseShape: 'json' });
-  const evaluation = normalizeLLMResult(raw);
-
-  const specsBacklogPath = await writeSpecsBacklog(resolvedTarget, evaluation);
-  const docsBacklogPath = await writeDocsBacklog(resolvedTarget);
-
-  return `init-project: initialized docs, wrote ${path.relative(resolvedTarget, specsBacklogPath)} and ${path.relative(resolvedTarget, docsBacklogPath)}`;
-}
-```
+-   `fs/promises`: For file system operations.
+-   `path`: For path manipulation.
+-   `prompts.mjs`: Local module exporting `buildInitPrompt`.
