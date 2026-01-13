@@ -1,6 +1,6 @@
 # Review Specs Orchestrator Module
 
-## file-path: src/prompts.mjs
+## file-path: prompts.mjs
 ```javascript
 export function buildReviewPrompt({ specContent, codeContent, relativePath }) {
   const checklist = `Checklist:\n- Purpose and scope clearly stated.\n- Inputs/outputs, parameters, return types documented.\n- Control flow and edge cases covered.\n- Dependencies and side effects noted.\n- Consistency between spec and code.\n- Missing details or contradictions.`;
@@ -9,7 +9,7 @@ export function buildReviewPrompt({ specContent, codeContent, relativePath }) {
 }
 ```
 
-## file-path: src/index.mjs
+## file-path: index.mjs
 ```javascript
 import fs from 'fs/promises';
 import path from 'path';

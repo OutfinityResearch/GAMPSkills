@@ -1,28 +1,154 @@
-# Init Project Skill (cskill)
+## file-path: prompts.mjs
+```javascript
+export function buildInitPrompt(userPrompt = '') {
+  const blueprint = (userPrompt || '').trim();
+  return [
+    'You are an expert project manager and specification auditor.',
+    'Goal: produce a concise set of questions and missing details needed to define a coherent JavaScript project spec.',
+    'Do NOT invent features. Ask for clarifications only.',
+    'Return JSON with keys: status (ok|needs-info|broken), issues (array of detailed questions), proposedFixes (array of what info to provide).',
+    'Use English.',
+    blueprint ? `User blueprint: ${blueprint}` : 'User blueprint: <empty>. Ask general foundational questions for a JS project.',
+    'Focus areas: goals/scope, user roles, primary flows, data model, integrations, non-functional requirements, risks, timeline, acceptance criteria.',
+  ].join('\n');
+}
+```
 
-## Goal
-Provide a cskill compatible with RecursiveSkilledAgent that initializes project docs/spec backlogs and asks for missing spec details using an injected llmAgent.
+## file-path: index.mjs
+```javascript
+import fs from 'fs/promises';
+import path from 'path';
+import { buildInitPrompt } from './prompts.mjs';
 
-## Scope
-- Use cskill descriptor (`cskill.md`) and specs/index.mjs.md for code generation.
-- Input: plain string where first token is `targetDir`, remaining text is optional `prompt`.
-- Create directories: `docs/`, `docs/specs/`, `docs/gamp`, `docs/specs/src`, `docs/specs/tests` (idempotent).
-- Build prompt from optional `prompt` and call `llmAgent.executePrompt` (json) to populate backlog.
-- Overwrite `docs/specs_backlog.m` (project-questions section) and write `docs/docs_backlog` with static placeholder.
+export const roles = [];
 
-## Input Contract (plain string)
-- First token: targetDir (absolute or relative to cwd).
-- Remaining tokens joined: prompt (may be empty).
+function toAbsolute(base, inputPath) {
+  if (!inputPath) return base;
+  return path.isAbsolute(inputPath) ? inputPath : path.join(base, inputPath);
+}
 
-## Behavior
-1) Resolve targetDir vs current working directory.
-2) Ensure targetDir exists (create if missing).
-3) Create required directories.
-4) Build LLM prompt from provided prompt text; call llmAgent for JSON (status/issues/proposed fixes).
-5) Write `docs/specs_backlog.m` (overwrite) and `docs/docs_backlog` (static text).
-6) Return summary string with relative backlog paths.
+async function ensureDir(dirPath) {
+  await fs.mkdir(dirPath, { recursive: true });
+}
 
-## Constraints
-- No LLMAgent instantiation; use injected `recursiveSkilledAgent.llmAgent`.
-- No CLI runner; invoked via RecursiveSkilledAgent.
+async function pathExists(p) {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
+function toTextEntries(values, fallbackValue) {
+  if (!Array.isArray(values) || values.length === 0) return [fallbackValue];
+  return values.map((value) => {
+    if (value === null || value === undefined) return fallbackValue;
+    if (typeof value === 'string') return value;
+    try {
+      const json = JSON.stringify(value);
+      return json === '{}' ? fallbackValue : json;
+    } catch {
+      return String(value);
+    }
+  });
+}
+
+function renderBacklogSection(relative, evaluation) {
+  const issues = toTextEntries(evaluation.issues, 'none');
+  const fixes = toTextEntries(evaluation.proposedFixes, 'none');
+  const lines = [
+    `## ${relative}`,
+    `- Status: ${evaluation.status}`,
+    `- Issues:`,
+    ...issues.map((i) => `  - ${i}`),
+    `- Proposed fixes:`,
+    ...fixes.map((f) => `  - ${f}`),
+    '',
+  ];
+  return lines.join('\n');
+}
+
+function normalizeLLMResult(raw) {
+  const fallback = { status: 'needs-info', issues: ['LLM response invalid'], proposedFixes: ['Provide missing project details'] };
+  if (!raw || typeof raw !== 'object') return fallback;
+  const status = typeof raw.status === 'string' ? raw.status.toLowerCase() : 'needs-info';
+  const issues = Array.isArray(raw.issues) ? raw.issues : [];
+  const proposedFixes = Array.isArray(raw.proposedFixes) ? raw.proposedFixes : [];
+  return {
+    status: ['ok', 'needs-info', 'broken'].includes(status) ? status : 'needs-info',
+    issues,
+    proposedFixes,
+  };
+}
+
+async function writeSpecsBacklog(targetDir, evaluation) {
+  const backlogPath = path.join(targetDir, 'docs', 'specs_backlog.m');
+  await ensureDir(path.dirname(backlogPath));
+  const content = renderBacklogSection('project-questions', evaluation);
+  await fs.writeFile(backlogPath, content, 'utf8');
+  return backlogPath;
+}
+
+async function writeDocsBacklog(targetDir) {
+  const docsBacklogPath = path.join(targetDir, 'docs', 'docs_backlog');
+  await ensureDir(path.dirname(docsBacklogPath));
+  const content = 'Here will be backlog for docs\n';
+  await fs.writeFile(docsBacklogPath, content, 'utf8');
+  return docsBacklogPath;
+}
+
+async function createDirectories(targetDir) {
+  const dirs = [
+    path.join(targetDir, 'docs'),
+    path.join(targetDir, 'docs', 'specs'),
+    path.join(targetDir, 'docs', 'gamp'),
+    path.join(targetDir, 'docs', 'specs', 'src'),
+    path.join(targetDir, 'docs', 'specs', 'tests'),
+  ];
+  for (const dir of dirs) {
+    await ensureDir(dir);
+  }
+}
+
+function parseInput(input) {
+  if (typeof input !== 'string' || !input.trim()) {
+    throw new Error('init-project requires a non-empty string input');
+  }
+  const trimmed = input.trim();
+  const [first, ...rest] = trimmed.split(/\s+/);
+  const targetDir = first;
+  const prompt = rest.join(' ').trim();
+  return { targetDir, prompt };
+}
+
+export async function action(context) {
+  const { llmAgent, prompt } = context;
+  const { targetDir, prompt: userPrompt } = parseInput(prompt || '');
+  const baseDir = process.cwd();
+  const resolvedTarget = toAbsolute(baseDir, targetDir);
+  if (!resolvedTarget) {
+    throw new Error('missing targetDir');
+  }
+
+  const existed = await pathExists(resolvedTarget);
+  if (!existed) {
+    await ensureDir(resolvedTarget);
+  }
+
+  await createDirectories(resolvedTarget);
+
+  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
+    throw new Error('llmAgent is required for init-project');
+  }
+
+  const llmPrompt = buildInitPrompt(userPrompt || '');
+  const raw = await llmAgent.executePrompt(llmPrompt, { responseShape: 'json' });
+  const evaluation = normalizeLLMResult(raw);
+
+  const specsBacklogPath = await writeSpecsBacklog(resolvedTarget, evaluation);
+  const docsBacklogPath = await writeDocsBacklog(resolvedTarget);
+
+  return `init-project: initialized docs, wrote ${path.relative(resolvedTarget, specsBacklogPath)} and ${path.relative(resolvedTarget, docsBacklogPath)}`;
+}
+```
