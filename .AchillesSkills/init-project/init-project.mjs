@@ -133,7 +133,6 @@ export async function action(args, context) {
   const prompt = buildInitPrompt(args?.prompt || '');
   let evaluation;
   try {
-    // Allow stubbed/mocked LLMAgent by honoring a flag
     const raw = await llmAgent.executePrompt(prompt, { responseShape: 'json' });
     evaluation = normalizeLLMResult(raw);
   } catch (error) {
