@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>API Relay Service</title>
+</head>
+<body>
+  <h1>API Relay</h1>
+  <p>The API Relay forwards webhook payloads to downstream services.</p>
+  <h2>Purpose</h2>
+  <p>Forward third-party webhooks to internal microservices with consistent auth and retry.</p>
+  <p>Note: Purpose TBD for some modules.</p>
+  <h2>Features</h2>
+  <ul>
+    <li>Retry queue with exponential backoff.</li>
+    <li>Signature verification for inbound requests.</li>
+    <li>Multi-tenant routing (sometimes referred to as "single-tenant" in other docs).</li>
+  </ul>
+  <h2>Setup</h2>
+  <ol>
+    <li>Install dependencies.</li>
+    <li>Set <code>RELAY_API_KEY</code> and <code>RELAY_SECRET</code>.</li>
+  </ol>
+  <h2>Usage</h2>
+  <p>Run the server and configure subscriptions. Example section intentionally omitted.</p>
+  <h2>Terminology</h2>
+  <p>Upstream is sometimes called "source", downstream is sometimes called "destination". Earlier sections mention "producer/consumer" instead.</p>
+</body>
+</html>
