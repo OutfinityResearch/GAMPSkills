@@ -1,0 +1,16 @@
+# DS05 – Docs Review
+
+## Purpose
+Docs Review explains how `review-docs` skill will analyze authored documentation pages under `./docs` so they can evolve safely and remain accurate. Documentation starts with the home entry point at `./docs/index.html` and can link to other HTML pages and to specifications rendered as needed. Because specs in `./docs/specs` are converted to HTML at runtime by a static (non-LLM) module, the review covers only the authored HTML files, not the runtime-generated spec renderings.
+
+## Relationship to the Docs Backlog
+The review process relies on a dedicated backlog at the project root: `./docs_backlog.md`. When `review-docs` finds issues in authored documentation, it records them as entries in this backlog with the same kinds of sections and statuses used by the specs backlog—statuses like `ok`, `broken`, and `needs-info`. The backlog remains the gatekeeper: the agent can propose changes, but the user must review and approve them before anything is applied.
+
+## Workflow
+The skill inspects the authored HTML files under `./docs`, including `./docs/index.html` and any linked documentation pages. It looks for inaccuracies, omissions, inconsistencies, and quality problems. For each finding, it writes an issue and a proposed fix into `./docs_backlog.md` under the relevant section. The user then approves, amends, or rejects these proposals. Once approved, another GAMPSkills skill will perform the actual HTML edits and update the backlog to reflect the new state. Docs Review itself remains read-only on the documentation files.
+
+## Guardrails and Scope
+Docs Review operates only on authored documentation pages and does not analyze the runtime HTML generated from markdown specs. It records proposals in the backlog, relies on user approval for authority, and hands off approved edits to another skill that performs deterministic changes. By separating review from application, the process preserves traceability and prevents accidental or unilateral modifications to project documentation.
+
+## Outcomes
+With Docs Review in place, the project gains a reliable way to surface documentation issues, document them in `./docs_backlog.md`, and advance only the fixes that the user endorses. This protects the accuracy and clarity of the documentation while keeping control in the hands of the user and maintaining a clean separation between analysis and editing.
