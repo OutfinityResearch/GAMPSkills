@@ -10,7 +10,7 @@ This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./
 After initialization, this skill generates global FDS files that capture vision, scope, audience, components, and workflow. It uses `./specs_backlog.md` plus additional user prompt context to propose and produce the global specifications that anchor the project.
 
 ## Skill: review-specs
-This skill reads existing specifications under `./docs/specs`—both global files and local FDS files in `./docs/specs/src`—to find gaps, inconsistencies, and errors. It records issues and proposed fixes in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. No specification files are modified directly by this skill.
+This skill reads existing FDS files under `./docs/specs`—both global files and local FDS files in `./docs/specs/src`—to find gaps, inconsistencies, and errors. It records issues and proposed fixes in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. No FDS files are modified directly by this skill.
 
 ## Skill: review-docs
 This skill examines authored HTML documentation under `./docs`, including `./docs/index.html` and other linked pages, but not runtime-generated HTML produced from specs. It notes problems in `./docs_backlog.md`, proposing remedies that require user approval before any edits occur.
