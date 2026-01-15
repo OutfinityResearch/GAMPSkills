@@ -1,0 +1,12 @@
+# FDS07 – Workflow
+
+## Purpose
+This workflow outlines a recommended end-to-end path for building a project with GAMPSkills inside AchillesCLI. It describes the order of skills to run, how they interact with specifications and documentation, and when the external AchillesCLI code-generation skill is invoked.
+
+## Recommended Flow
+Begin with `init-project` to scaffold `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, copy the static (non-LLM) spec-to-HTML converter into `./docs`, and seed `./specs_backlog.md` and `./docs_backlog.md` with initial questions and proposals. Move to `create-global-specs` to capture vision, scope, audience, components, and workflow in global FDS files under `./docs/specs`. Follow with `create-src-specs` to define detailed technical FDS files in `./docs/specs/src` that mirror the intended `./src` implementation, specifying functions, inputs/outputs, dependencies, and links to tests. Add `create-tests-specs` to author FDS test specifications in `./docs/specs/tests`, describing assertions, expected inputs/outputs, and behaviors to verify, all in natural language or diagrams without code.
+
+After drafting, run `review-specs` and `review-docs` to surface gaps, inconsistencies, or quality issues into `./specs_backlog.md` and `./docs_backlog.md`, including proposed fixes and resolutions. The user reviews and approves backlog items. Then use `fix-specs` and `fix-docs` to apply the approved changes to FDS or authored HTML and update the backlogs accordingly. When specifications and docs are ready, invoke the external AchillesCLI code-generation skill explicitly to generate or regenerate code and tests from the FDS set. Run `run-tests` to execute the test suite and report pass/fail; any failures are fed back through `review-specs` and `fix-specs`, followed by regeneration and re-run as needed. Iterate to keep FDS, docs, and code aligned.
+
+## Guardrails
+FDS files are Markdown (`.md`) under `./docs/specs/**`, and backlogs at the project root remain the gate for any changes—agents propose, users approve. The static converter copied by `init-project` produces spec HTML for viewing, but `review-docs` focuses only on authored HTML, not the generated spec renderings. Code and test generation are performed outside GAMPSkills by the dedicated AchillesCLI code-generation skill invoked by the user, using the FDS files as authoritative input.
