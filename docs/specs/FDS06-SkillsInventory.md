@@ -4,7 +4,7 @@
 Skills Inventory lists the core GAMPSkills that coordinate how specifications and documentation are created, reviewed, and refined. They share a common contract: specifications live under `./docs/specs`, documentation under `./docs`, and the root backlogs `./specs_backlog.md` and `./docs_backlog.md` mediate all proposed changes. Agents propose; users approve; deterministic skills apply; backlogs are updated to keep traceability intact.
 
 ## Skill: init-project
-This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It consumes a user prompt describing the intended project and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
+This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
 
 ## Skill: create-global-specs
 After initialization, this skill generates global FDS files that capture vision, scope, audience, components, and workflow. It uses `./specs_backlog.md` plus additional user prompt given as input for this skill to propose and produce the global specifications that anchor the project.

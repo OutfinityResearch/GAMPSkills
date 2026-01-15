@@ -1,7 +1,7 @@
 # DS05 – Docs Review
 
 ## Purpose
-Docs Review explains how `review-docs` skill will analyze authored documentation pages under `./docs` so they can evolve safely and remain accurate. Documentation starts with the home entry point at `./docs/index.html` and can link to other HTML pages and to specifications rendered as needed. Because specs in `./docs/specs` are converted to HTML at runtime by a static (non-LLM) module, the review covers only the authored HTML files, not the runtime-generated spec renderings.
+Docs Review explains how `review-docs` skill will analyze authored documentation pages under `./docs` so they can evolve safely and remain accurate. Documentation starts with the home entry point at `./docs/index.html` and can link to other HTML pages and to specifications rendered as needed. A static (non-LLM) converter is copied into `./docs` during `init-project` to render specs when viewed, but the review covers only the authored HTML files, not the generated spec renderings.
 
 ## Relationship to the Docs Backlog
 The review process relies on a dedicated backlog at the project root: `./docs_backlog.md`. When `review-docs` finds issues in authored documentation, it records them as entries in this backlog with the same kinds of sections and statuses used by the specs backlog—statuses like `ok`, `broken`, and `needs-info`—plus a resolution field that captures the user-approved solution to be applied. The backlog remains the gatekeeper: the agent can propose changes, but the user must review and approve them before anything is applied.
