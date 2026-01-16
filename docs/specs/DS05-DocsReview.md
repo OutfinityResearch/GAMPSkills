@@ -1,4 +1,4 @@
-# FDS05 – Docs Review
+# DS05 – Docs Review
 
 ## Purpose
 Docs Review explains how `review-docs` skill analyzes authored documentation pages under `./docs` so they can evolve safely and remain accurate. Documentation starts with the home entry point at `./docs/index.html` and can link to other HTML pages and to specifications rendered as needed. A static (non-LLM) converter is copied into `./docs` during `init-project` to render specs when viewed, but the review covers only the authored HTML files, not the generated spec renderings.
