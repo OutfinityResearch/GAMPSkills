@@ -1,4 +1,4 @@
-# DS02 – BacklogManager
+# FDS02 – BacklogManager
 
 ## Purpose
 BacklogManager governs the two root backlog files `./specs_backlog.md` and `./docs_backlog.md`, keeping all specification and documentation issues and improvements in one place. It preserves transparency and human control: agents record what they find and suggest, while users approve before anything is applied. The backlog remains readable and intentionally simple so it can be inspected and edited manually at any moment.

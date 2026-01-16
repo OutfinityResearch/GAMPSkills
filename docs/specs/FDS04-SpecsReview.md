@@ -1,7 +1,7 @@
-# DS04 – Specs Review
+# FDS04 – Specs Review
 
 ## Purpose
-Specs Review describes how the forthcoming `review-specs` skill will analyze specifications so they can evolve safely and deliberately. Software projects rarely start with complete knowledge; errors, inconsistencies, and gaps inevitably surface. This skill provides a disciplined loop: it reads the current specifications, identifies issues, and records proposals in the shared backlog, leaving final decisions to the user.
+Specs Review describes how the `review-specs` skill will analyze specifications so they can evolve safely and deliberately. Software projects rarely start with complete knowledge; errors, inconsistencies, and gaps inevitably surface. This skill provides a disciplined loop: it reads the current specifications, identifies issues, and records proposals in the shared backlog, leaving final decisions to the user.
 
 ## Relationship to the Backlog
 The review process relies on the root backlog file `./specs_backlog.md`. The skill inspects the specifications under `./docs/specs/` and, when it finds problems or ambiguities, it writes them to the backlog as issues with proposed fixes. The backlog remains the gate: no change proceeds without the user’s explicit approval. This keeps the agent from unilaterally editing specifications even when instructions seem clear.

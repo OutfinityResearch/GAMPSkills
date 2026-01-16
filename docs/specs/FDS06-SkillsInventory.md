@@ -1,4 +1,4 @@
-# DS06 – Skills Inventory
+# FDS06 – Skills Inventory
 
 ## Purpose
 Skills Inventory lists the core GAMPSkills that coordinate how specifications and documentation are created, reviewed, and refined. They share a common contract: specifications live under `./docs/specs`, documentation under `./docs`, and the root backlogs `./specs_backlog.md` and `./docs_backlog.md` mediate all proposed changes. Agents propose; users approve; deterministic skills apply; backlogs are updated to keep traceability intact.
@@ -10,10 +10,10 @@ This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./
 After initialization, this skill generates global FDS files that capture vision, scope, audience, components, and workflow. It uses `./specs_backlog.md` plus additional user prompt given as input for this skill to propose and produce the global specifications that anchor the project.
 
 ## Skill: review-specs
-This skill reads existing FDS files under `./docs/specs`—both global files and local FDS files in `./docs/specs/src`—to find gaps, inconsistencies, and errors. It records issues and proposed fixes in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. No FDS files are modified directly by this skill. Backlog operations are handled through BacklogManager, which updates `./specs_backlog.md` and `./docs_backlog.md` as the shared gatekeepers.
+This skill reads existing FDS files under `./docs/specs`—both global files and local FDS files in `./docs/specs/src`—to find gaps, inconsistencies, and errors. It records issues and proposed fixes in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. Backlog operations for specs are handled through BacklogManager on `./specs_backlog.md`.
 
 ## Skill: review-docs
-This skill examines authored HTML documentation under `./docs`, including `./docs/index.html` and other linked pages, but not runtime-generated HTML produced from specs. It notes problems in `./docs_backlog.md`, proposing remedies that require user approval before any edits occur. Backlog operations are handled through BacklogManager, which updates `./docs_backlog.md` and `./specs_backlog.md` as the shared gatekeepers.
+This skill examines authored HTML documentation under `./docs`, including `./docs/index.html` and other linked pages, but not runtime-generated HTML produced from specs. It notes problems in `./docs_backlog.md`, proposing remedies that require user approval before any edits occur. Backlog operations for docs are handled through BacklogManager on `./docs_backlog.md`.
 
 ## Skill: fix-specs
 This skill reads `./specs_backlog.md`, applies the user-approved fixes to specification files in `./docs/specs`, and then updates the backlog to reflect current statuses and any other affected sections. It respects the backlog as the source of approved work and performs deterministic edits only.

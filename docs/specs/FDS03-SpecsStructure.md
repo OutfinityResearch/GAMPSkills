@@ -1,4 +1,4 @@
-# DS03 – Specs Structure
+# FDS03 – Specs Structure
 
 ## Overview
 This document describes how a project managed by GAMPSkills is organized so that specifications remain the primary source of truth. Project documentation lives in `./docs`, and all specification assets reside under `./docs/specs`. The project root also contains the `specs_backlog.md` file (at `./specs_backlog.md`) where issues and proposed fixes are tracked for every FDS file.
@@ -13,7 +13,7 @@ The `./docs/specs/src/` directory holds specific, technical FDS documents that d
 The `./docs/specs/tests/` directory contains FDS documents that describe tests in natural language. Each test spec explains what the test validates, which global or local FDS files it relates to, what assertions and inputs/outputs are expected, and which behaviors are being verified. These documents may use diagrams or tables but should avoid code unless it is the only precise way to convey intent. Test specs are typically produced by the create-tests-specs skill and kept alongside the implementation-mirroring structure in `./docs/specs/src/`.
 
 ## Backlog at `./specs_backlog.md`
-The backlog lives at the project root as `specs_backlog.md` and aggregates all specification issues and proposed remedies. It anchors the review-and-approval loop described in DS02, keeping work on FDS files transparent and coordinated across global FDS, local FDS, and test FDS files.
+The backlog lives at the project root as `specs_backlog.md` and aggregates all specification issues and proposed remedies. It anchors the review-and-approval loop described in FDS02, keeping work on FDS files transparent and coordinated across global FDS, local FDS, and test FDS files.
 
 ## How the Pieces Fit Together
 Global FDS files set the direction and boundaries. Local FDS files in `./docs/specs/src/` translate that direction into actionable, implementation-ready guidance that mirrors the structure of `./src/`. Test FDS files in `./docs/specs/tests/` ensure behaviors are understood and verifiable. The backlog at `./specs_backlog.md` ties everything together by recording issues and approved improvements, ensuring changes to specifications—and the code they generate—remain deliberate and traceable.

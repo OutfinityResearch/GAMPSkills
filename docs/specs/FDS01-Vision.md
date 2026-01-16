@@ -1,4 +1,4 @@
-# DS01 – Vision
+# FDS01 – Vision
 
 ## Overview
 GAMPSkills is a curated set of reusable skills for AchillesCLI that lets users build software projects through specification-driven development. The project’s documentation lives in `./docs`, and its specifications reside under `./docs/specs`, where FDS (File Design Specification) files—stored as Markdown (`.md`)—serve as the single source of truth. Clear specifications enable code regeneration whenever needed, even if existing code drifts or becomes messy. Actual JavaScript code generation is performed by a dedicated AchillesCLI skill that the user invokes explicitly, using these FDS files as the source of truth.
