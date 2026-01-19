@@ -36,7 +36,7 @@ For each file (or batched if small), the module constructs a prompt:
 
 ### 3. Backlog Update
 The module uses `BacklogManager.loadBacklog(BacklogManager.SPECS_BACKLOG)` to read the backlog. For each reviewed file:
-- It uses `BacklogManager.getSection(BacklogManager.SPECS_BACKLOG, sectionName)` to locate the corresponding section (by filename). If missing, it uses `BacklogManager.appendSection(BacklogManager.SPECS_BACKLOG, sectionName, newContent)` to add a new section.
+- It uses `BacklogManager.findSectionByFileName(BacklogManager.SPECS_BACKLOG, fileName)` to locate the corresponding section name. If missing, it uses `BacklogManager.appendSection(BacklogManager.SPECS_BACKLOG, sectionName, newContent)` to add a new section.
 - It uses `BacklogManager.setStatus(BacklogManager.SPECS_BACKLOG, sectionName, 'needs_work')` if issues were found, or `'ok'` if clean.
 - It uses `BacklogManager.updateSection(BacklogManager.SPECS_BACKLOG, sectionName, updatedContent)` to overwrite/append the `Issues` and `Options` fields with the LLM's findings.
 - It clears the `Resolution` field (forcing user re-approval for new issues) via the same update method.
@@ -44,7 +44,7 @@ The module uses `BacklogManager.loadBacklog(BacklogManager.SPECS_BACKLOG)` to re
 ## Dependencies
 - `node:fs`
 - `node:path`
-- `BacklogManager` module (uses `loadBacklog`, `getSection`, `appendSection`, `setStatus`, `updateSection`)
+- `BacklogManager` module (uses `loadBacklog`, `findSectionByFileName`, `appendSection`, `setStatus`, `updateSection`)
 
 ## Error Handling
 - detailed error logging if a file cannot be read.

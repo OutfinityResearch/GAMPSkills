@@ -10,10 +10,10 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 - Node `path` — path resolution
 
 ## Main methods
-- `loadBacklog(targetPath) -> { sections, meta }`
-  - Input: `targetPath` (string absolute/relative path to a backlog file).
+- `loadBacklog(type) -> { sections, meta }`
+  - Input: `type` (string `"specs"` or `"docs"` for backlog type).
   - Output: `{ sections, meta }` where `sections` is an array/dictionary of section objects keyed by file (fields: `name`, `description`, `status`, `issues[]`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
-  - Behavior: reads file, parses via `backlogIO.parse`, returns structured data for further operations.
+  - Behavior: resolves path from type, reads file, parses via `backlogIO.parse`, returns structured data for further operations.
 - `getSection(fileKey) -> section`
   - Input: `fileKey` (string identifier for the target file, e.g., `docs/specs/src/foo/bar.md`).
   - Output: `section` object (`{ name, description, status, issues[], options[], resolution }`) or null if missing.
@@ -34,10 +34,22 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Input: `sectionRef` (fileKey/section), `approvedItems` (array of issue/option IDs or objects selected for application), `hooks` (object with functions to call external skills, e.g., `{ applySpecFix, applyDocFix }`).
   - Output: updated section reflecting applied items, updated status/resolution, and an ordered list of executed changes (via `ChangeQueue`).
   - Behavior: sequences changes deterministically, calls hooks to enact fixes, updates section content accordingly.
-- `saveBacklog(targetPath, sections)`
-  - Input: `targetPath` (string path), `sections` (array/dictionary of section objects as defined above).
+- `saveBacklog(type, sections)`
+  - Input: `type` (string `"specs"` or `"docs"`), `sections` (array/dictionary of section objects as defined above).
   - Output: writes file; returns confirmation/void; the serialized text is persisted.
-  - Behavior: renders with `backlogIO.render` and writes deterministically to disk.
+  - Behavior: resolves path from type, renders with `backlogIO.render` and writes deterministically to disk.
+- `findSectionsByPrefix(type, prefix) -> sectionNames[]`
+  - Input: `type` (string `"specs"` or `"docs"`), `prefix` (string).
+  - Output: array of section names starting with `prefix`.
+  - Behavior: loads and parses backlog, filters section names by prefix.
+- `findSectionByFileName(type, fileName) -> sectionName`
+  - Input: `type` (string `"specs"` or `"docs"`), `fileName` (string, including extension).
+  - Output: matching section name or null.
+  - Behavior: loads and parses backlog, finds section by file name normalization.
+- `findSectionsByStatus(type, status) -> sectionNames[]`
+  - Input: `type` (string `"specs"` or `"docs"`), `status` (string from STATUS).
+  - Output: array of section names with the given status.
+  - Behavior: loads and parses backlog, filters sections by status.
 
 ## Exports
 - `BacklogManager` (class)
