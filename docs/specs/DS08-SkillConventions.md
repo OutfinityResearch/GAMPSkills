@@ -3,6 +3,26 @@
 ## Purpose
 This document establishes the technical standards and conventions for all GAMPSkills modules. By centralizing these contracts, we ensure consistency across the system and simplify the creation of new skills. All skills described in `DS06-SkillsInventory` must adhere to these patterns unless explicitly stated otherwise.
 
+## Orchestrator Skill Metadata (oskill.md)
+Each skill must have an associated `oskill.md` file located in the skill's folder (e.g., `src/.AchillesSkills/<skill-name>/oskill.md`). This file provides human-readable metadata for orchestrators and must include at least the following sections:
+
+- **Title**: A heading with the skill name.
+- **Summary**: A brief description of the skill's purpose and functionality.
+- **Instructions**: Detailed guidance on how the skill operates, including any special behaviors, input formats, or output expectations.
+
+Example structure:
+```
+# Skill Name
+
+## Summary
+Brief description of what the skill does.
+
+## Instructions
+Detailed operational guidance, including examples if applicable.
+```
+
+The `oskill.md` file serves as documentation for the skill's interface and behavior.
+
 ## Module Interface
 Every deterministic skill (JavaScript module) must export a single asynchronous entry point.
 
