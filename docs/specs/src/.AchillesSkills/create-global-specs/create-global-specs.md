@@ -13,7 +13,7 @@ The module must export a single asynchronous function named `action`.
 export async function action(context)
 ```
 
-The function accepts a `context` object containing three required properties. The `prompt` property is a string containing the user's additional input or context. The `llmAgent` property is an object instance provided by the orchestrator that must expose an `executePrompt(prompt, options)` method. The `workingDir` property is a string containing the absolute path to the project root directory.
+The function accepts a `context` object containing two required properties. The `prompt` property is a string containing the user's additional input or context. The `llmAgent` property is an object instance provided by the orchestrator that must expose an `executePrompt(prompt, options)` method.
 
 The function returns an object detailing the operation's result:
 
@@ -21,15 +21,14 @@ The function returns an object detailing the operation's result:
 {
   success: boolean,
   filesWritten: string[],
-  backlogUpdated: boolean,
-  targetDirectory: string
+  backlogUpdated: boolean
 }
 ```
 
 ## Logic Flow
 
 ### 1. Input Validation
-The module verifies that `llmAgent` exists and has an `executePrompt` method, and that `workingDir` is a valid path. `prompt` is optional but recommended; if empty, the backlog drives the generation.
+The module verifies that `llmAgent` exists and has an `executePrompt` method. `prompt` is optional but recommended; if empty, the backlog drives the generation.
 
 ### 2. Context Retrieval
 The module reads the `specs_backlog.md` file from the project root. It parses this file to find sections relevant to Global Specifications (files typically named `FDSXX-*.md`). Specifically, it extracts the content of the `Resolution` sub-section for each global spec entry. If the `Resolution` contains valid text (non-whitespace), it is considered "approved" and prioritized for generation.

@@ -16,7 +16,6 @@ export async function action(context)
 The function accepts a `context` object containing:
 - **`prompt`** (string): Optional (unused by logic, but kept for consistency).
 - **`llmAgent`** (object): (Unused, as this is deterministic, but kept for signature consistency).
-- **`workingDir`** (string): Project root path.
 
 Returns:
 ```javascript
@@ -30,7 +29,7 @@ Returns:
 ## Logic Flow
 
 ### 1. Execution
-The module executes the command `npm test` in the `workingDir`.
+The module executes the command `npm test` in the current working directory.
 
 ### 2. Output Capture
 It captures `stdout` and `stderr`.

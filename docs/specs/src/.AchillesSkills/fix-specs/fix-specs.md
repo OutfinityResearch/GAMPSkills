@@ -16,7 +16,6 @@ export async function action(context)
 The function accepts a `context` object containing:
 - **`prompt`** (string): Not typically used for content generation here, as the backlog drives it, but can be used for logging/filtering.
 - **`llmAgent`** (object): Exposes `executePrompt`.
-- **`workingDir`** (string): Project root path.
 
 Returns:
 ```javascript

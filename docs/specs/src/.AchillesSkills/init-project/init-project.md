@@ -16,7 +16,6 @@ export async function action(context)
 The function accepts a `context` object containing the following properties:
 - **`prompt`** (string, required): The user's description of the project to initialize.
 - **`llmAgent`** (object, required): The LLM agent instance provided by the orchestrator, exposing an `executePrompt(prompt, options)` method.
-- **`workingDir`** (string, required): The absolute path to the project root directory.
 
 The function returns an object detailing the operation's result:
 ```javascript
@@ -31,10 +30,10 @@ The function returns an object detailing the operation's result:
 ## Logic Flow
 
 ### 1. Input Validation
-The module verifies that `prompt` is a non-empty string, `workingDir` is a valid path string, and `llmAgent` exists with the required method. Errors are thrown if any validation fails.
+The module verifies that `prompt` is a non-empty string, and `llmAgent` exists with the required method. Errors are thrown if any validation fails.
 
 ### 2. Directory Structure Initialization
-The module creates the following directory hierarchy within `workingDir`, ensuring they exist:
+The module creates the following directory hierarchy within the current working directory, ensuring they exist:
 - `./docs`
 - `./docs/specs`
 - `./docs/specs/src`

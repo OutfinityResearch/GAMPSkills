@@ -16,7 +16,6 @@ The `context` object passed to the action is the single source of truth for exec
 
 - **`prompt`** (`string`): The user's input or instructions. Even for skills driven by backlogs, this may contain overrides or specific focus.
 - **`llmAgent`** (`object`): The agent instance provided by the orchestrator. It must expose the method `executePrompt(prompt, options)`.
-- **`workingDir`** (`string`): The absolute path to the project root. Skills must perform all file operations relative to this path, **never** relying on `process.cwd()`.
 
 ### Return Value
 Skills should return a consistent result object, typically containing:
@@ -47,7 +46,7 @@ When a skill requires the LLM to generate or modify files (especially multiple f
 3.  **Overwrite**: Unless specified otherwise, writing a file parsed from this format overwrites existing content.
 
 ## File System Operations
-- **Root Anchor**: All paths must be resolved using `path.join(context.workingDir, 'relative/path')`.
+- **Root Anchor**: All paths must be resolved relative to the current working directory (`process.cwd()`).
 - **Safety**: Skills should sanitize paths extracted from LLM responses to prevent directory traversal attacks (e.g., stripping `../`).
 - **Directory Creation**: Skills are responsible for recursively creating directory trees (`mkdir -p`) before writing files.
 

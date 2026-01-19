@@ -16,7 +16,6 @@ export async function action(context)
 The function accepts a `context` object containing:
 - **`prompt`** (string): Optional user focus (e.g., "Check for security gaps").
 - **`llmAgent`** (object): Exposes `executePrompt`.
-- **`workingDir`** (string): Project root path.
 
 Returns:
 ```javascript
