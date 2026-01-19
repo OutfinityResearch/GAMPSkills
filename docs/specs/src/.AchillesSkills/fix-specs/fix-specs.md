@@ -17,14 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): Not typically used for content generation here, as the backlog drives it, but can be used for logging/filtering.
 - **`llmAgent`** (object): Exposes `executePrompt`.
 
-Returns:
-```javascript
-{
-  success: boolean,
-  filesFixed: string[],
-  backlogUpdated: boolean
-}
-```
+Returns a string summarizing the actions performed, such as "Fixed X specifications. Backlog updated."
 
 ## Logic Flow
 

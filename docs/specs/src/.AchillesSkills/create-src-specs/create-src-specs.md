@@ -15,15 +15,7 @@ export async function action(context)
 
 The function accepts a `context` object containing two required properties. The `prompt` property is a string containing the user's description of the functionality or features to specify. The `llmAgent` property is an object instance provided by the orchestrator that must expose an `executePrompt(prompt, options)` method.
 
-The function returns an object detailing the operation's result. This object includes a boolean `success` flag, an array of strings `filesWritten` listing the relative paths of generated files, and a number `count` indicating how many files were written.
-
-```javascript
-{
-  success: boolean,
-  filesWritten: string[],
-  count: number
-}
-```
+The function returns a string summarizing the actions performed, such as "Generated X files: [list of relative paths]."
 
 ## Logic Flow
 

@@ -17,14 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): Optional (unused by logic, but kept for consistency).
 - **`llmAgent`** (object): (Unused, as this is deterministic, but kept for signature consistency).
 
-Returns:
-```javascript
-{
-  success: boolean,
-  output: string,
-  exitCode: number
-}
-```
+Returns a string summarizing the test results, such as "X tests run. Y failed. Failed files: [list of relative paths]."
 
 ## Logic Flow
 

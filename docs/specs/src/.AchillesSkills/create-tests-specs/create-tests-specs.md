@@ -17,13 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): User instructions (e.g., "Focus on edge cases for auth").
 - **`llmAgent`** (object): Exposes `executePrompt`.
 
-Returns:
-```javascript
-{
-  success: boolean,
-  filesWritten: string[]
-}
-```
+Returns a string summarizing the actions performed, such as "Generated X test specs: [list of files]."
 
 ## Logic Flow
 

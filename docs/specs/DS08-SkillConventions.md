@@ -18,10 +18,7 @@ The `context` object passed to the action is the single source of truth for exec
 - **`llmAgent`** (`object`): The agent instance provided by the orchestrator. It must expose the method `executePrompt(prompt, options)`.
 
 ### Return Value
-Skills should return a consistent result object, typically containing:
-- `success` (`boolean`): Overall outcome.
-- `filesWritten` / `filesFixed` (`string[]`): List of paths modified.
-- `backlogUpdated` (`boolean`): Whether a backlog file was modified.
+Skills return a string summary of their execution, describing what was accomplished (e.g., files created, issues found, or results). This provides a human-readable overview of the actions performed.
 
 ## LLM Interaction Standards
 

@@ -17,13 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): Instructions (e.g., "Create API reference").
 - **`llmAgent`** (object): Exposes `executePrompt`.
 
-Returns:
-```javascript
-{
-  success: boolean,
-  filesWritten: string[]
-}
-```
+Returns a string summarizing the actions performed, such as "Generated X documentation files: [list]."
 
 ## Logic Flow
 

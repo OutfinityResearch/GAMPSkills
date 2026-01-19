@@ -17,15 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): Optional user focus (e.g., "Check for security gaps").
 - **`llmAgent`** (object): Exposes `executePrompt`.
 
-Returns:
-```javascript
-{
-  success: boolean,
-  filesReviewed: number,
-  issuesFound: number,
-  backlogUpdated: boolean
-}
-```
+Returns a string summarizing the actions performed, such as "Reviewed X files, found Y issues. Backlog updated."
 
 ## Logic Flow
 

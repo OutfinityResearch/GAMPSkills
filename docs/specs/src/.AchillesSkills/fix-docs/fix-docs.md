@@ -17,14 +17,7 @@ The function accepts a `context` object containing:
 - **`prompt`** (string): Optional.
 - **`llmAgent`** (object): Exposes `executePrompt`.
 
-Returns:
-```javascript
-{
-  success: boolean,
-  filesFixed: string[],
-  backlogUpdated: boolean
-}
-```
+Returns a string summarizing the actions performed, such as "Fixed X documentation files. Backlog updated."
 
 ## Logic Flow
 
