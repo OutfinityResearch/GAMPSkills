@@ -22,7 +22,7 @@ async function readGlobalSpecs(specsDir) {
             continue;
         }
         const fullPath = path.join(specsDir, entry.name);
-        if (entry.isFile() && entry.name.endsWith('.md')) {
+        if (entry.isFile() && entry.name.endsWith('.md') && entry.name.startsWith('DS')) {
             const content = fs.readFileSync(fullPath, 'utf8');
             results.push({ name: entry.name, content });
         }
@@ -144,10 +144,5 @@ export async function action(context) {
         written.push(sanitizedPath);
     }
 
-    return {
-        success: true,
-        filesWritten: written,
-        count: written.length,
-        targetDirectory: targetDir,
-    };
+    return `Generated ${written.length} files: ${written.join(', ')}.`;
 }
