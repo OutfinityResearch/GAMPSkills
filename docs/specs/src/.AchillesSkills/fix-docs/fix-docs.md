@@ -22,7 +22,7 @@ Returns a string summarizing the actions performed, such as "Fixed X documentati
 ## Logic Flow
 
 ### 1. Backlog Parsing
-The module reads `docs_backlog.md`. It identifies sections where `Resolution` is non-empty.
+The module uses `BacklogManager.findApprovedItems(BacklogManager.DOCS_BACKLOG)` to identify sections where `Resolution` is non-empty (approved for fix).
 
 ### 2. File Processing
 For each approved item:
@@ -34,13 +34,12 @@ For each approved item:
 - Write updated HTML to `./docs/...`.
 
 ### 3. Backlog Update
-Updates `docs_backlog.md`:
-- Sets `Status` to `ok`.
-- Clears `Issues`, `Options`, `Resolution`.
+Uses `BacklogManager.setStatus(BacklogManager.DOCS_BACKLOG, sectionName, 'ok')` to set the `Status` to `ok` and `BacklogManager.updateSection(BacklogManager.DOCS_BACKLOG, sectionName, clearedContent)` to clear `Issues`, `Options`, `Resolution`.
 
 ## Dependencies
 - `node:fs`
 - `node:path`
+- `BacklogManager` module (uses `findApprovedItems`, `setStatus`, `updateSection`)
 
 ## Error Handling
 - Validates that the output is HTML before writing.

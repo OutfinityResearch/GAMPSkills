@@ -23,7 +23,7 @@ The function returns a string summarizing the actions performed, such as "Genera
 The module verifies that `llmAgent` exists and has an `executePrompt` method. `prompt` is optional but recommended; if empty, the backlog drives the generation.
 
 ### 2. Context Retrieval
-The module reads the `specs_backlog.md` file from the project root. It parses this file to find sections relevant to Global Specifications (files typically named `FDSXX-*.md`). Specifically, it extracts the content of the `Resolution` sub-section for each global spec entry. If the `Resolution` contains valid text (non-whitespace), it is considered "approved" and prioritized for generation.
+The module uses `BacklogManager.loadBacklog(BacklogManager.SPECS_BACKLOG)` to read the backlog file from the project root. It parses the content to find sections relevant to Global Specifications (files named `DSXX-*.md`). Specifically, it uses `BacklogManager.findApprovedItems(BacklogManager.SPECS_BACKLOG)` to extract sections where the `Resolution` sub-section contains valid text (non-whitespace), considered "approved" and prioritized for generation.
 
 ### 3. LLM Prompt Construction
 The prompt for the LLM is constructed by combining:
@@ -40,12 +40,12 @@ The module executes the prompt using `llmAgent.executePrompt` with `mode: 'deep'
 The response is parsed for `<!-- FILE: ... -->` blocks. Each extracted file content is written to `./docs/specs/` (excluding `src/` or `tests/` subfolders). Existing files are overwritten.
 
 ### 6. Backlog Update
-After successfully writing the files, the module updates `specs_backlog.md`. For every Global Spec section that was involved in the generation (i.e., those that had a `Resolution` used as input), the module updates its `Status` field to `ok`. This operation uses regex or string replacement to modify the backlog file in place, ensuring traceability.
+After successfully writing the files, the module uses `BacklogManager.setStatus(BacklogManager.SPECS_BACKLOG, sectionName, 'ok')` to update the `Status` field to `ok` for every Global Spec section that was involved in the generation (i.e., those that had a `Resolution` used as input). It then uses `BacklogManager.saveBacklog(BacklogManager.SPECS_BACKLOG, updatedContent)` to persist the changes, ensuring traceability.
 
 ## Dependencies
 - `node:fs` - For reading the backlog and writing spec files.
 - `node:path` - For path resolution.
-- `BacklogManager` concepts (implemented via direct file manipulation or helper if available, but primarily string parsing here).
+- `BacklogManager` module (uses `loadBacklog`, `findApprovedItems`, `setStatus`, `saveBacklog`).
 
 ## Error Handling
 - Throws errors if `specs_backlog.md` is missing or unreadable.

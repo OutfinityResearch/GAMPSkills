@@ -22,9 +22,7 @@ Returns a string summarizing the actions performed, such as "Fixed X specificati
 ## Logic Flow
 
 ### 1. Backlog Parsing
-The module reads `specs_backlog.md`. It iterates through all file sections.
-It checks the `Resolution` field.
-**Condition**: A file is considered "approved for fix" if the `Resolution` field contains non-whitespace text.
+The module uses `BacklogManager.findApprovedItems(BacklogManager.SPECS_BACKLOG)` to identify file sections where the `Resolution` field contains non-whitespace text (considered "approved for fix").
 
 ### 2. File Processing (Loop)
 For each approved file:
@@ -36,13 +34,12 @@ For each approved file:
 - Write the updated content to the file path (Global, `src/`, or `tests/` depending on the section name/path).
 
 ### 3. Backlog Update
-After applying the fix, the module updates `specs_backlog.md` for that section:
-- Sets `Status` to `ok`.
-- Clears `Issues`, `Options`, and `Resolution` (resetting the cycle).
+After applying the fix, the module uses `BacklogManager.setStatus(BacklogManager.SPECS_BACKLOG, sectionName, 'ok')` to set the `Status` to `ok` and `BacklogManager.updateSection(BacklogManager.SPECS_BACKLOG, sectionName, clearedContent)` to clear `Issues`, `Options`, and `Resolution` (resetting the cycle).
 
 ## Dependencies
 - `node:fs`
 - `node:path`
+- `BacklogManager` module (uses `findApprovedItems`, `setStatus`, `updateSection`)
 
 ## Error Handling
 - Checks if target file path is valid.

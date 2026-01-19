@@ -35,15 +35,16 @@ For each file (or batched if small), the module constructs a prompt:
 - **Execution Mode**: The LLM must be invoked with `mode: 'deep'`.
 
 ### 3. Backlog Update
-The module reads `./specs_backlog.md`. For each reviewed file:
-- It locates the corresponding section (by filename). If missing, it appends a new section.
-- It updates the `Status` field to `needs_work` if issues were found, or `ok` if clean.
-- It overwrites/appends to the `Issues` and `Options` fields with the LLM's findings.
-- It clears the `Resolution` field (forcing user re-approval for new issues).
+The module uses `BacklogManager.loadBacklog(BacklogManager.SPECS_BACKLOG)` to read the backlog. For each reviewed file:
+- It uses `BacklogManager.getSection(BacklogManager.SPECS_BACKLOG, sectionName)` to locate the corresponding section (by filename). If missing, it uses `BacklogManager.appendSection(BacklogManager.SPECS_BACKLOG, sectionName, newContent)` to add a new section.
+- It uses `BacklogManager.setStatus(BacklogManager.SPECS_BACKLOG, sectionName, 'needs_work')` if issues were found, or `'ok'` if clean.
+- It uses `BacklogManager.updateSection(BacklogManager.SPECS_BACKLOG, sectionName, updatedContent)` to overwrite/append the `Issues` and `Options` fields with the LLM's findings.
+- It clears the `Resolution` field (forcing user re-approval for new issues) via the same update method.
 
 ## Dependencies
 - `node:fs`
 - `node:path`
+- `BacklogManager` module (uses `loadBacklog`, `getSection`, `appendSection`, `setStatus`, `updateSection`)
 
 ## Error Handling
 - detailed error logging if a file cannot be read.

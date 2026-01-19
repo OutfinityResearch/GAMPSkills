@@ -28,15 +28,16 @@ The module scans `./docs` for `.html` files. It strictly excludes the static spe
 Similar to `review-specs`, it sends file content to the LLM to identify presentation issues, missing links, or content gaps. It must invoke the LLM using `mode: 'deep'`.
 
 ### 3. Backlog Update
-Updates `./docs_backlog.md`:
-- Locates/Creates section for the file.
-- Sets `Status` to `needs_work` if issues found.
-- Updates `Issues` and `Options`.
-- Clears `Resolution`.
+Uses `BacklogManager.loadBacklog(BacklogManager.DOCS_BACKLOG)` to read the backlog. For each reviewed file:
+- Uses `BacklogManager.getSection(BacklogManager.DOCS_BACKLOG, sectionName)` to locate the corresponding section. If missing, uses `BacklogManager.appendSection(BacklogManager.DOCS_BACKLOG, sectionName, newContent)` to create it.
+- Uses `BacklogManager.setStatus(BacklogManager.DOCS_BACKLOG, sectionName, 'needs_work')` if issues found.
+- Uses `BacklogManager.updateSection(BacklogManager.DOCS_BACKLOG, sectionName, updatedContent)` to update `Issues` and `Options`.
+- Clears the `Resolution` field via the same update method.
 
 ## Dependencies
 - `node:fs`
 - `node:path`
+- `BacklogManager` module (uses `loadBacklog`, `getSection`, `appendSection`, `setStatus`, `updateSection`)
 
 ## Error Handling
 - Gracefully handles missing `./docs` directory.

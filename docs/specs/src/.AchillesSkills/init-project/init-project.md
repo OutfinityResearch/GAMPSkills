@@ -49,11 +49,12 @@ The module constructs a specialized prompt for the LLM to act as an expert proje
 - **Execution Mode**: The LLM must be invoked with `mode: 'deep'`.
 
 ### 6. Backlog Seeding
-The module parses the LLM's response to extract the project name and the backlog content. It then writes the generated content into `./specs_backlog.md`, effectively seeding the project's specification planning process.
+The module parses the LLM's response to extract the project name and the backlog content. It then uses `BacklogManager.saveBacklog(BacklogManager.SPECS_BACKLOG, generatedContent)` to write the generated content into the specs backlog, effectively seeding the project's specification planning process.
 
 ## Dependencies
 - `node:fs` - For file system operations (mkdir, copyFile, writeFile).
 - `node:path` - For path resolution.
+- `BacklogManager` module (uses `saveBacklog`).
 
 ## Error Handling
 - Throw errors if inputs are missing or invalid.
