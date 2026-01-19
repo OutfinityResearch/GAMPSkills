@@ -23,7 +23,7 @@ The function returns a string summarizing the actions performed, such as "Genera
 The module verifies that `llmAgent` exists and has an `executePrompt` method. `prompt` is optional but recommended; if empty, the backlog drives the generation.
 
 ### 2. Context Retrieval
-The module uses `BacklogManager.loadBacklog(BacklogManager.SPECS_BACKLOG)` to read the backlog file from the project root, then parses it into sections. It uses `BacklogManager.findSectionsByPrefix(sections, "DS")` to find sections relevant to Global Specifications (files named `DSXX-*.md`). Specifically, it uses `BacklogManager.findApprovedItems(BacklogManager.SPECS_BACKLOG)` to extract approved sections from that subset, where the `Resolution` sub-section contains valid text (non-whitespace).
+The module uses `BacklogManager.findSectionsByPrefix(sections, "DS")` to find sections relevant to Global Specifications (files named `DSXX-*.md`). Specifically, it uses `BacklogManager.findApprovedItems(BacklogManager.SPECS_BACKLOG)` to extract approved sections from that subset.
 
 ### 3. LLM Prompt Construction
 The prompt for the LLM is constructed by combining:

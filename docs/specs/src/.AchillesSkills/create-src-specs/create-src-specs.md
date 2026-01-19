@@ -23,7 +23,7 @@ The function returns a string summarizing the actions performed, such as "Genera
 The module begins by verifying inputs. It ensures that `prompt` is a non-empty string and that `llmAgent` exists and possesses an `executePrompt` function. If any validation fails, the module throws a detailed error.
 
 ### 2. Global Specs Context Retrieval
-The system retrieves context from the global specs directory, resolved as `path.join(process.cwd(), 'docs/specs')`. It iterates through the immediate children of this directory to identify relevant specification files. The filter includes only files that end in `.md` and start with the prefix `FDS`. It explicitly excludes the `src` and `tests` subdirectories, as well as any files or directories starting with `.` (hidden files). The module then reads and stores the content of all qualifying files.
+The system retrieves context from the global specs directory, resolved as `path.join(process.cwd(), 'docs/specs')`. It iterates through the immediate children of this directory to identify relevant specification files. The filter includes only files that end in `.md` and start with the prefix `DS`. It explicitly excludes the `src` and `tests` subdirectories, as well as any files or directories starting with `.` (hidden files). The module then reads and stores the content of all qualifying files.
 
 ### 3. LLM Prompt Construction
 The module constructs a prompt for the LLM that combines the original user request with the content of the global specification files. Each file's content is clearly delimited, for example using `### Filename` headers. The prompt includes specific instructions directing the LLM to generate detailed technical FDS files. These instructions mandate that the output must use `<!-- FILE: path/to/file.md -->` markers to separate files, and that all paths within these markers must be relative to `./docs/specs/src/`.
@@ -35,7 +35,7 @@ The system invokes the `llmAgent.executePrompt` method with the constructed prom
 Upon receiving the Markdown string from the LLM, the module parses it to extract file content. It uses a regular expression pattern like `/^<!--\s*FILE:\s*(.+?)\s*-->$/m` to identify file blocks. The content between these markers is extracted for writing. The module validates that at least one file has been successfully parsed; if the response format is invalid or yields no files, it throws an error.
 
 ### 6. File Generation
-The module resolves the target directory as `path.join(process.cwd(), 'docs/specs/src')`. For each parsed file, the system sanitizes the relative path to prevent directory traversal and resolves the full destination path using the target directory. It recursively creates any necessary parent directories. Finally, it writes the content to the file, overwriting any existing version. The module operates immediately without a dry-run mode and does not create or update backlog files such as `specs_backlog.md`.
+The module resolves the target directory as `path.join(process.cwd(), 'docs/specs/src')`. For each parsed file, the system sanitizes the relative path to prevent directory traversal and resolves the full destination path using the target directory. It recursively creates any necessary parent directories. Finally, it writes the content to the file, overwriting any existing version.
 
 ## Dependencies
 The module relies on `node:fs` for all file system operations, including reading global specifications and writing the results. It uses `node:path` for path manipulation and resolution.
