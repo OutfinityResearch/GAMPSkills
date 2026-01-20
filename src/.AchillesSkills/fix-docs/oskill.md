@@ -13,4 +13,3 @@ The LLM locates approved documentation-related items in the backlog and implemen
 - write-file
 - update-section-status
 - update-section-content
-- save-backlog

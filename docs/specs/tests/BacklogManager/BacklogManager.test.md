@@ -1,57 +1,57 @@
 # BacklogManager.test
 
 ## Description
-This test file validates the BacklogManager class methods for loading, manipulating, and saving backlog sections. It ensures proper integration of IO and domain logic, correct state management, and deterministic operations on backlog data.
+This test file validates the BacklogManager module functions for loading, manipulating, and saving backlog sections. It ensures proper integration of IO and domain logic, stateless operations, and deterministic operations on backlog data.
 
 ## Dependencies
-- BacklogManager.mjs (class under test)
+- BacklogManager.mjs (module under test)
 - Node.js built-in assert module for validation
+- Node.js fs/promises module for dynamic file creation/cleanup
 - Console output for test reporting
-- Pre-set sections data for testing (manually assigned to instance)
 
 ## Test Implementation
-Tests are implemented using Node.js assert module for equality checks. Sections are manually set on the manager instance for testing purposes. Each test block outputs a success message to console upon passing. The manager is reused across tests.
+Tests are implemented using Node.js assert module for equality checks. The test creates a temporary `specs_backlog.md` file dynamically with minimal test data, runs the tests asynchronously, and cleans up the file afterward. Functions are called directly with type and relativeFilePath parameters. Each test block outputs a success message to console upon passing. Assertions account for variable initial state (e.g., check increments rather than fixed lengths).
 
 ## Test Cases
 
-### getSection Method
-- **Assertion**: Retrieves section by fileKey from loaded backlog using assert
-- **Input**: fileKey string
+### getSection Function
+- **Assertion**: Retrieves section by relativeFilePath from loaded backlog using assert
+- **Input**: type ('specs'/'docs'), relativeFilePath string
 - **Expected Output**: Console log 'getSection tests passed.' if retrieved section matches
-- **Purpose**: Validates section lookup after loading
+- **Purpose**: Validates section lookup by loading backlog
 
-### recordIssue Method
-- **Assertion**: Adds normalized issue to section's issues array using assert
-- **Input**: sectionRef (fileKey), issue (string/object)
-- **Expected Output**: Console log 'recordIssue tests passed.' if issue added correctly
-- **Purpose**: Ensures issue recording with proper normalization and numbering
+### recordIssue Function
+- **Assertion**: Adds normalized issue to section's issues array and checks increment using assert
+- **Input**: type, relativeFilePath, issue (string/object)
+- **Expected Output**: Console log 'recordIssue tests passed.' if issue added correctly and array length increased
+- **Purpose**: Ensures issue recording with proper normalization, numbering, and saving
 
-### proposeFix Method
-- **Assertion**: Adds normalized proposal to section's options array using assert
-- **Input**: sectionRef (fileKey), proposal (string/object)
-- **Expected Output**: Console log 'proposeFix tests passed.' if option added correctly
-- **Purpose**: Validates fix proposal handling
+### proposeFix Function
+- **Assertion**: Adds normalized proposal to section's options array and checks increment using assert
+- **Input**: type, relativeFilePath, proposal (string/object)
+- **Expected Output**: Console log 'proposeFix tests passed.' if option added correctly and array length increased
+- **Purpose**: Validates fix proposal handling and saving
 
-### approveResolution Method
+### approveResolution Function
 - **Assertion**: Sets resolution text and updates status if applicable using assert
-- **Input**: sectionRef (fileKey), resolutionString
+- **Input**: type, relativeFilePath, resolutionString
 - **Expected Output**: Console log 'approveResolution tests passed.' if resolution and status updated
-- **Purpose**: Ensures resolution approval logic
+- **Purpose**: Ensures resolution approval logic and saving
 
-### findSectionsByPrefix Method
+### findSectionsByPrefix Function
 - **Assertion**: Lists section names starting with prefix using assert.deepEqual
 - **Input**: type ('specs'/'docs'), prefix string
 - **Expected Output**: Console log 'findSectionsByPrefix tests passed.' if filtered names match
-- **Purpose**: Validates prefix-based filtering
+- **Purpose**: Validates prefix-based filtering by loading backlog
 
-### findSectionByFileName Method
+### findSectionByFileName Function
 - **Assertion**: Finds section name by file name suffix using assert
 - **Input**: type, fileName string
 - **Expected Output**: Console log 'findSectionByFileName tests passed.' if found name matches
-- **Purpose**: Ensures file name lookup
+- **Purpose**: Ensures file name lookup by loading backlog
 
-### findSectionsByStatus Method
+### findSectionsByStatus Function
 - **Assertion**: Lists sections with given status using assert.deepEqual
 - **Input**: type, status string
 - **Expected Output**: Console log 'findSectionsByStatus tests passed.' if filtered names match
-- **Purpose**: Validates status-based querying
+- **Purpose**: Validates status-based querying by loading backlog

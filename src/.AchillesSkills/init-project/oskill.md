@@ -10,4 +10,3 @@ The LLM begins by understanding the user's intent for the project, then dynamica
 - generate-text
 - review-text
 - iterate-on-feedback
-- save-backlog

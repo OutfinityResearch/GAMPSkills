@@ -13,4 +13,3 @@ The LLM identifies backlog items that have been approved for implementation, foc
 - write-file
 - update-section-status
 - update-section-content
-- save-backlog

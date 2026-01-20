@@ -8,9 +8,7 @@ The LLM starts by surveying the specification files in the project to understand
 - scan-directory
 - read-file
 - review-file-content
-- load-backlog
 - find-section-by-file-name
 - append-section
 - update-section-status
 - update-section-content
-- save-backlog

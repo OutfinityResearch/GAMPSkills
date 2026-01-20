@@ -1,4 +1,4 @@
-import BacklogManager from '../BacklogManager.mjs';
+import { loadBacklog, findSectionsByStatus } from '../../BacklogManager/BacklogManager.mjs';
 
 export async function action(context) {
     const { prompt } = context;
@@ -6,7 +6,7 @@ export async function action(context) {
     if (!match) throw new Error('Invalid prompt format for find-sections-by-status: expected "backlog: specs|docs, status: ok|needs_work|blocked"');
     const backlogType = match[1];
     const status = match[2].trim();
-    const sections = BacklogManager.loadBacklog(backlogType === 'specs' ? BacklogManager.SPECS_BACKLOG : BacklogManager.DOCS_BACKLOG);
-    const fileKeys = BacklogManager.findSectionsByStatus(sections, status);
+    const { sections } = await loadBacklog(backlogType);
+    const fileKeys = findSectionsByStatus(sections, status);
     return fileKeys;
 }

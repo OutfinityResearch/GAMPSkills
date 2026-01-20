@@ -14,26 +14,26 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Input: `type` (string `"specs"` or `"docs"` for backlog type).
   - Output: `{ sections, meta }` where `sections` is an array/dictionary of section objects keyed by file (fields: `name`, `description`, `status`, `issues[]`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
   - Behavior: resolves path from type, reads file, parses via `backlogIO.parse`, returns structured data for further operations.
-- `getSection(fileKey) -> section`
-  - Input: `fileKey` (string relative path to the target file, e.g., `docs/specs/src/foo/bar.md`).
+- `getSection(type, relativeFilePath) -> section`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string relative path to the target file, e.g., `docs/specs/src/foo/bar.md`).
   - Output: `section` object (`{ name, description, status, issues[], options[], resolution }`) or null if missing.
-  - Behavior: fetches the section from the loaded `sections` store.
-- `recordIssue(sectionRef, issue)`
-  - Input: `sectionRef` (fileKey or direct section object), `issue` (raw object/string to be normalized; expects fields like `title`, `details?`, `status?`).
+  - Behavior: loads and parses backlog for the type, fetches the section from the `sections`.
+- `recordIssue(type, relativeFilePath, issue)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `issue` (raw object/string to be normalized; expects fields like `title`, `details?`, `status?`).
   - Output: updated section with appended normalized issue (`{ id, title, details?, status? }`).
-  - Behavior: normalizes via `backlogDomain.normalizeIssue`, appends to Issues, preserves numbering.
-- `proposeFix(sectionRef, proposal)`
-  - Input: `sectionRef` (fileKey or section), `proposal` (raw string/object with `title`, optional `details`).
+  - Behavior: loads and parses backlog for the type, normalizes via `backlogDomain.normalizeIssue`, appends to Issues, preserves numbering, saves the backlog.
+- `proposeFix(type, relativeFilePath, proposal)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `proposal` (raw string/object with `title`, optional `details`).
   - Output: updated section with appended option entry (`{ id, title, details? }`).
-  - Behavior: normalizes and appends to Options, keeping stable numeric order.
-- `approveResolution(sectionRef, resolutionString)`
-  - Input: `sectionRef` (fileKey or section), `resolutionString` (string chosen by user).
+  - Behavior: loads and parses backlog for the type, normalizes and appends to Options, keeping stable numeric order, saves the backlog.
+- `approveResolution(type, relativeFilePath, resolutionString)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `resolutionString` (string chosen by user).
   - Output: updated section with `resolution` set; may also adjust `status` based on domain rules.
-  - Behavior: sets Resolution text; validates status compatibility (`ok`/`needs_work`) per `backlogDomain`.
-- `applyChanges(sectionRef, approvedItems, hooks)`
-  - Input: `sectionRef` (fileKey/section), `approvedItems` (array of issue/option IDs or objects selected for application), `hooks` (object with functions to call external skills, e.g., `{ applySpecFix, applyDocFix }`).
+  - Behavior: loads and parses backlog for the type, sets Resolution text; validates status compatibility (`ok`/`needs_work`) per `backlogDomain`, saves the backlog.
+- `applyChanges(type, relativeFilePath, approvedItems, hooks)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `approvedItems` (array of issue/option IDs or objects selected for application), `hooks` (object with functions to call external skills, e.g., `{ applySpecFix, applyDocFix }`).
   - Output: updated section reflecting applied items, updated status/resolution, and an ordered list of executed changes (via `ChangeQueue`).
-  - Behavior: sequences changes deterministically, calls hooks to enact fixes, updates section content accordingly.
+  - Behavior: loads and parses backlog for the type, sequences changes deterministically, calls hooks to enact fixes, updates section content accordingly, saves the backlog.
 - `saveBacklog(type, sections)`
   - Input: `type` (string `"specs"` or `"docs"`), `sections` (array/dictionary of section objects as defined above).
   - Output: writes file; returns confirmation/void; the serialized text is persisted.
@@ -50,6 +50,18 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Input: `type` (string `"specs"` or `"docs"`), `status` (string from STATUS).
   - Output: array of section names with the given status.
   - Behavior: loads and parses backlog, filters sections by status.
+- `setStatus(type, relativeFilePath, status)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `status` (string from STATUS).
+  - Output: void; updates the status of the section.
+  - Behavior: loads and parses backlog, sets the status of the section for the relativeFilePath, saves the backlog.
+- `updateSection(type, relativeFilePath, updates)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `updates` (object with properties to update).
+  - Output: void; updates the section with the provided properties.
+  - Behavior: loads and parses backlog, assigns the updates to the section, saves the backlog.
+- `appendSection(type, relativeFilePath, initialContent)`
+  - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `initialContent` (string).
+  - Output: void; adds a new section if it doesn't exist.
+  - Behavior: loads and parses backlog, creates the section with the initial content as description, status 'needs_work', saves the backlog.
 
 ## Exports
 - `loadBacklog`
@@ -62,3 +74,6 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 - `findSectionsByPrefix`
 - `findSectionByFileName`
 - `findSectionsByStatus`
+- `setStatus`
+- `updateSection`
+- `appendSection`

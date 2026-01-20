@@ -8,9 +8,7 @@ The LLM explores the documentation files to gauge how well they represent the pr
 - scan-directory
 - read-file
 - review-file-content
-- load-backlog
 - find-section-by-file-name
 - append-section
 - update-section-status
 - update-section-content
-- save-backlog

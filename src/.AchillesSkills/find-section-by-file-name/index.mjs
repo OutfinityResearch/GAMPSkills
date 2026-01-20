@@ -1,4 +1,4 @@
-import BacklogManager from '../BacklogManager.mjs';
+import { loadBacklog, findSectionByFileName } from '../../BacklogManager/BacklogManager.mjs';
 
 export async function action(context) {
     const { prompt } = context;
@@ -6,7 +6,7 @@ export async function action(context) {
     if (!match) throw new Error('Invalid prompt format for find-section-by-file-name: expected "backlog: specs|docs, filename: name"');
     const backlogType = match[1];
     const filename = match[2].trim();
-    const sections = BacklogManager.loadBacklog(backlogType === 'specs' ? BacklogManager.SPECS_BACKLOG : BacklogManager.DOCS_BACKLOG);
-    const fileKey = BacklogManager.findSectionByFileName(sections, filename);
+    const { sections } = await loadBacklog(backlogType);
+    const fileKey = findSectionByFileName(sections, filename);
     return fileKey;
 }
