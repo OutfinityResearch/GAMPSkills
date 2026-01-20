@@ -3,8 +3,22 @@
 ## Purpose
 This document establishes the technical standards and conventions for all GAMPSkills modules. By centralizing these contracts, we ensure consistency across the system and simplify the creation of new skills. All skills described in `DS06-SkillsInventory` must adhere to these patterns unless explicitly stated otherwise.
 
+## Skill Organization
+All skills must be located under a dedicated folder named `.AchillesSkills`. Each skill must reside in its own subfolder within `.AchillesSkills` to be properly registered and recognized by the system. This structure ensures proper isolation, organization, and automated discovery of skill modules.
+
+Example structure:
+```
+.AchillesSkills/
+  skill-name-1/
+    oskill.md
+    [other skill files]
+  skill-name-2/
+    oskill.md
+    [other skill files]
+```
+
 ## Orchestrator Skill Metadata (oskill.md)
-Each skill must have an associated `oskill.md` file located in the skill's folder (e.g., `src/.AchillesSkills/<skill-name>/oskill.md`). This file provides human-readable metadata for orchestrators and must include at least the following sections:
+Each skill must have an associated `oskill.md` file located in the skill's folder under `.AchillesSkills/<skill-name>/oskill.md`. This file provides human-readable metadata for orchestrators and must include at least the following sections:
 
 - **Title**: A heading with the skill name.
 - **Summary**: A brief description of the skill's purpose and functionality.
