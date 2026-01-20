@@ -1,1 +1,11 @@
-Skillul create-directories creează o structură de directoare recursiv pe baza unui array de căi specificate. Skillul asigură că toate directoarele părinte sunt create dacă acestea nu există deja. Skillul depinde de modulul node:fs pentru operațiunile de creare a directoarelor. Inputul așteaptă un prompt care specifică căile în formatul "paths: /cale1, /cale2, ...". Skillul returnează un mesaj de confirmare dacă operația reușește, altfel aruncă erori pentru căi invalide sau permisiuni insuficiente.
+# Create Directories Skill Specification
+
+## Overview
+This skill creates a directory tree recursively based on an array of specified paths. It ensures all parent directories are created if they do not already exist. The skill returns a confirmation message upon success or throws errors for invalid paths or insufficient permissions.
+
+## Interface
+- **Input**: A prompt string in the format `"paths: /path1, /path2, ..."`.
+- **Output**: A string message indicating success.
+
+## Dependencies
+- `node:fs` (for directory creation).

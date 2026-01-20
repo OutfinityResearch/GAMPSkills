@@ -1,1 +1,12 @@
-Skillul scan-directory listează fișierele dintr-un director rădăcină aplicând filtre de includere și excludere, cu opțiunea de recursivitate. Skillul returnează un array de căi relative către fișierele care corespund criteriilor. Skillul depinde de modulul glob pentru potrivirea pattern-urilor, precum și de node:path pentru manipularea căilor. Inputul așteaptă un prompt care specifică rădăcina, pattern-urile de includere și excludere, și dacă este recursiv în formatul "root: /cale, include: pattern, exclude: pattern, recursive: true/false". Skillul returnează array-ul de căi dacă operația reușește, altfel aruncă erori pentru căi invalide sau acces interzis.
+# Scan Directory Skill Specification
+
+## Overview
+This skill lists files in a root directory, applying include and exclude filters with an option for recursion. It returns an array of relative paths to files matching the criteria. The skill returns the array upon success or throws errors for invalid paths or access denied.
+
+## Interface
+- **Input**: A prompt string in the format `"root: /path, include: pattern, exclude: pattern, recursive: true/false"`.
+- **Output**: An array of relative file paths.
+
+## Dependencies
+- `glob` (for pattern matching).
+- `node:path` (for path manipulation).

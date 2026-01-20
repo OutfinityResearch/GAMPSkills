@@ -1,1 +1,11 @@
-Skillul find-sections-by-prefix filtrează secțiunile din backlog după un prefix în cheia fișierului. Skillul returnează un array de chei de fișiere care încep cu prefixul specificat. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și filtrare. Inputul așteaptă un prompt care specifică tipul de backlog și prefixul în formatul "backlog: specs|docs, prefix: string". Skillul returnează array-ul de chei dacă operația reușește, altfel aruncă erori pentru parametri invalizi.
+# Find Sections by Prefix Skill Specification
+
+## Overview
+This skill filters backlog sections by a prefix in the file key. It returns an array of file keys starting with the specified prefix. The skill returns the array upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, prefix: string"`.
+- **Output**: An array of file keys.
+
+## Dependencies
+- `BacklogManager` (for loading and filtering sections).

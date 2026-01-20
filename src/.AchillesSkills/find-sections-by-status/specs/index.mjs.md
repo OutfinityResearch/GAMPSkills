@@ -1,1 +1,11 @@
-Skillul find-sections-by-status filtrează secțiunile din backlog după valoarea câmpului Status. Skillul returnează un array de chei de fișiere care au statusul specificat. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și filtrare. Inputul așteaptă un prompt care specifică tipul de backlog și statusul în formatul "backlog: specs|docs, status: ok|needs_work|blocked". Skillul returnează array-ul de chei dacă operația reușește, altfel aruncă erori pentru parametri invalizi.
+# Find Sections by Status Skill Specification
+
+## Overview
+This skill filters backlog sections by the Status field value. It returns an array of file keys with the specified status. The skill returns the array upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, status: ok|needs_work|blocked"`.
+- **Output**: An array of file keys.
+
+## Dependencies
+- `BacklogManager` (for loading and filtering sections).

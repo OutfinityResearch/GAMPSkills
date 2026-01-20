@@ -1,1 +1,12 @@
-Skillul review-backlog-section evaluează o secțiune din backlog pentru coerență și completitudine, utilizând context suplimentar. Skillul returnează un obiect de feedback cu probleme și opțiuni. Skillul depinde de agentul LLM pentru analiză și de modulul BacklogManager pentru structura secțiunilor. Inputul așteaptă un prompt care specifică obiectul secțiune și contextul în formatul "section: {...}, context: text". Skillul returnează obiectul de feedback dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau formate invalide.
+# Review Backlog Section Skill Specification
+
+## Overview
+This skill evaluates a backlog section for coherence and completeness using additional context. It returns a feedback object with issues and options. The skill returns the feedback object upon success or throws errors for invalid parameters or invalid formats.
+
+## Interface
+- **Input**: A prompt string in the format `"section: {...}, context: text"`.
+- **Output**: A feedback object.
+
+## Dependencies
+- LLM agent (for analysis).
+- `BacklogManager` (for section structure).

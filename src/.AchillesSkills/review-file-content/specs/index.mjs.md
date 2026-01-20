@@ -1,1 +1,12 @@
-Skillul review-file-content analizează conținutul unui fișier pentru consistență și probleme, utilizând context suplimentar. Skillul returnează un obiect de feedback cu status și sugestii. Skillul depinde de agentul LLM pentru analiză și de modulul node:fs pentru citirea fișierelor. Inputul așteaptă un prompt care specifică calea fișierului, conținutul și contextul în formatul "path: /cale, content: text, context: text". Skillul returnează obiectul de feedback dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau formate invalide.
+# Review File Content Skill Specification
+
+## Overview
+This skill analyzes file content for consistency and issues using additional context. It returns a feedback object with status and suggestions. The skill returns the feedback object upon success or throws errors for invalid parameters or invalid formats.
+
+## Interface
+- **Input**: A prompt string in the format `"path: /path, content: text, context: text"`.
+- **Output**: A feedback object.
+
+## Dependencies
+- LLM agent (for analysis).
+- `node:fs` (for file reading).

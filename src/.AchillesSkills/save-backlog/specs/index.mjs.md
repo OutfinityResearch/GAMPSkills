@@ -1,1 +1,11 @@
-Skillul save-backlog scrie obiectul complet sections într-un fișier de backlog specificat, serializând datele în format markdown. Skillul depinde de modulul BacklogManager pentru operațiunile de salvare și formatare. Inputul așteaptă un prompt care specifică tipul de backlog și obiectul sections în formatul "backlog: specs|docs, sections: {...}". Skillul returnează un mesaj de confirmare dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau permisiuni insuficiente.
+# Save Backlog Skill Specification
+
+## Overview
+This skill writes the full sections object to a specified backlog file, serializing the data into markdown format. It returns a confirmation message upon success or throws errors for invalid parameters or insufficient permissions.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, sections: {...}"`.
+- **Output**: A string message indicating success.
+
+## Dependencies
+- `BacklogManager` (for saving and formatting).

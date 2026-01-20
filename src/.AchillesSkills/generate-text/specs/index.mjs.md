@@ -1,1 +1,11 @@
-Skillul generate-text produce conținut text utilizând un agent LLM pe baza unui prompt și context specificat. Skillul acceptă diferite moduri de execuție pentru ajustarea profunzimii de raționament. Skillul depinde de agentul LLM pentru generarea de text. Inputul așteaptă un prompt care specifică promptul de generare, contextul și modul în formatul "prompt: text, context: text, mode: deep|fast". Skillul returnează textul generat dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau eșecuri ale LLM-ului.
+# Generate Text Skill Specification
+
+## Overview
+This skill generates text content using an LLM agent based on a specified prompt and context. It accepts different execution modes to adjust reasoning depth. The skill returns the generated text upon success or throws errors for invalid parameters or LLM failures.
+
+## Interface
+- **Input**: A prompt string in the format `"prompt: text, context: text, mode: deep|fast"`.
+- **Output**: A string of generated text.
+
+## Dependencies
+- LLM agent (for text generation).

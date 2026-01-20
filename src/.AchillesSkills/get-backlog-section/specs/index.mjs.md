@@ -1,1 +1,11 @@
-Skillul get-backlog-section recuperează o secțiune specifică din backlog pe baza cheii fișierului. Skillul returnează obiectul secțiune sau null dacă nu este găsită. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare. Inputul așteaptă un prompt care specifică tipul de backlog și cheia fișierului în formatul "backlog: specs|docs, fileKey: cheie". Skillul returnează obiectul secțiune dacă este găsit, altfel returnează null, sau aruncă erori pentru parametri invalizi.
+# Get Backlog Section Skill Specification
+
+## Overview
+This skill retrieves a specific section from the backlog by file key. It returns the section object or null if not found. The skill returns the section object or null upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, fileKey: key"`.
+- **Output**: A section object or null.
+
+## Dependencies
+- `BacklogManager` (for loading sections).

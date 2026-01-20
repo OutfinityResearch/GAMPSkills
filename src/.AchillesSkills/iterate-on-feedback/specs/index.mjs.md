@@ -1,1 +1,11 @@
-Skillul iterate-on-feedback rafinează conținutul pe baza unui obiect de feedback furnizat, aplicând sugestiile într-un singur pas. Skillul returnează conținutul revizuit ca șir de caractere. Skillul depinde de agentul LLM pentru procesarea și rafinarea conținutului. Inputul așteaptă un prompt care specifică conținutul original și obiectul de feedback în formatul "content: text, feedback: {...}". Skillul returnează conținutul rafinat dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau eșecuri ale LLM-ului.
+# Iterate on Feedback Skill Specification
+
+## Overview
+This skill refines content based on a provided feedback object, applying suggestions in a single pass. It returns the revised content as a string. The skill returns the refined content upon success or throws errors for invalid parameters or LLM failures.
+
+## Interface
+- **Input**: A prompt string in the format `"content: text, feedback: {...}"`.
+- **Output**: A string of revised content.
+
+## Dependencies
+- LLM agent (for content refinement).

@@ -1,1 +1,11 @@
-Skillul load-backlog încarcă secțiunile dintr-un fișier de backlog specificat, parsând conținutul în date structurate. Skillul returnează obiectul sections și metadata precum timpul de modificare. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și parsare. Inputul așteaptă un prompt care specifică tipul de backlog în formatul "backlog: specs|docs". Skillul returnează obiectul cu secțiuni și metadata dacă operația reușește, altfel aruncă erori pentru fișiere inexistente sau formate invalide.
+# Load Backlog Skill Specification
+
+## Overview
+This skill loads sections from a specified backlog file, parsing the content into structured data. It returns the sections object and metadata like modification time. The skill returns the object with sections and metadata upon success or throws errors for non-existent files or invalid formats.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs"`.
+- **Output**: An object `{ sections, metadata }`.
+
+## Dependencies
+- `BacklogManager` (for loading and parsing).

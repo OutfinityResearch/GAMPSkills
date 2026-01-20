@@ -1,1 +1,11 @@
-Skillul update-section-content actualizează câmpurile Issues, Options sau Resolution ale unei secțiuni din backlog cu date noi. Skillul returnează obiectul sections actualizat. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și actualizare. Inputul așteaptă un prompt care specifică tipul de backlog, cheia fișierului și obiectul de actualizări în formatul "backlog: specs|docs, fileKey: cheie, updates: {...}". Skillul returnează obiectul sections dacă operația reușește, altfel aruncă erori pentru parametri invalizi.
+# Update Section Content Skill Specification
+
+## Overview
+This skill updates the Issues, Options, or Resolution fields of a backlog section with new data. It returns the updated sections object. The skill returns the sections object upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, fileKey: key, updates: {...}"`.
+- **Output**: The updated sections object.
+
+## Dependencies
+- `BacklogManager` (for loading and updating sections).

@@ -1,1 +1,12 @@
-Skillul write-file scrie sau suprascrie conținutul unui fișier la o cale specificată, creând directoarele părinte dacă acestea nu există. Skillul depinde de modulul node:fs pentru operațiunile de scriere și creare de directoare, precum și de node:path pentru manipularea căilor. Inputul așteaptă un prompt care specifică calea și conținutul în formatul "path: /cale/absolută, content: conținutul". Skillul returnează un mesaj de confirmare dacă operația reușește, altfel aruncă erori pentru căi invalide sau permisiuni insuficiente.
+# Write File Skill Specification
+
+## Overview
+This skill writes or overwrites the content of a file at a specified path, creating parent directories if they do not exist. The skill returns a confirmation message upon success or throws errors for invalid paths or insufficient permissions.
+
+## Interface
+- **Input**: A prompt string in the format `"path: /absolute/path, content: file content"`.
+- **Output**: A string message indicating success.
+
+## Dependencies
+- `node:fs` (for file writing and directory creation).
+- `node:path` (for path manipulation).

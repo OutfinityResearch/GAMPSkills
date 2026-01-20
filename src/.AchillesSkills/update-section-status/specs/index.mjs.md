@@ -1,1 +1,11 @@
-Skillul update-section-status setează câmpul Status al unei secțiuni din backlog la o valoare nouă. Skillul returnează obiectul sections actualizat. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și setare de status. Inputul așteaptă un prompt care specifică tipul de backlog, cheia fișierului și noua valoare de status în formatul "backlog: specs|docs, fileKey: cheie, status: ok|needs_work|blocked". Skillul returnează obiectul sections dacă operația reușește, altfel aruncă erori pentru parametri invalizi.
+# Update Section Status Skill Specification
+
+## Overview
+This skill sets the Status field of a backlog section to a new value. It returns the updated sections object. The skill returns the sections object upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, fileKey: key, status: ok|needs_work|blocked"`.
+- **Output**: The updated sections object.
+
+## Dependencies
+- `BacklogManager` (for loading and setting status).

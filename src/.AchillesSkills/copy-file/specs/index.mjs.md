@@ -1,1 +1,12 @@
-Skillul copy-file copiază un fișier de la o cale sursă la o cale destinație. Skillul asigură că directorul destinație există prin crearea recursivă a acestuia dacă este necesar. Dacă fișierul destinație există deja, acesta este suprascris. Skillul depinde de modulul node:fs pentru operațiunile de copiere și creare de directoare, precum și de node:path pentru manipularea căilor. Inputul așteaptă un prompt care specifică sursa și destinația în formatul "source: /cale/sursa, dest: /cale/destinație". Skillul returnează un mesaj de confirmare dacă operația reușește, altfel aruncă erori pentru căi invalide sau permisiuni insuficiente.
+# Copy File Skill Specification
+
+## Overview
+This skill copies a file from a source path to a destination path. It ensures the destination directory exists by creating it recursively if necessary. If the destination file already exists, it is overwritten. The skill returns a confirmation message upon success or throws errors for invalid paths or insufficient permissions.
+
+## Interface
+- **Input**: A prompt string in the format `"source: /source/path, dest: /destination/path"`.
+- **Output**: A string message indicating success.
+
+## Dependencies
+- `node:fs` (for file copying and directory creation).
+- `node:path` (for path manipulation).

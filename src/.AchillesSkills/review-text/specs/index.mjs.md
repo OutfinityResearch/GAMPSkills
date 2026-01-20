@@ -1,1 +1,11 @@
-Skillul review-text analizează un text furnizat pentru calitate, goluri sau îmbunătățiri pe baza unor criterii specificate. Skillul returnează un obiect de feedback cu status și sugestii. Skillul depinde de agentul LLM pentru evaluare. Inputul așteaptă un prompt care specifică conținutul și criteriile în formatul "content: text, criteria: text". Skillul returnează obiectul de feedback dacă operația reușește, altfel aruncă erori pentru parametri invalizi sau formate invalide.
+# Review Text Skill Specification
+
+## Overview
+This skill analyzes provided text for quality, gaps, or improvements based on specified criteria. It returns a feedback object with status and suggestions. The skill returns the feedback object upon success or throws errors for invalid parameters or invalid formats.
+
+## Interface
+- **Input**: A prompt string in the format `"content: text, criteria: text"`.
+- **Output**: A feedback object.
+
+## Dependencies
+- LLM agent (for evaluation).

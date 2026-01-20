@@ -1,1 +1,11 @@
-Skillul append-section adaugă o nouă secțiune la backlog dacă aceasta nu există deja, utilizând conținutul inițial specificat. Skillul returnează obiectul sections actualizat. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și adăugare de secțiuni. Inputul așteaptă un prompt care specifică tipul de backlog, cheia fișierului și conținutul în formatul "backlog: specs|docs, fileKey: cheie, content: conținut". Skillul returnează obiectul sections dacă operația reușește, altfel aruncă erori pentru parametri invalizi.
+# Append Section Skill Specification
+
+## Overview
+This skill adds a new section to the backlog if it does not already exist, using the specified initial content. It returns the updated sections object. The skill returns the sections object upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, fileKey: key, content: initial content"`.
+- **Output**: The updated sections object.
+
+## Dependencies
+- `BacklogManager` (for loading and appending sections).

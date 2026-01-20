@@ -1,1 +1,11 @@
-Skillul read-file citește conținutul unui fișier de la o cale specificată și returnează acesta ca șir de caractere în codarea UTF-8. Skillul depinde de modulul node:fs pentru operațiunile de citire a fișierelor. Inputul așteaptă un prompt care specifică calea în formatul "path: /cale/absolută". Skillul returnează conținutul fișierului dacă operația reușește, altfel aruncă erori pentru căi invalide, fișiere inexistente sau permisiuni insuficiente.
+# Read File Skill Specification
+
+## Overview
+This skill reads the content of a file from a specified path and returns it as a UTF-8 encoded string. The skill returns the file content upon success or throws errors for invalid paths, non-existent files, or insufficient permissions.
+
+## Interface
+- **Input**: A prompt string in the format `"path: /absolute/path"`.
+- **Output**: A string containing the file content.
+
+## Dependencies
+- `node:fs` (for file reading).

@@ -1,1 +1,11 @@
-Skillul run-command execută o comandă shell și returnează stdout, stderr și codul de ieșire. Skillul permite specificarea directorului de lucru pentru execuție. Skillul depinde de modulul node:child_process pentru execuția comenzilor. Inputul așteaptă un prompt care specifică comanda și directorul de lucru în formatul "command: cmd, cwd: /cale". Skillul returnează un obiect cu output-uri și codul de ieșire dacă operația reușește, altfel aruncă erori pentru comenzi invalide sau eșecuri de execuție.
+# Run Command Skill Specification
+
+## Overview
+This skill executes a shell command and returns stdout, stderr, and exit code. It allows specifying the working directory for execution. The skill returns an object with outputs and exit code upon success or throws errors for invalid commands or execution failures.
+
+## Interface
+- **Input**: A prompt string in the format `"command: cmd, cwd: /path"`.
+- **Output**: An object `{ stdout, stderr, exitCode }`.
+
+## Dependencies
+- `node:child_process` (for command execution).

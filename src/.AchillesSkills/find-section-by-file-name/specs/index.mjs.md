@@ -1,1 +1,11 @@
-Skillul find-section-by-file-name găsește o secțiune din backlog care corespunde unui sufix de nume de fișier. Skillul returnează cheia fișierului sau null dacă nu este găsită. Skillul depinde de modulul BacklogManager pentru operațiunile de încărcare și căutare. Inputul așteaptă un prompt care specifică tipul de backlog și numele fișierului în formatul "backlog: specs|docs, filename: nume". Skillul returnează cheia fișierului dacă este găsită, altfel returnează null, sau aruncă erori pentru parametri invalizi.
+# Find Section by File Name Skill Specification
+
+## Overview
+This skill finds a backlog section matching a filename suffix. It returns the file key or null if not found. The skill returns the key or null upon success or throws errors for invalid parameters.
+
+## Interface
+- **Input**: A prompt string in the format `"backlog: specs|docs, filename: name"`.
+- **Output**: A file key string or null.
+
+## Dependencies
+- `BacklogManager` (for loading and searching sections).

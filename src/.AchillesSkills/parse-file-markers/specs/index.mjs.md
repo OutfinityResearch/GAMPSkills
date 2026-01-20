@@ -1,1 +1,11 @@
-Skillul parse-file-markers extrage conținutul fișierelor din output-ul LLM delimitat de markerele <!-- FILE: cale -->. Skillul returnează un obiect care mapează căile către conținutul corespunzător. Skillul nu are dependențe externe în afara regex-ului standard. Inputul așteaptă un prompt care specifică conținutul în formatul "content: string_cu_markere". Skillul returnează obiectul cu fișierele parseate dacă formatul este valid, altfel aruncă erori pentru markere invalide.
+# Parse File Markers Skill Specification
+
+## Overview
+This skill extracts file contents from LLM output delimited by `<!-- FILE: path -->` markers. It returns an object mapping paths to their corresponding content. The skill returns the parsed object upon success or throws errors for invalid marker formats.
+
+## Interface
+- **Input**: A prompt string in the format `"content: string with markers"`.
+- **Output**: An object `{ path: content }`.
+
+## Dependencies
+- None (uses standard regex).
