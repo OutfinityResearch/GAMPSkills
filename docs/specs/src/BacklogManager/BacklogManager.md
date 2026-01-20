@@ -9,7 +9,7 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 - Node `fs/promises` — file I/O
 - Node `path` — path resolution
 
-## Main methods
+## Main functions
 - `loadBacklog(type) -> { sections, meta }`
   - Input: `type` (string `"specs"` or `"docs"` for backlog type).
   - Output: `{ sections, meta }` where `sections` is an array/dictionary of section objects keyed by file (fields: `name`, `description`, `status`, `issues[]`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
@@ -52,4 +52,13 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Behavior: loads and parses backlog, filters sections by status.
 
 ## Exports
-- `BacklogManager` (class)
+- `loadBacklog`
+- `getSection`
+- `recordIssue`
+- `proposeFix`
+- `approveResolution`
+- `applyChanges`
+- `saveBacklog`
+- `findSectionsByPrefix`
+- `findSectionByFileName`
+- `findSectionsByStatus`
