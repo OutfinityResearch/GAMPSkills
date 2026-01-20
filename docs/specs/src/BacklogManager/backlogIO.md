@@ -7,6 +7,35 @@
 - Node `fs/promises` — file reads/writes
 - Node `path` — path resolution
 
+## Backlog Format
+The backlog files use a markdown format with sections for each file. Each section follows this structure:
+
+```
+### File: relative/path/to/file.ext
+
+**Description:** Brief description of the file's purpose or the issue.
+
+**Status:** ok | needs_work | blocked
+
+**Issues:**
+1. Issue title
+   Additional details...
+2. Another issue...
+
+**Options:**
+1. Proposed fix title
+   Details of the fix...
+2. Alternative fix...
+
+**Resolution:** Approved resolution text or empty if not resolved.
+```
+
+- File paths are relative to the project root.
+- Status values: `ok`, `needs_work`, `blocked`.
+- Issues and Options are numbered lists with optional details indented.
+
+This format ensures human readability and deterministic parsing.
+
 ## Main methods
 - `readBacklog(path) -> rawContent`
   - Input: `path` (string absolute/relative path to backlog file).

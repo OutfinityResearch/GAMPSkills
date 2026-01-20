@@ -15,7 +15,7 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Output: `{ sections, meta }` where `sections` is an array/dictionary of section objects keyed by file (fields: `name`, `description`, `status`, `issues[]`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
   - Behavior: resolves path from type, reads file, parses via `backlogIO.parse`, returns structured data for further operations.
 - `getSection(fileKey) -> section`
-  - Input: `fileKey` (string identifier for the target file, e.g., `docs/specs/src/foo/bar.md`).
+  - Input: `fileKey` (string relative path to the target file, e.g., `docs/specs/src/foo/bar.md`).
   - Output: `section` object (`{ name, description, status, issues[], options[], resolution }`) or null if missing.
   - Behavior: fetches the section from the loaded `sections` store.
 - `recordIssue(sectionRef, issue)`
