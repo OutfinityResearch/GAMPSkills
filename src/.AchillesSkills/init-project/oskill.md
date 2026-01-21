@@ -1,8 +1,12 @@
 # Description
-The init-project skill bootstraps a new project by setting up the required directory structure for specifications and documentation, installing static tools, and initializing project backlogs. It analyzes the user's project description to seed the backlog with initial questions, proposals, and structural guidance that reflect the project's complexity and scope.
+This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter (`specsLoader.html`) from the skill directory into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt's complexity, including suggestions for which specification files to create next.
 
 # Instructions
-The LLM begins by understanding the user's intent for the project, then dynamically constructs a sequence of actions to prepare the environment. It considers creating necessary directories to organize the project, copying essential static files for tooling, and generating initial content for the backlog based on the project description. To ensure quality, it may review the generated content for completeness and relevance, iterating on any identified gaps before finalizing the setup. The process involves carefully sequencing file system operations and backlog initialization to establish a solid foundation for the project.
+Execute the following sequence using the allowed skills:
+1. Use create-directories to create: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
+2. Use generate-text to create initial content for `./specs_backlog.md` and `./docs_backlog.md` (backlogs can start empty or with basic structure)
+3. Use copy-file to copy `specsLoader.html` from the skill directory to `./docs/specsLoader.html`
+4. Use generate-text to seed `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, including suggestions for next specification files
 
 # Allowed Skills
 - create-directories
