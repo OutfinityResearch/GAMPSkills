@@ -1,5 +1,7 @@
-# Description
+# review-backlog-section
+
+## Description
 Evaluates a backlog section for coherence and completeness. Returns feedback on issues/options.
 
-# Instructions
+## Instructions
 Take section object and context. Use LLM to review and provide suggestions.
