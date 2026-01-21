@@ -1,7 +1,17 @@
 # review-backlog-section
+Evaluates a backlog section for coherence and completeness.
 
-## Description
-Evaluates a backlog section for coherence and completeness. Returns feedback on issues/options.
+## Summary
+Evaluates a backlog section for coherence and completeness.
 
-## Instructions
-Take section object and context. Use LLM to review and provide suggestions.
+## Input Format
+- **section** (object): Backlog section data.
+- **context** (string | object): Optional context for review.
+
+## Output Format
+- **Type**: `object`
+- **Success Example**: `{ "status": "needs_work", "issues": ["Missing acceptance criteria"], "options": [] }`
+- **Error Example**: `{ "error": "Section review failed." }`
+
+## Constraints
+- Return structured feedback with status and issues.

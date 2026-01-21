@@ -1,11 +1,10 @@
 import { findSectionsByPrefix } from '../../BacklogManager/BacklogManager.mjs';
 
 export async function action(context) {
-    const { prompt } = context;
-    const match = prompt.match(/backlog:\s*(specs|docs),\s*prefix:\s*(.+)/);
-    if (!match) throw new Error('Invalid prompt format for find-sections-by-prefix: expected "backlog: specs|docs, prefix: string"');
-    const backlogType = match[1];
-    const prefix = match[2].trim();
+    const { backlogType, prefix } = context;
+    if (!backlogType || !prefix) {
+        throw new Error('Invalid input for find-sections-by-prefix: expected backlogType and prefix.');
+    }
     const fileKeys = await findSectionsByPrefix(backlogType, prefix);
     return fileKeys;
 }

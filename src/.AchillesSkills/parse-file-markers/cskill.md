@@ -1,7 +1,16 @@
 # parse-file-markers
+Extracts file contents from <!-- FILE: --> delimited output.
 
-## Description
-Extracts file contents from <!-- FILE: --> delimited LLM output. Returns object mapping paths to content.
+## Summary
+Extracts file contents from <!-- FILE: --> delimited output.
 
-## Instructions
-Parse the raw string for markers, extract path and content pairs, validate format.
+## Input Format
+- **rawText** (string): LLM response containing file markers.
+
+## Output Format
+- **Type**: `object`
+- **Success Example**: `{ "docs/specs/vision.md": "# Vision..." }`
+- **Error Example**: `{ "error": "No file markers found." }`
+
+## Constraints
+- Only parse content enclosed by file markers.

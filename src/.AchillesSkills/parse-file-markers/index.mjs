@@ -1,8 +1,9 @@
 export async function action(context) {
-    const { prompt } = context;
-    const match = prompt.match(/content:\s*(.+)/s);
-    if (!match) throw new Error('Invalid prompt format for parse-file-markers: expected "content: ..."');
-    const content = match[1].trim();
+    const { rawText } = context;
+    if (!rawText) {
+        throw new Error('Invalid input for parse-file-markers: expected rawText.');
+    }
+    const content = String(rawText).trim();
     const files = {};
     const regex = /^<!--\s*FILE:\s*(.+?)\s*-->$/gm;
     let matchFile;

@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 
 export async function action(context) {
-    const { prompt } = context;
-    const match = prompt.match(/path:\s*(.+)/);
-    if (!match) throw new Error('Invalid prompt format for read-file: expected "path: /absolute/path"');
-    const path = match[1].trim();
+    const { filePath } = context;
+    if (!filePath) {
+        throw new Error('Invalid input for read-file: expected filePath.');
+    }
+    const path = String(filePath).trim();
     const content = await readFile(path, 'utf8');
     return content;
 }

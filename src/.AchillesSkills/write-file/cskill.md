@@ -1,7 +1,18 @@
 # write-file
+Writes content to a file, creating directories as needed.
 
-## Description
-Writes or overwrites a file at the specified path with the provided content string. Creates the directory structure if needed.
+## Summary
+Writes content to a file, creating directories as needed.
 
-## Instructions
-Accept a file path and content string. Ensure the parent directory exists by creating it recursively. Write the content to the file, overwriting any existing content, and handle write permissions or path errors.
+## Input Format
+- **filePath** (string): Path to the file to write.
+- **content** (string): File contents to write.
+
+## Output Format
+- **Type**: `object`
+- **Success Example**: `{ "success": true, "filePath": "./docs/specs/vision.md" }`
+- **Error Example**: `{ "error": "Unable to write file." }`
+
+## Constraints
+- Create parent directories if missing.
+- Overwrite existing files.

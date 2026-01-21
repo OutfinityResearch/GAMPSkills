@@ -1,7 +1,17 @@
 # iterate-on-feedback
+Refines content based on provided feedback.
 
-## Description
-Refines content based on provided feedback in one pass. Returns the revised content string.
+## Summary
+Refines content based on provided feedback.
 
-## Instructions
-Accept original content and feedback object. Apply suggestions to produce improved output.
+## Input Format
+- **content** (string): Original content.
+- **feedback** (object): Feedback details (issues, suggestions, options).
+
+## Output Format
+- **Type**: `string`
+- **Success Example**: "Revised content with feedback applied."
+- **Error Example**: "Error: Feedback processing failed."
+
+## Constraints
+- Apply feedback once and return the revised content.

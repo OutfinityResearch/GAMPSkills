@@ -1,7 +1,17 @@
 # read-file
+Reads the content of a file at the specified path.
 
-## Description
-Reads the content of a file at the specified path and returns it as a string. Supports reading text files with UTF-8 encoding.
+## Summary
+Reads the content of a file at the specified path.
 
-## Instructions
-Take an absolute file path as input. Open and read the file contents entirely. Return the string content, or handle errors if the file doesn't exist, is not readable, or has encoding issues.
+## Input Format
+- **filePath** (string): Absolute path to the file.
+
+## Output Format
+- **Type**: `string`
+- **Success Example**: "File contents..."
+- **Error Example**: "Error: File not found."
+
+## Constraints
+- Read using UTF-8.
+- Return the full file content.

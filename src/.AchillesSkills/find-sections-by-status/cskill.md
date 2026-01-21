@@ -1,7 +1,17 @@
 # find-sections-by-status
+Filters backlog sections by status.
 
-## Description
-Filters loaded backlog sections by status ('ok', 'needs_work', 'blocked'). Returns an array of matching fileKeys.
+## Summary
+Filters backlog sections by status.
 
-## Instructions
-Provide backlog type and status. Query the loaded sections and collect fileKeys with the specified status.
+## Input Format
+- **backlogType** (string): Backlog identifier.
+- **status** (string): Status value (e.g. "ok", "needs_work", "blocked").
+
+## Output Format
+- **Type**: `array`
+- **Success Example**: `["specs/src/api.md"]`
+- **Error Example**: `{ "error": "Backlog type not loaded." }`
+
+## Constraints
+- Status must be compared as a normalized string.

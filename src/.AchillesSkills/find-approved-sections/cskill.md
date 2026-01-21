@@ -1,7 +1,16 @@
 # find-approved-sections
+Finds backlog sections with approved resolutions.
 
-## Description
-Identifies backlog sections with non-empty Resolution (approved for action). Returns an array of fileKeys.
+## Summary
+Finds backlog sections with approved resolutions.
 
-## Instructions
-Specify backlog type. Filter loaded sections where resolution is not empty.
+## Input Format
+- **backlogType** (string): Backlog identifier (e.g. "specs", "docs").
+
+## Output Format
+- **Type**: `array`
+- **Success Example**: `["specs/global/vision.md", "specs/src/api.md"]`
+- **Error Example**: `{ "error": "Backlog type not loaded." }`
+
+## Constraints
+- Only include sections whose Resolution field is non-empty.

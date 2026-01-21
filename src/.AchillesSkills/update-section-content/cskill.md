@@ -1,7 +1,19 @@
 # update-section-content
+Updates the content fields of a backlog section.
 
-## Description
-Updates the Issues, Options, or Resolution fields of a backlog section with new data. Returns the updated sections object.
+## Summary
+Updates the content fields of a backlog section.
 
-## Instructions
-Specify backlog type, fileKey, and updates object (e.g., {issues: [...], resolution: ''}). Apply changes to the loaded sections.
+## Input Format
+- **backlogType** (string): Backlog identifier.
+- **fileKey** (string): Section key to update.
+- **updates** (object): Fields to update (issues, options, resolution).
+
+## Output Format
+- **Type**: `object`
+- **Success Example**: `{ "updated": true, "sections": { "fileKey": {} } }`
+- **Error Example**: `{ "error": "Section not found." }`
+
+## Constraints
+- Only update provided fields.
+- Preserve other section data.

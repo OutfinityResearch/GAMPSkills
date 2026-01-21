@@ -2,12 +2,13 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
 export async function action(context) {
-    const { prompt } = context;
-    const match = prompt.match(/path:\s*(.+),\s*content:\s*(.+)/s);
-    if (!match) throw new Error('Invalid prompt format for write-file: expected "path: /absolute/path, content: ..."');
-    const path = match[1].trim();
-    const content = match[2].trim();
+    const { filePath, content } = context;
+    if (!filePath) {
+        throw new Error('Invalid input for write-file: expected filePath.');
+    }
+    const path = String(filePath).trim();
+    const contentText = content == null ? '' : String(content);
     await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, content, 'utf8');
+    await writeFile(path, contentText, 'utf8');
     return 'File written successfully';
 }
