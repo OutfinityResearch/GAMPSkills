@@ -7,7 +7,7 @@ This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./
 Execute the following sequence using the allowed skills:
 1. Use create-directories to create: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
 2. Use generate-text to create initial content for `./specs_backlog.md` and `./docs_backlog.md` (backlogs can start empty or with basic structure)
-3. Use copy-file to copy `specsLoader.html` from the skill directory to `./docs/specsLoader.html`
+3. Use copy-file to copy `./specsLoader.html` from the skill directory to `./docs/specsLoader.html`
 4. Use generate-text to seed `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, including suggestions for next specification files
 
 ## Allowed Skills
@@ -16,3 +16,6 @@ Execute the following sequence using the allowed skills:
 - generate-text
 - review-text
 - iterate-on-feedback
+- append-section
+- update-section-content
+- update-section-status
