@@ -62,24 +62,24 @@ export function fromMarkdown(line) {
   return { id, title, details: '', status: '' };
 }
 
-export function filterByStatus(sections, status) {
+export function filterByStatus(tasks, status) {
   const filtered = {};
-  for (const [key, section] of Object.entries(sections)) {
-    if (section.status === status) {
-      filtered[key] = section;
+  for (const [key, task] of Object.entries(tasks)) {
+    if (task.status === status) {
+      filtered[key] = task;
     }
   }
   return filtered;
 }
 
-export function findByFile(sections, fileKey) {
-  return sections[fileKey] || null;
+export function findByFile(tasks, fileKey) {
+  return tasks[fileKey] || null;
 }
 
-export function listIssues(sections) {
+export function listIssues(tasks) {
   const issues = [];
-  for (const section of Object.values(sections)) {
-    issues.push(...section.issues);
+  for (const task of Object.values(tasks)) {
+    issues.push(...task.issues);
   }
   return issues;
 }
@@ -89,13 +89,13 @@ export class ChangeQueue {
     this.queue = [];
   }
 
-  enqueue(sectionRef, change) {
-    this.queue.push({ sectionRef, change });
+  enqueue(taskRef, change) {
+    this.queue.push({ taskRef, change });
   }
 
   drain() {
-    // Sort by sectionRef for deterministic order
-    this.queue.sort((a, b) => a.sectionRef.localeCompare(b.sectionRef));
+    // Sort by taskRef for deterministic order
+    this.queue.sort((a, b) => a.taskRef.localeCompare(b.taskRef));
     const changes = [...this.queue];
     this.queue = [];
     return changes;

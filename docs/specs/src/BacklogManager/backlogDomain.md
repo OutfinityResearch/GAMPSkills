@@ -29,20 +29,20 @@
   - Input: `block` (string list line from backlog).
   - Output: `issue` (normalized object).
   - Purpose: deterministic parse from text to structured issue.
-- `filterByStatus(sections, status) -> sections`
-  - Input: `sections` (array/dictionary), `status` (string from STATUS).
-  - Output: subset of sections matching the status.
-  - Purpose: select sections by status for reporting/processing.
-- `findByFile(sections, fileKey) -> section`
-  - Input: `sections` (array/dictionary), `fileKey` (string identifier).
-  - Output: `section` object or null.
-  - Purpose: look up the section for a specific file.
-- `listIssues(sections) -> Issue[]`
-  - Input: `sections` (array/dictionary of sections).
-  - Output: array of normalized issues across all sections.
+- `filterByStatus(tasks, status) -> tasks`
+  - Input: `tasks` (array/dictionary), `status` (string from STATUS).
+  - Output: subset of tasks matching the status.
+  - Purpose: select tasks by status for reporting/processing.
+- `findByFile(tasks, fileKey) -> task`
+  - Input: `tasks` (array/dictionary), `fileKey` (string identifier).
+  - Output: `task` object or null.
+  - Purpose: look up the task for a specific file.
+- `listIssues(tasks) -> Issue[]`
+  - Input: `tasks` (array/dictionary of tasks).
+  - Output: array of normalized issues across all tasks.
   - Purpose: aggregate all issues for reporting/processing.
 - `class ChangeQueue`
-  - `enqueue(sectionRef, change)`
+  - `enqueue(taskRef, change)`
     - Input: `sectionRef` (fileKey/section), `change` (object describing planned mutation).
     - Output: void; queues the change.
   - `drain() -> orderedChanges`

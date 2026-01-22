@@ -11,8 +11,8 @@ export async function action(context) {
         case 'loadBacklog':
             return await BacklogManager.loadBacklog(type);
         
-        case 'getSection':
-            return await BacklogManager.getSection(type, fileKey);
+        case 'getTask':
+            return await BacklogManager.getTask(type, fileKey);
         
         case 'recordIssue':
             return await BacklogManager.recordIssue(type, fileKey, issue);
@@ -23,26 +23,26 @@ export async function action(context) {
         case 'approveResolution':
             return await BacklogManager.approveResolution(type, fileKey, resolution);
         
-        case 'findSectionsByPrefix':
-            return await BacklogManager.findSectionsByPrefix(type, prefix);
+        case 'findTasksByPrefix':
+            return await BacklogManager.findTasksByPrefix(type, prefix);
         
-        case 'findSectionByFileName':
-            return await BacklogManager.findSectionByFileName(type, fileName);
+        case 'findTaskByFileName':
+            return await BacklogManager.findTaskByFileName(type, fileName);
         
-        case 'findSectionsByStatus':
-            return await BacklogManager.findSectionsByStatus(type, status);
+        case 'findTasksByStatus':
+            return await BacklogManager.findTasksByStatus(type, status);
         
         case 'setStatus':
             await BacklogManager.setStatus(type, fileKey, status);
             return 'Status updated successfully';
         
-        case 'updateSection':
-            await BacklogManager.updateSection(type, fileKey, updates);
-            return 'Section updated successfully';
+        case 'updateTask':
+            await BacklogManager.updateTask(type, fileKey, updates);
+            return 'Task updated successfully';
         
-        case 'appendSection':
-            await BacklogManager.appendSection(type, fileKey, initialContent);
-            return 'Section appended successfully';
+        case 'appendTask':
+            await BacklogManager.appendTask(type, fileKey, initialContent);
+            return 'Task appended successfully';
         
         default:
             throw new Error(`Unknown operation: ${operation}`);

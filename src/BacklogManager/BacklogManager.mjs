@@ -9,56 +9,56 @@ export async function loadBacklog(type) {
   }
   const path = resolve(`./${type}_backlog.md`);
   const rawContent = await readBacklog(path);
-  const sections = parse(rawContent);
+  const tasks = parse(rawContent);
   const stats = await stat(path);
   const meta = { mtime: stats.mtime, size: stats.size };
-  return { sections, meta };
+  return { tasks, meta };
 }
 
-export async function getSection(type, fileKey) {
-  const { sections } = await loadBacklog(type);
-  return sections[fileKey] || null;
+export async function getTask(type, fileKey) {
+  const { tasks } = await loadBacklog(type);
+  return tasks[fileKey] || null;
 }
 
 export async function recordIssue(type, relativeFilePath, issue) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (!section) return null;
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (!task) return null;
   const normalized = normalizeIssue(issue);
-  normalized.id = section.issues.length + 1;
-  section.issues.push(normalized);
-  await saveBacklog(type, sections);
-  return section;
+  normalized.id = task.issues.length + 1;
+  task.issues.push(normalized);
+  await saveBacklog(type, tasks);
+  return task;
 }
 
 export async function proposeFix(type, relativeFilePath, proposal) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (!section) return null;
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (!task) return null;
   const normalized = normalizeIssue(proposal); // reuse
-  normalized.id = section.options.length + 1;
-  section.options.push(normalized);
-  await saveBacklog(type, sections);
-  return section;
+  normalized.id = task.options.length + 1;
+  task.options.push(normalized);
+  await saveBacklog(type, tasks);
+  return task;
 }
 
 export async function approveResolution(type, relativeFilePath, resolutionString) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (!section) return null;
-  section.resolution = resolutionString;
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (!task) return null;
+  task.resolution = resolutionString;
   // Update status if resolution is set
   if (resolutionString.trim()) {
-    section.status = 'ok';
+    task.status = 'ok';
   }
-  await saveBacklog(type, sections);
-  return section;
+  await saveBacklog(type, tasks);
+  return task;
 }
 
 export async function applyChanges(type, relativeFilePath, approvedItems, hooks) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (!section) return null;
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (!task) return null;
   const queue = new ChangeQueue();
   for (const item of approvedItems) {
     queue.enqueue(relativeFilePath, item);
@@ -69,30 +69,30 @@ export async function applyChanges(type, relativeFilePath, approvedItems, hooks)
     if (change.type === 'issue') {
       // Call hook, e.g., hooks.applySpecFix
       if (hooks.applySpecFix) {
-        hooks.applySpecFix(section, change);
+        hooks.applySpecFix(task, change);
       }
     } else if (change.type === 'option') {
       if (hooks.applyDocFix) {
-        hooks.applyDocFix(section, change);
+        hooks.applyDocFix(task, change);
       }
     }
   }
   // Update status
-  section.status = 'ok';
-  await saveBacklog(type, sections);
+  task.status = 'ok';
+  await saveBacklog(type, tasks);
   return changes;
 }
 
-export async function saveBacklog(type, sections) {
+export async function saveBacklog(type, tasks) {
   const path = resolve(`./${type}_backlog.md`);
-  const content = render(sections);
+  const content = render(tasks);
   await writeBacklog(path, content);
 }
 
-export async function findSectionsByPrefix(type, prefix) {
-  const { sections } = await loadBacklog(type);
+export async function findTasksByPrefix(type, prefix) {
+  const { tasks } = await loadBacklog(type);
   const names = [];
-  for (const key of Object.keys(sections)) {
+  for (const key of Object.keys(tasks)) {
     if (key.startsWith(prefix)) {
       names.push(key);
     }
@@ -100,9 +100,9 @@ export async function findSectionsByPrefix(type, prefix) {
   return names;
 }
 
-export async function findSectionByFileName(type, fileName) {
-  const { sections } = await loadBacklog(type);
-  for (const [key, section] of Object.entries(sections)) {
+export async function findTaskByFileName(type, fileName) {
+  const { tasks } = await loadBacklog(type);
+  for (const [key, task] of Object.entries(tasks)) {
     if (key.endsWith(fileName)) {
       return key;
     }
@@ -110,11 +110,11 @@ export async function findSectionByFileName(type, fileName) {
   return null;
 }
 
-export async function findSectionsByStatus(type, status) {
-  const { sections } = await loadBacklog(type);
+export async function findTasksByStatus(type, status) {
+  const { tasks } = await loadBacklog(type);
   const names = [];
-  for (const [key, section] of Object.entries(sections)) {
-    if (section.status === status) {
+  for (const [key, task] of Object.entries(tasks)) {
+    if (task.status === status) {
       names.push(key);
     }
   }
@@ -122,27 +122,27 @@ export async function findSectionsByStatus(type, status) {
 }
 
 export async function setStatus(type, relativeFilePath, status) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (section) {
-    section.status = status;
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (task) {
+    task.status = status;
   }
-  await saveBacklog(type, sections);
+  await saveBacklog(type, tasks);
 }
 
-export async function updateSection(type, relativeFilePath, updates) {
-  const { sections } = await loadBacklog(type);
-  const section = sections[relativeFilePath];
-  if (section) {
-    Object.assign(section, updates);
+export async function updateTask(type, relativeFilePath, updates) {
+  const { tasks } = await loadBacklog(type);
+  const task = tasks[relativeFilePath];
+  if (task) {
+    Object.assign(task, updates);
   }
-  await saveBacklog(type, sections);
+  await saveBacklog(type, tasks);
 }
 
-export async function appendSection(type, relativeFilePath, initialContent) {
-  const { sections } = await loadBacklog(type);
-  if (!sections[relativeFilePath]) {
-    sections[relativeFilePath] = {
+export async function appendTask(type, relativeFilePath, initialContent) {
+  const { tasks } = await loadBacklog(type);
+  if (!tasks[relativeFilePath]) {
+    tasks[relativeFilePath] = {
       name: relativeFilePath,
       description: initialContent,
       status: 'needs_work',
@@ -151,6 +151,6 @@ export async function appendSection(type, relativeFilePath, initialContent) {
       resolution: ''
     };
   }
-  await saveBacklog(type, sections);
+  await saveBacklog(type, tasks);
 }
 

@@ -17,7 +17,7 @@ export async function writeBacklog(path, content) {
 }
 
 export function parse(rawContent) {
-  const sections = {};
+  const tasks = {};
   const lines = rawContent.split('\n');
   let i = 0;
   while (i < lines.length) {
@@ -64,7 +64,7 @@ export function parse(rawContent) {
         }
         i++;
       }
-      sections[fileKey] = {
+      tasks[fileKey] = {
         name: fileKey,
         description: description.trim(),
         status,
@@ -76,7 +76,7 @@ export function parse(rawContent) {
       i++;
     }
   }
-  return sections;
+  return tasks;
 }
 
 function parseNumberedItem(lines, startIndex) {
@@ -98,15 +98,15 @@ function parseNumberedItem(lines, startIndex) {
   return { title, details: details.trim(), consumed };
 }
 
-export function render(sections) {
+export function render(tasks) {
   let content = '';
-  for (const [fileKey, section] of Object.entries(sections)) {
+  for (const [fileKey, task] of Object.entries(tasks)) {
     content += `### File: ${fileKey}\n\n`;
-    content += `**Description:** ${section.description}\n\n`;
-    content += `**Status:** ${section.status}\n\n`;
-    if (section.issues.length > 0) {
+    content += `**Description:** ${task.description}\n\n`;
+    content += `**Status:** ${task.status}\n\n`;
+    if (task.issues.length > 0) {
       content += '**Issues:**\n';
-      for (const issue of section.issues) {
+      for (const issue of task.issues) {
         content += `${issue.id}. ${issue.title}\n`;
         if (issue.details) {
           content += `   ${issue.details}\n`;
@@ -114,9 +114,9 @@ export function render(sections) {
       }
       content += '\n';
     }
-    if (section.options.length > 0) {
+    if (task.options.length > 0) {
       content += '**Options:**\n';
-      for (const option of section.options) {
+      for (const option of task.options) {
         content += `${option.id}. ${option.title}\n`;
         if (option.details) {
           content += `   ${option.details}\n`;
@@ -124,34 +124,34 @@ export function render(sections) {
       }
       content += '\n';
     }
-    content += `**Resolution:** ${section.resolution}\n\n`;
+    content += `**Resolution:** ${task.resolution}\n\n`;
   }
   return content.trim();
 }
 
-export function sliceToSection(rawContent, fileKey) {
-  const sections = rawContent.split(/^### File: /m);
-  for (let i = 1; i < sections.length; i++) {
-    const section = sections[i];
-    const lines = section.split('\n');
+export function sliceToTask(rawContent, fileKey) {
+  const tasks = rawContent.split(/^### File: /m);
+  for (let i = 1; i < tasks.length; i++) {
+    const task = tasks[i];
+    const lines = task.split('\n');
     if (lines[0].trim() === fileKey) {
-      return `### File: ${section.trim()}`;
+      return `### File: ${task.trim()}`;
     }
   }
   return '';
 }
 
-export function mergeSection(rawContent, sectionText, fileKey) {
-  const sections = rawContent.split(/^### File: /m);
-  let newContent = sections[0]; // before first section
+export function mergeTask(rawContent, taskText, fileKey) {
+  const tasks = rawContent.split(/^### File: /m);
+  let newContent = tasks[0]; // before first task
 
-  for (let i = 1; i < sections.length; i++) {
-    const section = sections[i];
-    const lines = section.split('\n');
+  for (let i = 1; i < tasks.length; i++) {
+    const task = tasks[i];
+    const lines = task.split('\n');
     if (lines[0].trim() === fileKey) {
-      newContent += sectionText.replace(/^### File: /, '');
+      newContent += taskText.replace(/^### File: /, '');
     } else {
-      newContent += `### File: ${section}`;
+      newContent += `### File: ${task}`;
     }
   }
 

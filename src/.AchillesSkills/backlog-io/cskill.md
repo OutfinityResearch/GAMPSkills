@@ -5,21 +5,21 @@ Executes backlog operations via BacklogManager methods.
 Executes backlog operations via BacklogManager methods.
 
 ## Input Format
-- **operation** (string): Operation type (loadBacklog, getSection, recordIssue, proposeFix, approveResolution, findSectionsByPrefix, findSectionByFileName, findSectionsByStatus, setStatus, updateSection, appendSection).
+- **operation** (string): Operation type (loadBacklog, getTask, recordIssue, proposeFix, approveResolution, findTasksByPrefix, findTaskByFileName, findTasksByStatus, setStatus, updateTask, appendTask).
 - **type** (string): Backlog type ('specs' or 'docs').
-- **fileKey** (string, optional): File key for section operations.
+- **fileKey** (string, optional): File key for task operations.
 - **issue** (object, optional): Issue object for recordIssue.
 - **proposal** (object, optional): Proposal object for proposeFix.
 - **resolution** (string, optional): Resolution string for approveResolution.
-- **prefix** (string, optional): Prefix for findSectionsByPrefix.
-- **fileName** (string, optional): File name for findSectionByFileName.
-- **status** (string, optional): Status for findSectionsByStatus or setStatus.
-- **updates** (object, optional): Updates object for updateSection.
-- **initialContent** (string, optional): Initial content for appendSection.
+- **prefix** (string, optional): Prefix for findTasksByPrefix.
+- **fileName** (string, optional): File name for findTaskByFileName.
+- **status** (string, optional): Status for findTasksByStatus or setStatus.
+- **updates** (object, optional): Updates object for updateTask.
+- **initialContent** (string, optional): Initial content for appendTask.
 
 ## Output Format
 - **Type**: `object | array | string`
-- **Success Example**: { sections: {...}, meta: {...} } or ["file1.md", "file2.md"]
+- **Success Example**: { tasks: {...}, meta: {...} } or ["file1.md", "file2.md"]
 - **Error Example**: "Error: Invalid backlog type."
 
 ## Constraints
