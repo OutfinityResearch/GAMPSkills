@@ -5,12 +5,36 @@ This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./
 
 ## Instructions
 Execute the following sequence using the allowed skills:
-1. Use create-directories to create: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
-2. Use generate-text to create initial content for `./specs_backlog.md` and `./docs_backlog.md` (backlogs can start empty or with basic structure)
-3. Use copy-file to copy `./specsLoader.html` from the skill directory to `./docs/specsLoader.html`
-4. Use generate-text to seed `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, including suggestions for next specification files
+1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
+2. Create files `./specs_backlog.md` and `./docs_backlog.md` (backlogs can start empty or with basic structure)
+3. Copy `./specsLoader.html` to `./docs/specsLoader.html`
+4. Generate content for `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, regarding DS files that need to be created
+
+When calling skills, use their specific input formats:
+
+**file-system:**
+- operation: "readFile" | "writeFile" | "appendFile" | "deleteFile" | "createDirectory" | "listDirectory" | "fileExists" | "copyFile" | "moveFile"
+- path: target file or directory path (required)
+- content: file content (optional, for writeFile/appendFile)
+- destination: destination path (optional, for copyFile/moveFile)
+
+**backlog-io:**
+- operation: "loadBacklog" | "getTask" | "recordIssue" | "proposeFix" | "approveResolution" | "findTasksByPrefix" | "findTaskByFileName" | "findTasksByStatus" | "setStatus" | "updateTask" | "appendTask"
+- type: "specs" | "docs" (required)
+- fileKey: file key for task operations (optional)
+- issue: issue object for recordIssue (optional)
+- proposal: proposal object for proposeFix (optional)
+- resolution: resolution string for approveResolution (optional)
+- prefix: prefix for findTasksByPrefix (optional)
+- fileName: file name for findTaskByFileName (optional)
+- status: status for findTasksByStatus or setStatus (optional)
+- updates: updates object for updateTask (optional)
+- initialContent: initial content for appendTask (optional)
+
+**ds-expert:**
+- prompt: user instructions for DS content generation (required)
 
 ## Allowed Skills
 - file-system
-- backlog-io
+- backlog-io  
 - ds-expert

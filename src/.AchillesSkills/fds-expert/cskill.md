@@ -6,7 +6,6 @@ Generates File Design Specification (FDS) content with technical implementation 
 
 ## Input Format
 - **prompt** (string): User instructions for FDS content generation.
-- **llmAgent** (object): LLM agent instance with executePrompt method.
 
 ## Output Format
 - **Type**: `string`

@@ -6,7 +6,6 @@ Generates Design Specification (DS) content with global vision and high-level fe
 
 ## Input Format
 - **prompt** (string): User instructions for DS content generation.
-- **llmAgent** (object): LLM agent instance with executePrompt method.
 
 ## Output Format
 - **Type**: `string`

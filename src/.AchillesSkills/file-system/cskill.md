@@ -1,8 +1,8 @@
 # file-system
-Executes file system operations (read, write, delete, copy, list).
+Executes file system operations (read, write, delete, copy, list) using nodeJS functions.
 
 ## Summary
-Executes file system operations (read, write, delete, copy, list).
+Executes file system operations (read, write, delete, copy, list) using nodeJS functions. You must provide the function name from the options below(operation parameter). Do not provide bash commands.
 
 ## Input Format
 - **operation** (string): Operation type (readFile, writeFile, appendFile, deleteFile, createDirectory, listDirectory, fileExists, copyFile, moveFile).
@@ -17,4 +17,3 @@ Executes file system operations (read, write, delete, copy, list).
 
 ## Constraints
 - All paths must be relative to project root.
-- Operations must handle errors gracefully.
