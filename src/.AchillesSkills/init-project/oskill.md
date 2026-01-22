@@ -11,11 +11,6 @@ Execute the following sequence using the allowed skills:
 4. Use generate-text to seed `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, including suggestions for next specification files
 
 ## Allowed Skills
-- create-directories
-- copy-file
-- generate-text
-- review-text
-- iterate-on-feedback
-- append-section
-- update-section-content
-- update-section-status
+- file-system
+- backlog-io
+- ds-expert
