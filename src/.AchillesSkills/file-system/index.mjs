@@ -1,9 +1,42 @@
 import { readFile, writeFile, appendFile, unlink, mkdir, readdir, stat, copyFile, rename } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { existsSync } from 'fs';
+import { resolveArguments } from '../../ArgumentResolver.mjs';
 
 export async function action(context) {
-    const { operation, path, content, destination } = context;
+    const { llmAgent, recursiveAgent, ...args } = context;
+    
+    // If we have structured args already, use them directly
+    if (args.operation && args.path) {
+        return await executeFileOperation(args);
+    }
+    
+    // Otherwise, resolve from natural language input
+    const prompt = args.prompt || args.input || Object.values(args)[0];
+    if (!prompt) {
+        throw new Error('No input provided for file-system operation');
+    }
+    
+    const schema = ['operation', 'path', 'content', 'destination'];
+    const regexPatterns = [
+        /(\w+)\s+(.+)/,  // "createDirectory ./docs"
+        /(\w+):\s*(.+)/, // "operation: createDirectory"
+        /(\w+)\s+([^\s]+)\s+(.+)/, // "writeFile ./test.txt hello world"
+    ];
+    
+    const resolvedArgs = await resolveArguments(
+        llmAgent,
+        prompt,
+        'Extract file system operation arguments',
+        schema,
+        regexPatterns
+    );
+    
+    const [operation, path, content, destination] = resolvedArgs;
+    return await executeFileOperation({ operation, path, content, destination });
+}
+
+async function executeFileOperation({ operation, path, content, destination }) {
     if (!operation || !path) {
         throw new Error('Invalid input: operation and path are required.');
     }

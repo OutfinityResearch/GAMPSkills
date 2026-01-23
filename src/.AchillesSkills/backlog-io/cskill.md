@@ -2,7 +2,7 @@
 Executes backlog operations via BacklogManager methods.
 
 ## Summary
-Executes backlog operations via BacklogManager methods.
+Executes backlog operations via BacklogManager methods. Provide natural language instructions like "load specs backlog" or "get task from docs backlog with key myfile".
 
 ## Input Format
 - **operation** (string): Operation type (loadBacklog, getTask, recordIssue, proposeFix, approveResolution, findTasksByPrefix, findTaskByFileName, findTasksByStatus, setStatus, updateTask, appendTask).
@@ -16,6 +16,12 @@ Executes backlog operations via BacklogManager methods.
 - **status** (string, optional): Status for findTasksByStatus or setStatus.
 - **updates** (object, optional): Updates object for updateTask.
 - **initialContent** (string, optional): Initial content for appendTask.
+
+Examples:
+- "loadBacklog specs"
+- "getTask docs myfile"
+- "findTasksByStatus specs completed"
+- "appendTask specs newfile initial content here"
 
 ## Output Format
 - **Type**: `object | array | string`

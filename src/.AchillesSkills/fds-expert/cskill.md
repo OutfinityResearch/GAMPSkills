@@ -2,10 +2,15 @@
 Generates File Design Specification (FDS) content with technical implementation details.
 
 ## Summary
-Generates File Design Specification (FDS) content with technical implementation details.
+Generates File Design Specification (FDS) content with technical implementation details. Provide natural language instructions describing the technical module or component to be specified.
 
 ## Input Format
 - **prompt** (string): User instructions for FDS content generation.
+
+Examples:
+- "Create FDS for user authentication module"
+- "Generate file specification for database connection handler"
+- "Write FDS for equipment management API endpoints"
 
 ## Output Format
 - **Type**: `string`

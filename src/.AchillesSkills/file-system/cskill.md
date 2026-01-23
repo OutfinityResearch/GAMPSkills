@@ -2,13 +2,19 @@
 Executes file system operations (read, write, delete, copy, list) using nodeJS functions.
 
 ## Summary
-Executes file system operations (read, write, delete, copy, list) using nodeJS functions. You must provide the function name from the options below(operation parameter). Do not provide bash commands.
+Executes file system operations (read, write, delete, copy, list) using nodeJS functions. Provide natural language instructions like "create directory ./docs" or "write file ./test.txt with content hello".
 
 ## Input Format
 - **operation** (string): Operation type (readFile, writeFile, appendFile, deleteFile, createDirectory, listDirectory, fileExists, copyFile, moveFile).
 - **path** (string): Target file or directory path.
 - **content** (string, optional): Content for write/append operations.
 - **destination** (string, optional): Destination path for copy/move operations.
+
+Examples:
+- "createDirectory ./docs"
+- "writeFile ./test.txt hello world"
+- "readFile ./package.json"
+- "copyFile ./src/file.js ./backup/file.js"
 
 ## Output Format
 - **Type**: `string | object`

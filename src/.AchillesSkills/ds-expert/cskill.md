@@ -2,10 +2,15 @@
 Generates Design Specification (DS) content with global vision and high-level feature descriptions.
 
 ## Summary
-Generates Design Specification (DS) content with global vision and high-level feature descriptions.
+Generates Design Specification (DS) content with global vision and high-level feature descriptions. Provide natural language instructions describing the project vision and requirements.
 
 ## Input Format
 - **prompt** (string): User instructions for DS content generation.
+
+Examples:
+- "Create a DS for a web app that manages equipment and materials"
+- "Generate design specification for inventory management system"
+- "Write DS content for job scheduling application"
 
 ## Output Format
 - **Type**: `string`

@@ -10,29 +10,19 @@ Execute the following sequence using the allowed skills:
 3. Copy `./specsLoader.html` to `./docs/specsLoader.html`
 4. Generate content for `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, regarding DS files that need to be created
 
-When calling skills, use their specific input formats:
+When calling skills, use natural language instructions:
 
-**file-system:**
-- operation: "readFile" | "writeFile" | "appendFile" | "deleteFile" | "createDirectory" | "listDirectory" | "fileExists" | "copyFile" | "moveFile"
-- path: target file or directory path (required)
-- content: file content (optional, for writeFile/appendFile)
-- destination: destination path (optional, for copyFile/moveFile)
+**file-system examples:**
+- "createDirectory ./docs"
+- "writeFile ./specs_backlog.md content here"
+- "copyFile ./specsLoader.html ./docs/specsLoader.html"
 
-**backlog-io:**
-- operation: "loadBacklog" | "getTask" | "recordIssue" | "proposeFix" | "approveResolution" | "findTasksByPrefix" | "findTaskByFileName" | "findTasksByStatus" | "setStatus" | "updateTask" | "appendTask"
-- type: "specs" | "docs" (required)
-- fileKey: file key for task operations (optional)
-- issue: issue object for recordIssue (optional)
-- proposal: proposal object for proposeFix (optional)
-- resolution: resolution string for approveResolution (optional)
-- prefix: prefix for findTasksByPrefix (optional)
-- fileName: file name for findTaskByFileName (optional)
-- status: status for findTasksByStatus or setStatus (optional)
-- updates: updates object for updateTask (optional)
-- initialContent: initial content for appendTask (optional)
+**backlog-io examples:**
+- "loadBacklog specs"
+- "appendTask specs newfile initial content"
 
-**ds-expert:**
-- prompt: user instructions for DS content generation (required)
+**ds-expert examples:**
+- "Generate DS content for project management system"
 
 ## Allowed Skills
 - file-system
