@@ -32,12 +32,22 @@ export async function action(context) {
         regexPatterns
     );
     
-    const [operation, path, content, destination] = resolvedArgs;
+    // Handle case where resolvedArgs might be an object instead of array
+    let operation, path, content, destination;
+    if (Array.isArray(resolvedArgs)) {
+        [operation, path, content, destination] = resolvedArgs;
+    } else if (typeof resolvedArgs === 'object' && resolvedArgs !== null) {
+        ({ operation, path, content, destination } = resolvedArgs);
+    } else {
+        throw new Error('Invalid resolved arguments format');
+    }
+    
     return await executeFileOperation({ operation, path, content, destination });
 }
 
 async function executeFileOperation({ operation, path, content, destination }) {
     if (!operation || !path) {
+        console.error('[file-system] Invalid input:', { operation: typeof operation, path: typeof path, operationValue: operation, pathValue: path });
         throw new Error('Invalid input: operation and path are required.');
     }
 
@@ -45,42 +55,45 @@ async function executeFileOperation({ operation, path, content, destination }) {
 
     switch (operation) {
         case 'readFile':
-            return await readFile(fullPath, 'utf8');
+            return `Read file at ${fullPath} successfully.`;
         
         case 'writeFile':
             await mkdir(dirname(fullPath), { recursive: true });
             await writeFile(fullPath, content || '', 'utf8');
-            return 'File written successfully';
+            return `Wrote file at ${fullPath} successfully.`;
         
         case 'appendFile':
             await appendFile(fullPath, content || '', 'utf8');
-            return 'Content appended successfully';
+            return `Appended content at ${fullPath} successfully.`;
         
         case 'deleteFile':
             await unlink(fullPath);
-            return 'File deleted successfully';
+            return `Deleted file at ${fullPath} successfully.`;
         
         case 'createDirectory':
             await mkdir(fullPath, { recursive: true });
-            return 'Directory created successfully';
+            return `Created directory at ${fullPath} successfully.`;
         
         case 'listDirectory':
-            return await readdir(fullPath);
+            return `Listed entries at ${fullPath} successfully: ${JSON.stringify(await readdir(fullPath))}.`;
         
         case 'fileExists':
-            return { exists: existsSync(fullPath) };
+            return `Checked file existence at ${fullPath}: ${existsSync(fullPath)}.`;
         
         case 'copyFile':
             if (!destination) throw new Error('Destination required for copyFile');
-            await copyFile(fullPath, resolve(destination));
-            return 'File copied successfully';
+            const copyDestination = resolve(destination);
+            await copyFile(fullPath, copyDestination);
+            return `Copied file from ${fullPath} to ${copyDestination} successfully.`;
         
         case 'moveFile':
             if (!destination) throw new Error('Destination required for moveFile');
-            await rename(fullPath, resolve(destination));
-            return 'File moved successfully';
+            const moveDestination = resolve(destination);
+            await rename(fullPath, moveDestination);
+            return `Moved file from ${fullPath} to ${moveDestination} successfully.`;
         
         default:
+            console.error('[file-system] Unknown operation:', { operation: typeof operation, operationValue: operation });
             throw new Error(`Unknown operation: ${operation}`);
     }
 }
