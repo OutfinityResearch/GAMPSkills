@@ -23,7 +23,7 @@ async function copyFixtures(destDir) {
 
 async function runReviewSpecs(agent, targetDir) {
   const result = await agent.executeWithReviewMode(targetDir, { skillName: 'review-specs', targetDir }, 'none');
-  return result?.result?.output ?? result?.output ?? result;
+  return result?.result ?? result;
 }
 
 function parseBacklog(content) {

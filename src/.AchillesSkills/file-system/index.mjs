@@ -1,47 +1,77 @@
 import { readFile, writeFile, appendFile, unlink, mkdir, readdir, stat, copyFile, rename } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { existsSync } from 'fs';
-import { resolveArguments } from '../../ArgumentResolver.mjs';
+import { extractArgumentsWithLLM } from '../../ArgumentResolver.mjs';
 
 export async function action(context) {
-    const { llmAgent, recursiveAgent, ...args } = context;
-    
-    // If we have structured args already, use them directly
-    if (args.operation && args.path) {
-        return await executeFileOperation(args);
-    }
-    
+    const { llmAgent, recursiveAgent, promptText } = context;
+
     // Otherwise, resolve from natural language input
-    const prompt = args.prompt || args.input || Object.values(args)[0];
-    if (!prompt) {
+    if (!promptText) {
         throw new Error('No input provided for file-system operation');
     }
     
-    const schema = ['operation', 'path', 'content', 'destination'];
-    const regexPatterns = [
-        /(\w+)\s+(.+)/,  // "createDirectory ./docs"
-        /(\w+):\s*(.+)/, // "operation: createDirectory"
-        /(\w+)\s+([^\s]+)\s+(.+)/, // "writeFile ./test.txt hello world"
-    ];
-    
-    const resolvedArgs = await resolveArguments(
-        llmAgent,
-        prompt,
-        'Extract file system operation arguments',
-        schema,
-        regexPatterns
-    );
-    
-    // Handle case where resolvedArgs might be an object instead of array
-    let operation, path, content, destination;
-    if (Array.isArray(resolvedArgs)) {
-        [operation, path, content, destination] = resolvedArgs;
-    } else if (typeof resolvedArgs === 'object' && resolvedArgs !== null) {
-        ({ operation, path, content, destination } = resolvedArgs);
-    } else {
-        throw new Error('Invalid resolved arguments format');
+    const allowedOperations = new Set([
+        'readFile',
+        'writeFile',
+        'appendFile',
+        'deleteFile',
+        'createDirectory',
+        'listDirectory',
+        'fileExists',
+        'copyFile',
+        'moveFile',
+    ]);
+
+    const rawPrompt = String(promptText ?? '');
+    const firstLine = rawPrompt.split(/\r?\n/, 1)[0].trim();
+    const tokens = firstLine.split(/\s+/).filter(Boolean);
+
+    let operation = tokens[0];
+    let path = tokens[1];
+    let content;
+    let destination;
+
+    const pathIndex = typeof path === 'string' ? rawPrompt.indexOf(path) : -1;
+    const payload = pathIndex >= 0 ? rawPrompt.slice(pathIndex + path.length).trim() : '';
+
+    if (/^destination\s*:/i.test(payload)) {
+        destination = payload.replace(/^destination\s*:\s*/i, '');
+    } else if (/^content\s*:/i.test(payload)) {
+        content = payload.replace(/^content\s*:\s*/i, '');
+    } else if (operation === 'writeFile' || operation === 'appendFile') {
+        content = payload;
     }
-    
+
+    if (typeof operation === 'string') {
+        operation = operation.trim().split(/\s+/)[0];
+    }
+    if (typeof path === 'string') {
+        path = path.trim();
+    }
+
+    if (!allowedOperations.has(operation) || !path) {
+        if (!llmAgent || typeof llmAgent.complete !== 'function') {
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+
+        const llmResult = await extractArgumentsWithLLM(
+            llmAgent,
+            promptText,
+            `Extract file system operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
+            ['operation', 'path', 'content', 'destination'],
+        );
+
+        if (Array.isArray(llmResult)) {
+            [operation, path, content, destination] = llmResult;
+            if (typeof operation === 'string') {
+                operation = operation.trim().split(/\s+/)[0];
+            }
+        } else {
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+    }
+
     return await executeFileOperation({ operation, path, content, destination });
 }
 

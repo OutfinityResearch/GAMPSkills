@@ -12,7 +12,7 @@ By executing the allowed skills you must achieve the following results:
 
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-io/file-system skills write that content to files.
 - Make the prompt for ds-expert in such a way that you create the DS files one step at a time (generate content for file 1 → write to file 1 → generate content for file 2 → write to file 2)
-- The last step should be calling the ds-expert once again to create questions that will be put in specs_backlog (call ds-expert once to get multiple questions → call backlog-io multiple times for each question)
+- The last step should be calling the ds-expert once again to create questions that will be put in specs_backlog (call ds-expert to get one question → call backlog-io → call ds-expert to get question → call backlog-io)
 - Each skill call handles only ONE operation. To perform multiple actions, call the same skill multiple times with different parameters.
 
 ## Allowed Skills

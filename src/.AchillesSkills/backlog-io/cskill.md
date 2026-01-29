@@ -17,11 +17,16 @@ Executes backlog operations via BacklogManager methods. Provide natural language
 - **updates** (object, optional): Updates object for updateTask.
 - **initialContent** (string, optional): Initial content for appendTask.
 
+Rules:
+- First token is always the operation.
+- Second token is always the backlog type.
+- Optional parameters must be provided as `paramName: value` on the same line.
+
 Examples:
 - "loadBacklog specs"
 - "getTask docs myfile"
-- "findTasksByStatus specs completed"
-- "appendTask specs newfile initial content here"
+- "findTasksByStatus specs status: completed"
+- "appendTask specs fileKey: SPEC-QUESTION-01 initialContent: First line\nSecond line"
 
 ## Output Format
 - **Type**: `object | array | string`

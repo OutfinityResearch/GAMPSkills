@@ -1,40 +1,96 @@
 import * as BacklogManager from '../../BacklogManager/BacklogManager.mjs';
-import { resolveArguments } from '../../ArgumentResolver.mjs';
+import { extractArgumentsWithLLM } from '../../ArgumentResolver.mjs';
 
 export async function action(context) {
-    const { llmAgent, recursiveAgent, ...args } = context;
+    const { llmAgent, recursiveAgent, promptText } = context;
     
-    // If we have structured args already, use them directly
-    if (args.operation && args.type) {
-        return await executeBacklogOperation(args);
+    const allowedOperations = new Set([
+        'loadBacklog',
+        'getTask',
+        'recordIssue',
+        'proposeFix',
+        'approveResolution',
+        'findTasksByPrefix',
+        'findTaskByFileName',
+        'findTasksByStatus',
+        'setStatus',
+        'updateTask',
+        'appendTask',
+    ]);
+
+    const lines = String(promptText).split(/\r?\n/);
+    const firstLineIndex = lines.findIndex((line) => line.trim().length > 0);
+    const firstLine = firstLineIndex >= 0 ? lines[firstLineIndex].trim() : '';
+    const tokens = firstLine.split(/\s+/).filter(Boolean);
+
+    let operation = tokens[0];
+    let type = tokens[1];
+    let fileKey = tokens[2];
+    let issue;
+    let proposal;
+    let resolution;
+    let prefix;
+    let fileName;
+    let status;
+    let updates;
+    let initialContent;
+
+    const remainingLines = firstLineIndex >= 0 ? lines.slice(firstLineIndex + 1) : [];
+    const keyValuePattern = /^(\w+)\s*:\s*(.*)$/;
+    for (let i = 0; i < remainingLines.length; i += 1) {
+        const line = remainingLines[i];
+        const match = line.match(keyValuePattern);
+        if (!match) {
+            continue;
+        }
+        const key = match[1];
+        const value = match[2] ?? '';
+
+        if (key === 'fileKey') {
+            fileKey = value.trim();
+        } else if (key === 'status') {
+            status = value.trim();
+        } else if (key === 'initialContent') {
+            const tail = remainingLines.slice(i + 1).join('\n');
+            initialContent = value + (tail ? `\n${tail}` : '');
+            break;
+        }
     }
-    
-    // Otherwise, resolve from natural language input
-    const prompt = args.prompt || args.input || Object.values(args)[0];
-    if (!prompt) {
-        throw new Error('No input provided for backlog-io operation');
+
+    if (typeof operation === 'string') {
+        operation = operation.trim().split(/\s+/)[0];
     }
-    
-    const schema = ['operation', 'type', 'fileKey', 'status', 'initialContent'];
-    const regexPatterns = [
-        /(\w+)\s+(specs|docs)\s*(.+)?/,  // "loadBacklog specs"
-        /(\w+)\s+(specs|docs)\s+(\w+)/,  // "getTask docs myfile"
-        /(\w+):\s*(\w+)/,                // "operation: loadBacklog"
-    ];
-    
-    const resolvedArgs = await resolveArguments(
-        llmAgent,
-        prompt,
-        'Extract backlog operation arguments',
-        schema,
-        regexPatterns
-    );
-    
-    const [operation, type, fileKey, status, initialContent] = resolvedArgs;
-    return await executeBacklogOperation({ 
-        operation, type, fileKey, status, initialContent,
-        // Pass through other optional args that might be in context
-        ...args
+    if (typeof type === 'string') {
+        type = type.trim().toLowerCase();
+    }
+
+    if (!allowedOperations.has(operation) || (type && !['specs', 'docs'].includes(type))) {
+        if (!llmAgent || typeof llmAgent.complete !== 'function') {
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+
+        const llmResult = await extractArgumentsWithLLM(
+            llmAgent,
+            promptText,
+            `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
+            ['operation', 'type', 'fileKey', 'status', 'initialContent'],
+        );
+
+        if (Array.isArray(llmResult)) {
+            [operation, type, fileKey, status, initialContent] = llmResult;
+            if (typeof operation === 'string') {
+                operation = operation.trim().split(/\s+/)[0];
+            }
+            if (typeof type === 'string') {
+                type = type.trim().toLowerCase();
+            }
+        } else {
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+    }
+
+    return await executeBacklogOperation({
+        operation, type, fileKey, issue, proposal, resolution, prefix, fileName, status, updates, initialContent
     });
 }
 

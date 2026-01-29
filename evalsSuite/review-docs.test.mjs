@@ -27,7 +27,7 @@ async function runReviewDocs(agent, targetDir) {
     { skillName: 'review-docs', targetDir },
     'none'
   );
-  return result?.result?.output ?? result?.output ?? result;
+  return result?.result ?? result;
 }
 
 function parseBacklog(content) {

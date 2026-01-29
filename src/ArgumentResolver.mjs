@@ -82,6 +82,17 @@ export async function resolveArguments(agent, prompt, instruction, schema, regex
     }
 
     // 4) LLM extraction fallback (both modes)
+    const llmExtracted = await extractArgumentsWithLLM(agent, prompt, instruction, schema);
+    if (Array.isArray(llmExtracted)) {
+        debugLog(`[resolveArguments] LLM extraction success: ${JSON.stringify(llmExtracted)}`);
+        return llmExtracted;
+    }
+
+    // 5) Last resort: return whole prompt
+    return [String(prompt ?? '')];
+}
+
+export async function extractArgumentsWithLLM(agent, prompt, instruction, schema) {
     const extractionPrompt = [
         'You are an argument extractor.',
         `Task: ${instruction}`,
@@ -89,7 +100,7 @@ export async function resolveArguments(agent, prompt, instruction, schema, regex
         `Return ONLY a JSON array of strings/numbers matching this schema: ${JSON.stringify(schema)}`,
         'Do not explain.',
         '',
-        `Prompt: ${prompt}`
+        `Prompt: ${prompt}`,
     ].join('\n');
 
     const result = await agent.complete({
@@ -101,13 +112,11 @@ export async function resolveArguments(agent, prompt, instruction, schema, regex
     try {
         const parsed = JSON.parse(result);
         if (Array.isArray(parsed)) {
-            debugLog(`[resolveArguments] LLM extraction success: ${JSON.stringify(parsed)}`);
             return parsed;
         }
     } catch (e) {
         // ignore parse errors, fall back
     }
 
-    // 5) Last resort: return whole prompt
-    return [String(prompt ?? '')];
+    return null;
 }

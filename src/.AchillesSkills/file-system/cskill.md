@@ -10,11 +10,16 @@ Executes file system operations (read, write, delete, copy, list) using nodeJS f
 - **content** (string, optional): Content for write/append operations.
 - **destination** (string, optional): Destination path for copy/move operations.
 
+Rules:
+- First token is always the operation.
+- Second token is always the path.
+- Optional parameters must be provided as `paramName: value` on the same line.
+
 Examples:
 - "createDirectory ./docs"
-- "writeFile ./test.txt hello world"
+- "writeFile ./test.txt content: hello world"
 - "readFile ./package.json"
-- "copyFile ./src/file.js ./backup/file.js"
+- "copyFile ./src/file.js destination: ./backup/file.js"
 
 ## Output Format
 - **Type**: `string | object`

@@ -14,7 +14,7 @@ async function runInitProject(tmpDir) {
   const agent = new RecursiveSkilledAgent({ startDir: gampSkillsRoot });
   const result = await agent.executeWithReviewMode(`${tmpDir} stub prompt`, { skillName: 'init-project' }, 'none');
   // Extract output from orchestrator result structure
-  const output = result?.result?.output ?? result?.output ?? result;
+  const output = result?.result ?? result;
   return { code: 0, stdout: output, stderr: '' };
 }
 
