@@ -18,14 +18,12 @@ export async function action(context) {
         'appendTask',
     ]);
 
-    const lines = String(promptText).split(/\r?\n/);
-    const firstLineIndex = lines.findIndex((line) => line.trim().length > 0);
-    const firstLine = firstLineIndex >= 0 ? lines[firstLineIndex].trim() : '';
-    const tokens = firstLine.split(/\s+/).filter(Boolean);
+    const rawText = String(promptText ?? '');
+    const trimmed = rawText.trim();
+    const tokenMatch = trimmed.match(/^(\S+)(?:\s+(\S+))?(?:\s+([\s\S]*))?$/);
 
-    let operation = tokens[0];
-    let type = tokens[1];
-    let fileKey = tokens[2];
+    let operation = tokenMatch?.[1];
+    let type = tokenMatch?.[2];
     let issue;
     let proposal;
     let resolution;
@@ -33,29 +31,20 @@ export async function action(context) {
     let fileName;
     let status;
     let updates;
+    let fileKey;
     let initialContent;
 
-    const remainingLines = firstLineIndex >= 0 ? lines.slice(firstLineIndex + 1) : [];
-    const keyValuePattern = /^(\w+)\s*:\s*(.*)$/;
-    for (let i = 0; i < remainingLines.length; i += 1) {
-        const line = remainingLines[i];
-        const match = line.match(keyValuePattern);
-        if (!match) {
-            continue;
-        }
-        const key = match[1];
-        const value = match[2] ?? '';
-
-        if (key === 'fileKey') {
-            fileKey = value.trim();
-        } else if (key === 'status') {
-            status = value.trim();
-        } else if (key === 'initialContent') {
-            const tail = remainingLines.slice(i + 1).join('\n');
-            initialContent = value + (tail ? `\n${tail}` : '');
-            break;
-        }
-    }
+    const paramText = tokenMatch?.[3] ?? '';
+    const params = parseKeyValueParams(paramText);
+    if (params.fileKey !== undefined) fileKey = params.fileKey;
+    if (params.issue !== undefined) issue = params.issue;
+    if (params.proposal !== undefined) proposal = params.proposal;
+    if (params.resolution !== undefined) resolution = params.resolution;
+    if (params.prefix !== undefined) prefix = params.prefix;
+    if (params.fileName !== undefined) fileName = params.fileName;
+    if (params.status !== undefined) status = params.status;
+    if (params.updates !== undefined) updates = params.updates;
+    if (params.initialContent !== undefined) initialContent = params.initialContent;
 
     if (typeof operation === 'string') {
         operation = operation.trim().split(/\s+/)[0];
@@ -92,6 +81,56 @@ export async function action(context) {
     return await executeBacklogOperation({
         operation, type, fileKey, issue, proposal, resolution, prefix, fileName, status, updates, initialContent
     });
+}
+
+function parseKeyValueParams(text) {
+    const result = {};
+    if (!text || !text.trim()) {
+        return result;
+    }
+
+    const keyPattern = /\b(fileKey|issue|proposal|resolution|prefix|fileName|status|updates|initialContent)\s*:\s*/g;
+    const matches = Array.from(text.matchAll(keyPattern));
+    if (matches.length === 0) {
+        return result;
+    }
+
+    for (let i = 0; i < matches.length; i += 1) {
+        const match = matches[i];
+        const key = match[1];
+        const valueStart = match.index + match[0].length;
+        const nextMatch = matches[i + 1];
+        const valueEnd = nextMatch ? nextMatch.index : text.length;
+        const rawValue = text.slice(valueStart, valueEnd).trim();
+
+        if (!rawValue) {
+            result[key] = '';
+            continue;
+        }
+
+        if (key === 'issue' || key === 'proposal' || key === 'updates') {
+            result[key] = parseMaybeJson(rawValue);
+        } else {
+            result[key] = rawValue;
+        }
+    }
+
+    return result;
+}
+
+function parseMaybeJson(value) {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return trimmed;
+    }
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+            return JSON.parse(trimmed);
+        } catch (error) {
+            return value;
+        }
+    }
+    return value;
 }
 
 async function executeBacklogOperation({ operation, type, fileKey, issue, proposal, resolution, prefix, fileName, status, updates, initialContent }) {
