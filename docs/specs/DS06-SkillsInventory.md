@@ -4,10 +4,7 @@
 Skills Inventory lists the core GAMPSkills that coordinate how specifications and documentation are created, reviewed, and refined. They share a common contract: specifications live under `./docs/specs`, documentation under `./docs`, and the root backlogs `./specs_backlog.md` and `./docs_backlog.md` mediate all proposed changes. Agents propose; users approve; deterministic skills apply; backlogs are updated to keep traceability intact.
 
 ## Skill: init-project
-This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
-
-## Skill: create-global-specs
-After initialization, this skill generates global DS files that capture vision, scope, audience, components, and workflow. It uses `./specs_backlog.md` plus additional user prompt given as input for this skill to propose and produce the global specifications that anchor the project.
+This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project, creates the initial global DS files under `./docs/specs`, and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
 
 ## Skill: review-specs
 This skill reads existing specification files under `./docs/specs` to find gaps, inconsistencies, and errors. It records issues and proposed options in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. Backlog operations for specs are handled through BacklogManager on `./specs_backlog.md`.
@@ -22,7 +19,7 @@ This skill reads `./specs_backlog.md`, applies the user-approved resolution to s
 This skill reads `./docs_backlog.md`, applies the user-approved resolution to authored HTML documentation under `./docs`, and updates the docs backlog to capture the new state. It edits only the documentation files implicated by the approved items.
 
 ## Skill: create-src-specs
-This skill produces detailed technical FDS files in `./docs/specs/src`, mirroring the structure of the future implementation in `./src`. It describes exposed functions, inputs and outputs, dependencies on other project files or external/native libraries, and links to related test specifications. It uses global specs under `./docs/specs` (which were generated using the create-global-specs skill) plus a user prompt for context. When target files already exist, it merges rather than wholesale replacing content, preserving existing material while integrating the new plan.
+This skill produces detailed technical FDS files in `./docs/specs/src`, mirroring the structure of the future implementation in `./src`. It describes exposed functions, inputs and outputs, dependencies on other project files or external/native libraries, and links to related test specifications. It uses global specs under `./docs/specs` plus a user prompt for context. When target files already exist, it merges rather than wholesale replacing content, preserving existing material while integrating the new plan.
 
 ## Skill: create-tests-specs
 This skill produces detailed FDS test specifications in `./docs/specs/tests`, describing assertions, expected inputs and outputs, and any relevant scenarios or diagrams, without emitting code. It uses global specs under `./docs/specs` and a user prompt for context to define how behaviors should be validated.
