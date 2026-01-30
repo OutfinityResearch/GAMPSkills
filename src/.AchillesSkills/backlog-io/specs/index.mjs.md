@@ -28,8 +28,8 @@ The skill parses a single text command from `promptText`:
 - Second token: `type` (`specs` or `docs`)
 - Remaining text: chained `key: value` parameters
 
-Supported keys: `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`.
-Values for `proposal` and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
+Supported keys: `taskId`, `affectedFiles`, `proposal`, `resolution`, `status`, `updates`, `initialContent`.
+Values for `affectedFiles`, `proposal`, and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings. `affectedFiles` can also be a comma-separated string.
 
 ## Output Contract
 - Objects for load/get operations: `{ tasks, meta }` or task object

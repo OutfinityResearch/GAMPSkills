@@ -26,11 +26,13 @@ export async function action(context) {
     let status;
     let updates;
     let taskId;
+    let affectedFiles;
     let initialContent;
 
     const paramText = tokenMatch?.[3] ?? '';
     const params = parseKeyValueParams(paramText);
     if (params.taskId !== undefined) taskId = params.taskId;
+    if (params.affectedFiles !== undefined) affectedFiles = params.affectedFiles;
     if (params.proposal !== undefined) proposal = params.proposal;
     if (params.resolution !== undefined) resolution = params.resolution;
     if (params.status !== undefined) status = params.status;
@@ -69,6 +71,13 @@ export async function action(context) {
         }
     }
 
+    if (affectedFiles !== undefined) {
+        if (!updates || typeof updates !== 'object') {
+            updates = {};
+        }
+        updates.affectedFiles = normalizeAffectedFiles(affectedFiles);
+    }
+
     return await executeBacklogOperation({
         operation, type, taskId, proposal, resolution, status, updates, initialContent
     });
@@ -80,7 +89,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(taskId|proposal|resolution|status|updates|initialContent)\s*:\s*/g;
+    const keyPattern = /\b(taskId|affectedFiles|proposal|resolution|status|updates|initialContent)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;
@@ -99,7 +108,7 @@ function parseKeyValueParams(text) {
             continue;
         }
 
-        if (key === 'proposal' || key === 'updates') {
+        if (key === 'proposal' || key === 'updates' || key === 'affectedFiles') {
             result[key] = parseMaybeJson(rawValue);
         } else {
             result[key] = rawValue;
@@ -122,6 +131,19 @@ function parseMaybeJson(value) {
         }
     }
     return value;
+}
+
+function normalizeAffectedFiles(value) {
+    if (Array.isArray(value)) {
+        return value.map((entry) => String(entry).trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+        return value
+            .split(',')
+            .map((entry) => entry.trim())
+            .filter(Boolean);
+    }
+    return [];
 }
 
 async function executeBacklogOperation({ operation, type, taskId, proposal, resolution, status, updates, initialContent }) {

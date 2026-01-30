@@ -16,9 +16,9 @@ Tests are implemented using Node.js assert module for deep equality and string i
 
 ### parse Function
 - **Assertion**: Converts markdown backlog to tasks object using assert.deepEqual
-- **Input**: String with multiple tasks (## <number> headers, **Description:**, etc.)
+- **Input**: String with multiple tasks (## <number> headers, **Description:**, **Affected Files:**, etc.)
 - **Expected Output**: Console log 'parse tests passed.' if parsed tasks match expected structure
-- **Purpose**: Validates markdown parsing logic, including numbered lists for options
+- **Purpose**: Validates markdown parsing logic, including affected files and options
 
 ### render Function
 - **Assertion**: Converts tasks object back to markdown string using assert includes

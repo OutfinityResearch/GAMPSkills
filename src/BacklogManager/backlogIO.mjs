@@ -27,6 +27,7 @@ export function parse(rawContent) {
       const taskId = headerMatch[1];
       let description = '';
       let status = '';
+      const affectedFiles = [];
       const options = [];
       let resolution = '';
 
@@ -41,11 +42,18 @@ export function parse(rawContent) {
         } else if (subline.startsWith('**Status:**')) {
           currentField = 'status';
           status = subline.replace('**Status:**', '').trim();
+        } else if (subline.startsWith('**Affected Files:**')) {
+          currentField = 'affectedFiles';
         } else if (subline.startsWith('**Options:**')) {
           currentField = 'options';
         } else if (subline.startsWith('**Resolution:**')) {
           currentField = 'resolution';
           resolution = subline.replace('**Resolution:**', '').trim();
+        } else if (currentField === 'affectedFiles' && /^[-*]\s+/.test(subline)) {
+          const filePath = subline.replace(/^[-*]\s+/, '').trim();
+          if (filePath) {
+            affectedFiles.push(filePath);
+          }
         } else if (currentField === 'options' && /^\d+\./.test(subline)) {
           const item = parseNumberedItem(lines, i);
           options.push({ id: optionId++, title: item.title, details: item.details, status: '' });
@@ -61,6 +69,7 @@ export function parse(rawContent) {
         id: parseInt(taskId, 10),
         description: description.trim(),
         status,
+        affectedFiles,
         options,
         resolution: resolution.trim()
       };
@@ -103,6 +112,13 @@ export function render(tasks) {
     content += `## ${taskId}\n\n`;
     content += `**Description:** ${task.description}\n\n`;
     content += `**Status:** ${task.status}\n\n`;
+    content += '**Affected Files:**\n';
+    if (task.affectedFiles && task.affectedFiles.length > 0) {
+      for (const filePath of task.affectedFiles) {
+        content += `- ${filePath}\n`;
+      }
+    }
+    content += '\n';
     content += '**Options:**\n';
     if (task.options.length > 0) {
       for (const option of task.options) {

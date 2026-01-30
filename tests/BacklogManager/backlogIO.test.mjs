@@ -7,6 +7,10 @@ const sampleContent = `## 1
 
 **Status:** ok
 
+**Affected Files:**
+- docs/specs/DS01.md
+- docs/specs/src/Feature.md
+
 **Options:**
 1. Fix one
 
@@ -17,6 +21,8 @@ const sampleContent = `## 1
 **Description:** Backlog manager
 
 **Status:** needs_work
+
+**Affected Files:**
 
 **Options:**
 
@@ -29,6 +35,7 @@ assert.deepEqual(sections['1'], {
   id: 1,
   description: 'Vision document',
   status: 'ok',
+  affectedFiles: ['docs/specs/DS01.md', 'docs/specs/src/Feature.md'],
   options: [
     { id: 1, title: 'Fix one', details: '', status: '' }
   ],
@@ -42,6 +49,7 @@ const sectionsRender = {
     id: 1,
     description: 'Vision document',
     status: 'ok',
+    affectedFiles: ['docs/specs/DS01.md'],
     options: [],
     resolution: 'Approved'
   }
@@ -50,6 +58,8 @@ const rendered = render(sectionsRender);
 assert(rendered.includes('## 1'));
 assert(rendered.includes('**Description:** Vision document'));
 assert(rendered.includes('**Status:** ok'));
+assert(rendered.includes('**Affected Files:**'));
+assert(rendered.includes('- docs/specs/DS01.md'));
 assert(rendered.includes('**Resolution:** Approved'));
 console.log('render tests passed.');
 

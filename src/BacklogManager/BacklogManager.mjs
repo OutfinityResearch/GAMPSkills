@@ -114,6 +114,7 @@ export async function appendTask(type, initialContent) {
     id: nextId,
     description: initialContent,
     status: 'needs_work',
+    affectedFiles: [],
     options: [],
     resolution: ''
   };
