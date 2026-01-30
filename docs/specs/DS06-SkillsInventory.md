@@ -6,6 +6,18 @@ Skills Inventory lists the core GAMPSkills that coordinate how specifications an
 ## Skill: init-project
 This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project, creates the initial global DS files under `./docs/specs`, and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
 
+## Skill: backlog-io
+This deterministic code skill wraps BacklogManager operations with a compact prompt format. It expects the first token to be the operation, the second token to be the backlog type (`specs` or `docs`), and any remaining text to be chained `key: value` parameters (such as `fileKey`, `issue`, `proposal`, `resolution`, `prefix`, `fileName`, `status`, `updates`, `initialContent`). For `issue`, `proposal`, and `updates`, JSON values are accepted when the value starts with `{` or `[`. If the operation or type is invalid, it falls back to LLM-based argument extraction. It returns the underlying BacklogManager result or a simple success string for status and update operations.
+
+## Skill: file-system
+This deterministic code skill exposes basic file operations. It reads the first token as the operation, the second token as the path, and the remainder as either `content:` or `destination:` payloads (or raw content for write/append). Supported operations are `readFile`, `writeFile`, `appendFile`, `deleteFile`, `createDirectory`, `listDirectory`, `fileExists`, `copyFile`, and `moveFile`. `readFile` returns a success message only (it does not return file contents). `copyFile` and `moveFile` require a destination. If parsing fails, it falls back to LLM-based argument extraction.
+
+## Skill: ds-expert
+This LLM-backed skill generates high-level Design Specification content. It builds a concise DS prompt, calls `llmAgent.executePrompt` in `deep` mode, and returns the trimmed string response. The input prompt is resolved from `prompt`, `input`, or the first provided argument value.
+
+## Skill: fds-expert
+This LLM-backed skill generates File Design Specification content for a single module/file. It enforces a short, structured prompt with fixed sections (Description, Dependencies, Main Functions/Methods, Exports, Implementation Details), calls `llmAgent.executePrompt` in `deep` mode, and returns the trimmed string response. The input prompt is resolved from `prompt`, `input`, or the first provided argument value.
+
 ## Skill: review-specs
 This skill reads existing specification files under `./docs/specs` to find gaps, inconsistencies, and errors. It records issues and proposed options in `./specs_backlog.md`, keeping the backlog as the sole gate for changes. Backlog operations for specs are handled through BacklogManager on `./specs_backlog.md`.
 

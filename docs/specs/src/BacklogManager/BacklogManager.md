@@ -28,12 +28,12 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
   - Behavior: loads and parses backlog for the type, normalizes and appends to Options, keeping stable numeric order, saves the backlog.
 - `approveResolution(type, relativeFilePath, resolutionString)`
   - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `resolutionString` (string chosen by user).
-  - Output: updated task with `resolution` set; may also adjust `status` based on domain rules.
-  - Behavior: loads and parses backlog for the type, sets Resolution text; validates status compatibility (`ok`/`needs_work`) per `backlogDomain`, saves the backlog.
+  - Output: updated task with `resolution` set; if the resolution is non-empty it sets status to `ok`.
+  - Behavior: loads and parses backlog for the type, sets Resolution text, marks status `ok` when resolution is non-empty, saves the backlog.
 - `applyChanges(type, relativeFilePath, approvedItems, hooks)`
   - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `approvedItems` (array of issue/option IDs or objects selected for application), `hooks` (object with functions to call external skills, e.g., `{ applySpecFix, applyDocFix }`).
-  - Output: updated task reflecting applied items, updated status/resolution, and an ordered list of executed changes (via `ChangeQueue`).
-  - Behavior: loads and parses backlog for the type, sequences changes deterministically, calls hooks to enact fixes, updates task content accordingly, saves the backlog.
+  - Output: ordered list of executed changes (via `ChangeQueue`).
+  - Behavior: loads and parses backlog for the type, sequences changes deterministically, calls `applySpecFix` for `issue` changes and `applyDocFix` for `option` changes, sets status to `ok`, saves the backlog.
 - `saveBacklog(type, tasks)`
   - Input: `type` (string `"specs"` or `"docs"`), `tasks` (array/dictionary of task objects as defined above).
   - Output: writes file; returns confirmation/void; the serialized text is persisted.
@@ -61,7 +61,7 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 - `appendTask(type, relativeFilePath, initialContent)`
   - Input: `type` (string `"specs"` or `"docs"`), `relativeFilePath` (string), `initialContent` (string).
   - Output: void; adds a new task if it doesn't exist.
-  - Behavior: loads and parses backlog, creates the task with the initial content as description, status 'needs_work', saves the backlog.
+  - Behavior: loads and parses backlog, creates the task with the initial content as description, status `needs_work`, empty issues/options, empty resolution, saves the backlog.
 
 ## Exports
 - `loadBacklog`

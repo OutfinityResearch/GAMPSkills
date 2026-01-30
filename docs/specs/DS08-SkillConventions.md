@@ -17,11 +17,13 @@ Example structure:
     [other skill files]
 ```
 
-## Orchestrator Skill Metadata (oskill.md)
-Each skill must have an associated `oskill.md` file located in the skill's folder under `.AchillesSkills/<skill-name>/oskill.md`. This file provides human-readable metadata for orchestrators and must include at least the following sections:
+## Skill Metadata Files
+Each skill has a descriptor file in its `.AchillesSkills/<skill-name>/` folder. The descriptor type depends on the skill implementation:
 
-- **Title**: A heading with the skill name.
-- **Summary**: A brief description of the skill's purpose and functionality.
+- **Orchestrator skills** use `oskill.md`.
+- **Deterministic code skills** use `cskill.md`.
+
+- **# Skill Name**: Required, must be exactly the name of the skill folder
 - **Instructions**: Detailed guidance on how the skill operates, including any special behaviors, input formats, or output expectations.
 
 Example structure:
@@ -35,7 +37,7 @@ Brief description of what the skill does.
 Detailed operational guidance, including examples if applicable.
 ```
 
-The `oskill.md` file serves as documentation for the skill's interface and behavior.
+Descriptor files serve as documentation for a skill's interface and behavior.
 
 ## Module Interface
 Every deterministic skill (JavaScript module) must export a single asynchronous entry point.
@@ -48,16 +50,17 @@ export async function action(context)
 ### Context Object
 The `context` object passed to the action is the single source of truth for execution parameters. It typically contains:
 
-- **`prompt`** (`string`): The user's input or instructions. Even for skills driven by backlogs, this may contain overrides or specific focus.
-- **`llmAgent`** (`object`): The agent instance provided by the orchestrator. It must expose the method `executePrompt(prompt, options)`.
+- **`promptText`** (`string`): The raw user input for deterministic code skills that parse their own command format.
+- **`prompt`** (`string`): The user's input or instructions when explicitly provided by the orchestrator.
+- **`llmAgent`** (`object`): The agent instance provided by the orchestrator. It may expose `executePrompt(prompt, options)` and/or `complete(...)` depending on usage.
 
 ### Return Value
-Skills return a string summary of their execution, describing what was accomplished (e.g., files created, issues found, or results). This provides a human-readable overview of the actions performed.
+Skills may return a human-readable string or a structured object, depending on the operation (for example, backlog queries return data structures, while file operations return status messages).
 
 ## LLM Interaction Standards
 
 ### Execution Mode
-All LLM interactions must be performed with `mode: 'deep'`. This ensures the model uses its full reasoning capabilities for architectural decisions, content generation, and code reviews.
+Content-generation skills should call `executePrompt` with `mode: 'deep'` to ensure high-quality outputs. Lightweight argument extraction may use the LLM's completion interface when needed.
 ```javascript
 await context.llmAgent.executePrompt(prompt, { mode: 'deep', ... });
 ```

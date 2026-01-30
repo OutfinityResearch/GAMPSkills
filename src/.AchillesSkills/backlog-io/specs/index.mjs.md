@@ -25,44 +25,36 @@ The backlog-io skill provides a complete interface to the BacklogManager module,
 - **appendTask**: Create new task in backlog
 
 ## Input Contract
-```javascript
-{
-  operation: string,        // Required: operation type
-  type: string,            // Required: 'specs' or 'docs'
-  fileKey?: string,        // Optional: task identifier
-  issue?: object,          // Optional: issue object {title, details}
-  proposal?: object,       // Optional: proposal object {title, details}
-  resolution?: string,     // Optional: resolution text
-  prefix?: string,         // Optional: path prefix for search
-  fileName?: string,       // Optional: file name for search
-  status?: string,         // Optional: status value
-  updates?: object,        // Optional: partial task updates
-  initialContent?: string  // Optional: initial description for new task
-}
-```
+The skill parses a single text command from `promptText`:
+
+- First token: `operation`
+- Second token: `type` (`specs` or `docs`)
+- Remaining text: chained `key: value` parameters
+
+Supported keys: `fileKey`, `issue`, `proposal`, `resolution`, `prefix`, `fileName`, `status`, `updates`, `initialContent`.
+Values for `issue`, `proposal`, and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
 
 ## Output Contract
 - Objects for load/get operations: `{ tasks, meta }` or task object
 - Arrays for find operations: `[fileKey1, fileKey2, ...]`
-- Success messages for modification operations
+- Success strings for `setStatus`, `updateTask`, and `appendTask`
 - Throws Error with descriptive message on failure
 
 ## Implementation Details
 
 ### BacklogManager Integration
 - Direct import from `../../BacklogManager/BacklogManager.mjs`
-- All operations delegate to corresponding BacklogManager functions
-- No business logic in skill layer - pure delegation
+- Operations delegate to corresponding BacklogManager functions after parsing
 
 ### Operation Routing
 - Switch-case structure maps operation names to BacklogManager calls
-- Parameters are passed through without transformation
-- Return values are passed back directly
+- Parameters are extracted from the text command before routing
+- Return values are passed back directly except for status/update/append, which return success strings
 
 ### Error Handling
-- Invalid operation throws error with operation name
+- Invalid operation or backlog type triggers LLM argument extraction when possible
 - BacklogManager errors propagate unchanged
-- Missing required parameters handled by BacklogManager
+- Missing required parameters are handled by BacklogManager
 
 ### Dependencies
 - `BacklogManager`: All exported functions (loadBacklog, getTask, recordIssue, proposeFix, approveResolution, findTasksByPrefix, findTaskByFileName, findTasksByStatus, setStatus, updateTask, appendTask)
@@ -72,8 +64,7 @@ When regenerating this skill:
 1. Maintain switch-case structure for operation routing
 2. Keep all operations async
 3. Import all BacklogManager functions as namespace
-4. Pass parameters directly without transformation
-5. Return BacklogManager results unchanged
-6. Add success messages only for void operations
-7. Validate only operation parameter existence
-8. Let BacklogManager handle type and parameter validation
+4. Parse `promptText` into `operation`, `type`, and chained `key: value` parameters
+5. Parse JSON for `issue`, `proposal`, and `updates` only when the value starts with `{` or `[` 
+6. Return BacklogManager results unchanged except for status/update/append (return success strings)
+7. Use LLM fallback only if operation or type is invalid

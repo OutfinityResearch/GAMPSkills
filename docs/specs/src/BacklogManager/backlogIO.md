@@ -1,11 +1,10 @@
 # backlogIO
 
 ## Description
-`backlogIO` handles the I/O for backlog files (`specs_backlog.md`, `docs_backlog.md`): it reads/writes raw content, parses the standard structure (Name / Description / Status / Issues / Options / Resolution) into structured tasks, renders back to text, and provides utilities to slice/merge only the needed task (context limiting). The goal is a stable, human-editable format with deterministic transforms.
+`backlogIO` handles the I/O for backlog files (`specs_backlog.md`, `docs_backlog.md`): it reads/writes raw content, parses the standard structure (File / Description / Status / Issues / Options / Resolution) into structured tasks, renders back to text, and provides utilities to slice/merge only the needed task (context limiting). The goal is a stable, human-editable format with deterministic transforms.
 
 ## Dependencies
 - Node `fs/promises` — file reads/writes
-- Node `path` — path resolution
 
 ## Backlog Format
 The backlog files use a markdown format with tasks for each file. Each task follows this structure:
@@ -32,7 +31,7 @@ The backlog files use a markdown format with tasks for each file. Each task foll
 
 - File paths are relative to the project root.
 - Status values: `ok`, `needs_work`, `blocked`.
-- Issues and Options are numbered lists with optional details indented.
+- Issues and Options are numbered lists with optional details indented, but their headers are always present even when no items are listed.
 
 This format ensures human readability and deterministic parsing.
 
@@ -47,12 +46,12 @@ This format ensures human readability and deterministic parsing.
   - Behavior: writes exactly the provided string to disk.
 - `parse(rawContent) -> tasks`
   - Input: `rawContent` (string backlog text).
-  - Output: `tasks` (array/dictionary of task objects: `{ name, description, status, issues[], options[], resolution }`).
-  - Behavior: recognizes Name/Description/Status/Issues/Options/Resolution blocks, builds structured data per file.
+  - Output: `tasks` (dictionary of task objects keyed by file key: `{ name, description, status, issues[], options[], resolution }`).
+  - Behavior: recognizes File/Description/Status/Issues/Options/Resolution blocks, builds structured data per file.
 - `render(tasks) -> string`
-  - Input: `tasks` (array/dictionary of structured tasks).
+  - Input: `tasks` (dictionary of structured tasks).
   - Output: `string` (backlog text with ordered numeric lists for Issues/Options).
-  - Behavior: serializes structured tasks back to the stable backlog format.
+  - Behavior: serializes structured tasks back to the stable backlog format, always including Issues and Options headers.
 - `sliceToTask(rawContent, fileKey) -> taskText`
   - Input: `rawContent` (string), `fileKey` (string identifier for task).
   - Output: `taskText` (string of only that task in backlog format).

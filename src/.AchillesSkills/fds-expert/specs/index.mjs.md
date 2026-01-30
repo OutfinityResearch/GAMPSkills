@@ -6,10 +6,10 @@ The fds-expert skill generates File Design Specification (FDS) content with deta
 ## Capabilities
 
 ### Content Generation
-- Generates detailed technical specifications for code modules
+- Generates technical specifications for a single code module/file
 - Produces implementation-focused documentation
 - Creates code-regeneration-ready specifications
-- Structures content with technical sections: Description, Dependencies, Functions, Exports, Implementation
+- Requires fixed sections: Description, Dependencies, Main Functions/Methods, Exports, Implementation Details
 
 ### FDS Characteristics
 - **File-Specific**: Describes individual modules, classes, or files
@@ -20,38 +20,28 @@ The fds-expert skill generates File Design Specification (FDS) content with deta
 ### Required Sections
 1. **Description**: Module purpose and role in system
 2. **Dependencies**: All imports and external modules with usage notes
-3. **Main Functions/Methods**: Detailed specifications including:
-   - Function signatures
-   - Input parameters (name, type, description)
-   - Output/return values (type, examples)
-   - Behavior and logic description
+3. **Main Functions/Methods**: Key signatures in code blocks, plus inputs/outputs/errors/edge cases
 4. **Exports**: Public API surface
 5. **Implementation Details**: Algorithms, patterns, constraints, edge cases
 
 ## Input Contract
-```javascript
-{
-  prompt: string,      // Required: user instructions for FDS generation
-  llmAgent: object     // Required: LLM agent with executePrompt method
-}
-```
+- The action resolves the prompt from `prompt`, `input`, or the first argument value.
+- Requires `llmAgent` with `executePrompt`.
 
 ## Output Contract
 - Returns Markdown-formatted FDS content as string
-- Content follows FDS structure with all required sections
-- Includes code blocks for signatures and examples
+- Content follows the required FDS section order
+- Includes code blocks for signatures (examples are optional)
 - Throws Error if prompt or llmAgent missing
 
 ## Implementation Details
 
 ### Technical Prompt Construction
-The skill constructs a detailed technical prompt that:
-1. Defines FDS format and required sections
-2. Lists FDS characteristics and technical depth
-3. Specifies signature format requirements
-4. Emphasizes code-regeneration capability
-5. Includes user's original prompt
-6. Requests Markdown with code blocks
+The skill constructs a short, structured prompt that:
+1. Defines the required section order
+2. Emphasizes file-specific, implementation-focused content
+3. Requires signatures in code blocks and notes on inputs/outputs/errors/edge cases
+4. Embeds the user's original prompt
 
 ### LLM Interaction
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`

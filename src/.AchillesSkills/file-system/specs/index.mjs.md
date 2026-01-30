@@ -21,29 +21,27 @@ The file-system skill provides comprehensive file system operations for the Achi
 - **fileExists**: Check if file or directory exists at given path
 
 ## Input Contract
-```javascript
-{
-  operation: string,      // Required: operation type
-  path: string,          // Required: target path (relative to project root)
-  content?: string,      // Optional: content for write/append
-  destination?: string   // Optional: destination for copy/move
-}
-```
+The skill parses a single text command from `promptText`:
+
+- First token: `operation`
+- Second token: `path`
+- Remaining text: payload for `content:` or `destination:`, or raw content for write/append
+
+For `copyFile` and `moveFile`, the payload must be `destination: <path>`.
+For `writeFile` and `appendFile`, the payload may be `content: <text>` or raw text after the path.
 
 ## Output Contract
-- String messages for successful operations
-- Arrays for listDirectory
-- Objects for fileExists: `{ exists: boolean }`
+- String messages for all successful operations, including `readFile`, `listDirectory`, and `fileExists`
 - Throws Error with descriptive message on failure
 
 ## Implementation Details
 
 ### Path Resolution
-- All paths are resolved relative to project root using `path.resolve()`
-- Parent directories are created automatically for write operations
+- All paths are resolved with `path.resolve()`
+- Parent directories are created automatically for `writeFile`
 
 ### Error Handling
-- Invalid operation throws error with operation name
+- Invalid operation or missing path triggers LLM argument extraction when possible
 - Missing required parameters throw descriptive errors
 - File system errors propagate with original error messages
 

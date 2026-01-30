@@ -104,26 +104,26 @@ export function render(tasks) {
     content += `### File: ${fileKey}\n\n`;
     content += `**Description:** ${task.description}\n\n`;
     content += `**Status:** ${task.status}\n\n`;
+    content += '**Issues:**\n';
     if (task.issues.length > 0) {
-      content += '**Issues:**\n';
       for (const issue of task.issues) {
         content += `${issue.id}. ${issue.title}\n`;
         if (issue.details) {
           content += `   ${issue.details}\n`;
         }
       }
-      content += '\n';
     }
+    content += '\n';
+    content += '**Options:**\n';
     if (task.options.length > 0) {
-      content += '**Options:**\n';
       for (const option of task.options) {
         content += `${option.id}. ${option.title}\n`;
         if (option.details) {
           content += `   ${option.details}\n`;
         }
       }
-      content += '\n';
     }
+    content += '\n';
     content += `**Resolution:** ${task.resolution}\n\n`;
   }
   return content.trim();

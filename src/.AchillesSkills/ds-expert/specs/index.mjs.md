@@ -9,7 +9,7 @@ The ds-expert skill generates Design Specification (DS) content focused on globa
 - Generates strategic, vision-oriented specification content
 - Focuses on global scope: entire systems, workflows, major components
 - Produces non-technical content accessible to all stakeholders
-- Structures content with clear sections: Overview, Purpose, Role, Vision, Principles, Outcomes
+- Returns concise DS-focused text without enforcing specific headings
 
 ### DS Characteristics
 - **Global Scope**: Describes entire systems or major features, not individual files
@@ -26,27 +26,20 @@ The ds-expert skill generates Design Specification (DS) content focused on globa
 - Component architecture (high-level)
 
 ## Input Contract
-```javascript
-{
-  prompt: string,      // Required: user instructions for DS generation
-  llmAgent: object     // Required: LLM agent with executePrompt method
-}
-```
+- The action resolves the prompt from `prompt`, `input`, or the first argument value.
+- Requires `llmAgent` with `executePrompt`.
 
 ## Output Contract
-- Returns Markdown-formatted DS content as string
-- Content follows DS structure with appropriate sections
+- Returns a trimmed string response from the LLM
 - Throws Error if prompt or llmAgent missing
 
 ## Implementation Details
 
 ### Technical Prompt Construction
-The skill constructs a detailed technical prompt that:
-1. Defines DS format and structure requirements
-2. Lists DS characteristics and scope
-3. Provides examples of appropriate DS topics
-4. Includes user's original prompt
-5. Requests Markdown output with clear headings
+The skill constructs a concise DS prompt that:
+1. Sets DS scope and tone (global, non-technical, “what/why”)
+2. Lists high-level guidance for short, clear responses
+3. Embeds the user's original prompt
 
 ### LLM Interaction
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`
