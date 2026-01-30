@@ -1,7 +1,7 @@
-import { readFile, stat } from 'fs/promises';
+import { stat } from 'fs/promises';
 import { resolve } from 'path';
 import { parse, render, readBacklog, writeBacklog } from './backlogIO.mjs';
-import { normalizeIssue, ChangeQueue, nextAllowed } from './backlogDomain.mjs';
+import { ChangeQueue } from './backlogDomain.mjs';
 
 export async function loadBacklog(type) {
   if (!['specs', 'docs'].includes(type)) {
@@ -15,36 +15,25 @@ export async function loadBacklog(type) {
   return { tasks, meta };
 }
 
-export async function getTask(type, fileKey) {
+export async function getTask(type, taskId) {
   const { tasks } = await loadBacklog(type);
-  return tasks[fileKey] || null;
+  return tasks[String(taskId)] || null;
 }
 
-export async function recordIssue(type, relativeFilePath, issue) {
+export async function proposeFix(type, taskId, proposal) {
   const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
+  const task = tasks[String(taskId)];
   if (!task) return null;
-  const normalized = normalizeIssue(issue);
-  normalized.id = task.issues.length + 1;
-  task.issues.push(normalized);
-  await saveBacklog(type, tasks);
-  return task;
-}
-
-export async function proposeFix(type, relativeFilePath, proposal) {
-  const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
-  if (!task) return null;
-  const normalized = normalizeIssue(proposal); // reuse
+  const normalized = normalizeProposal(proposal);
   normalized.id = task.options.length + 1;
   task.options.push(normalized);
   await saveBacklog(type, tasks);
   return task;
 }
 
-export async function approveResolution(type, relativeFilePath, resolutionString) {
+export async function approveResolution(type, taskId, resolutionString) {
   const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
+  const task = tasks[String(taskId)];
   if (!task) return null;
   task.resolution = resolutionString;
   // Update status if resolution is set
@@ -55,17 +44,17 @@ export async function approveResolution(type, relativeFilePath, resolutionString
   return task;
 }
 
-export async function applyChanges(type, relativeFilePath, approvedItems, hooks) {
+export async function applyChanges(type, taskId, approvedItems, hooks) {
   const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
+  const task = tasks[String(taskId)];
   if (!task) return null;
   const queue = new ChangeQueue();
   for (const item of approvedItems) {
-    queue.enqueue(relativeFilePath, item);
+    queue.enqueue(String(taskId), item);
   }
   const changes = queue.drain();
   for (const change of changes) {
-    // Assume change is an object with type: 'issue' or 'option', id
+    // Assume change is an object with type and id
     if (change.type === 'issue') {
       // Call hook, e.g., hooks.applySpecFix
       if (hooks.applySpecFix) {
@@ -89,27 +78,6 @@ export async function saveBacklog(type, tasks) {
   await writeBacklog(path, content);
 }
 
-export async function findTasksByPrefix(type, prefix) {
-  const { tasks } = await loadBacklog(type);
-  const names = [];
-  for (const key of Object.keys(tasks)) {
-    if (key.startsWith(prefix)) {
-      names.push(key);
-    }
-  }
-  return names;
-}
-
-export async function findTaskByFileName(type, fileName) {
-  const { tasks } = await loadBacklog(type);
-  for (const [key, task] of Object.entries(tasks)) {
-    if (key.endsWith(fileName)) {
-      return key;
-    }
-  }
-  return null;
-}
-
 export async function findTasksByStatus(type, status) {
   const { tasks } = await loadBacklog(type);
   const names = [];
@@ -121,36 +89,57 @@ export async function findTasksByStatus(type, status) {
   return names;
 }
 
-export async function setStatus(type, relativeFilePath, status) {
+export async function setStatus(type, taskId, status) {
   const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
+  const task = tasks[String(taskId)];
   if (task) {
     task.status = status;
   }
   await saveBacklog(type, tasks);
 }
 
-export async function updateTask(type, relativeFilePath, updates) {
+export async function updateTask(type, taskId, updates) {
   const { tasks } = await loadBacklog(type);
-  const task = tasks[relativeFilePath];
+  const task = tasks[String(taskId)];
   if (task) {
     Object.assign(task, updates);
   }
   await saveBacklog(type, tasks);
 }
 
-export async function appendTask(type, relativeFilePath, initialContent) {
+export async function appendTask(type, initialContent) {
   const { tasks } = await loadBacklog(type);
-  if (!tasks[relativeFilePath]) {
-    tasks[relativeFilePath] = {
-      name: relativeFilePath,
-      description: initialContent,
-      status: 'needs_work',
-      issues: [],
-      options: [],
-      resolution: ''
-    };
-  }
+  const nextId = getNextTaskId(tasks);
+  tasks[String(nextId)] = {
+    id: nextId,
+    description: initialContent,
+    status: 'needs_work',
+    options: [],
+    resolution: ''
+  };
   await saveBacklog(type, tasks);
 }
 
+function getNextTaskId(tasks) {
+  const ids = Object.keys(tasks)
+    .map((key) => Number.parseInt(key, 10))
+    .filter((value) => Number.isFinite(value));
+  const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+  return maxId + 1;
+}
+
+function normalizeProposal(raw) {
+  let title = '';
+  let details = '';
+  let status = '';
+
+  if (typeof raw === 'string') {
+    title = raw;
+  } else if (typeof raw === 'object' && raw) {
+    title = raw.title || '';
+    details = raw.details || '';
+    status = raw.status || '';
+  }
+
+  return { id: 0, title, details, status };
+}

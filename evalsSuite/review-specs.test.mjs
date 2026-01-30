@@ -27,39 +27,46 @@ async function runReviewSpecs(agent, targetDir) {
 }
 
 function parseBacklog(content) {
-  const sections = {};
+  const tasks = [];
   const lines = (content || '').split(/\r?\n/);
   let current = null;
-  let collectingIssues = false;
+  let collectingDescription = false;
   for (const line of lines) {
-    if (line.startsWith('## ')) {
-      current = line.slice(3).trim();
-      sections[current] = { status: null, issues: [] };
-      collectingIssues = false;
+    const headerMatch = line.match(/^##\s+(\d+)\s*$/);
+    if (headerMatch) {
+      current = {
+        id: headerMatch[1],
+        status: null,
+        description: ''
+      };
+      tasks.push(current);
+      collectingDescription = false;
       continue;
     }
     if (!current) continue;
-    if (line.startsWith('- Description:')) {
+    if (line.startsWith('**Description:**')) {
+      current.description = line.replace('**Description:**', '').trim();
+      collectingDescription = true;
       continue;
     }
-    if (line.startsWith('- Status:')) {
-      sections[current].status = line.slice('- Status:'.length).trim().toLowerCase();
-      collectingIssues = false;
+    if (line.startsWith('**Status:**')) {
+      current.status = line.replace('**Status:**', '').trim().toLowerCase();
+      collectingDescription = false;
       continue;
     }
-    if (line.startsWith('- Issues:')) {
-      collectingIssues = true;
+    if (line.startsWith('**Options:**') || line.startsWith('**Resolution:**')) {
+      collectingDescription = false;
       continue;
     }
-    if (line.startsWith('- Proposed fixes')) {
-      collectingIssues = false;
-      continue;
-    }
-    if (collectingIssues && line.trim().startsWith('- ')) {
-      sections[current].issues.push(line.trim().slice(2));
+    if (collectingDescription && line.trim()) {
+      current.description = `${current.description} ${line.trim()}`.trim();
     }
   }
-  return sections;
+  return tasks;
+}
+
+function findTaskByDescription(tasks, pattern) {
+  return tasks.find((task) => pattern.test(task.description));
 }
 
 function expectRegex(name, value, regex, failures) {
@@ -107,9 +114,9 @@ async function testReviewSpecs() {
       const backlog = await fs.readFile(backlogPath, 'utf8');
       console.log('[review-specs-test] Backlog:\n', backlog.trim());
 
-      const sections = parseBacklog(backlog);
+      const tasks = parseBacklog(backlog);
 
-      const orphan = sections['specs/orphan.js.md'];
+      const orphan = findTaskByDescription(tasks, /orphan\.js\.md/i);
       if (!orphan) {
         caseFailures.push('orphan.js.md section missing');
       } else {
@@ -119,29 +126,32 @@ async function testReviewSpecs() {
         }
       }
 
-      const vague = sections['specs/vague.js.md'];
+      const vague = findTaskByDescription(tasks, /vague\.js\.md/i);
       if (!vague) {
         caseFailures.push('vague.js.md section missing');
       } else {
         if (vague.status === 'ok') {
           caseFailures.push(`vague.js.md status should not be ok (got ${vague.status})`);
         }
-        const joined = vague.issues.join(' ');
-        expectRegex('vague issues', joined, /missing|unclear|vague|detail/i, caseFailures);
+        expectRegex('vague description', vague.description, /missing|unclear|vague|detail/i, caseFailures);
       }
 
-      const inconsistent = sections['specs/inconsistent.js.md'];
+      const inconsistent = findTaskByDescription(tasks, /inconsistent\.js\.md/i);
       if (!inconsistent) {
         caseFailures.push('inconsistent.js.md section missing');
       } else {
         if (inconsistent.status === 'ok') {
           caseFailures.push(`inconsistent.js.md should not be ok (got ${inconsistent.status})`);
         }
-        const joined = inconsistent.issues.join(' ');
-        expectRegex('inconsistent issues', joined, /inconsisten|mismatch|add.*multi|multi.*add|discrepanc|contradict/i, caseFailures);
+        expectRegex(
+          'inconsistent description',
+          inconsistent.description,
+          /inconsisten|mismatch|add.*multi|multi.*add|discrepanc|contradict/i,
+          caseFailures
+        );
       }
 
-      const complete = sections['specs/complete.js.md'];
+      const complete = findTaskByDescription(tasks, /complete\.js\.md/i);
       if (!complete) {
         caseFailures.push('complete.js.md section missing');
       } else if (complete.status !== 'ok') {

@@ -1,7 +1,7 @@
 # backlogIO.test
 
 ## Description
-This test file validates the input/output operations for backlog files, including parsing markdown content into structured sections, rendering sections back to markdown, and utilities for slicing and merging specific sections. It ensures deterministic and reversible transformations between text and data formats.
+This test file validates the input/output operations for backlog files, including parsing markdown content into structured tasks, rendering tasks back to markdown, and utilities for slicing and merging specific tasks. It ensures deterministic and reversible transformations between text and data formats.
 
 ## Dependencies
 - backlogIO.mjs (functions under test)
@@ -15,25 +15,25 @@ Tests are implemented using Node.js assert module for deep equality and string i
 ## Test Cases
 
 ### parse Function
-- **Assertion**: Converts markdown backlog to sections object using assert.deepEqual
-- **Input**: String with multiple sections (### File: headers, **Description:**, etc.)
-- **Expected Output**: Console log 'parse tests passed.' if parsed sections match expected structure
-- **Purpose**: Validates markdown parsing logic, including numbered lists for issues/options
+- **Assertion**: Converts markdown backlog to tasks object using assert.deepEqual
+- **Input**: String with multiple tasks (## <number> headers, **Description:**, etc.)
+- **Expected Output**: Console log 'parse tests passed.' if parsed tasks match expected structure
+- **Purpose**: Validates markdown parsing logic, including numbered lists for options
 
 ### render Function
-- **Assertion**: Converts sections object back to markdown string using assert includes
-- **Input**: Sections object with sample data
+- **Assertion**: Converts tasks object back to markdown string using assert includes
+- **Input**: Tasks object with sample data
 - **Expected Output**: Console log 'render tests passed.' if output contains expected elements
 - **Purpose**: Ensures serialization is deterministic and human-readable
 
-### sliceToSection Function
-- **Assertion**: Extracts a single section's text from full backlog using assert includes
-- **Input**: Full backlog string, target fileKey
-- **Expected Output**: Console log 'sliceToSection tests passed.' if sliced content contains expected parts
+### sliceToTask Function
+- **Assertion**: Extracts a single task's text from full backlog using assert includes
+- **Input**: Full backlog string, target task id
+- **Expected Output**: Console log 'sliceToTask tests passed.' if sliced content contains expected parts
 - **Purpose**: Validates context limiting for focused operations
 
-### mergeSection Function
-- **Assertion**: Replaces a section in full backlog with updated text using assert includes
-- **Input**: Full backlog string, new section text, target fileKey
-- **Expected Output**: Console log 'mergeSection tests passed.' if merged content has updated fields
-- **Purpose**: Ensures in-place merging preserves other sections
+### mergeTask Function
+- **Assertion**: Replaces a task in full backlog with updated text using assert includes
+- **Input**: Full backlog string, new task text, target task id
+- **Expected Output**: Console log 'mergeTask tests passed.' if merged content has updated fields
+- **Purpose**: Ensures in-place merging preserves other tasks

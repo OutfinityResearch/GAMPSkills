@@ -7,22 +7,19 @@ The backlog-io skill provides a complete interface to the BacklogManager module,
 
 ### Backlog Loading
 - **loadBacklog**: Load entire backlog with tasks and metadata
-- **getTask**: Retrieve specific task by file key
+- **getTask**: Retrieve specific task by numeric id
 
-### Issue Management
-- **recordIssue**: Add new issue to a task
+### Task Updates
 - **proposeFix**: Add new proposal/option to a task
 - **approveResolution**: Set resolution text for a task
 
 ### Task Discovery
-- **findTasksByPrefix**: Find all tasks matching path prefix
-- **findTaskByFileName**: Find task by file name
 - **findTasksByStatus**: Find all tasks with specific status
 
 ### Task Modification
 - **setStatus**: Update task status
 - **updateTask**: Apply partial updates to task
-- **appendTask**: Create new task in backlog
+- **appendTask**: Create new task in backlog with the next numeric id
 
 ## Input Contract
 The skill parses a single text command from `promptText`:
@@ -31,12 +28,12 @@ The skill parses a single text command from `promptText`:
 - Second token: `type` (`specs` or `docs`)
 - Remaining text: chained `key: value` parameters
 
-Supported keys: `fileKey`, `issue`, `proposal`, `resolution`, `prefix`, `fileName`, `status`, `updates`, `initialContent`.
-Values for `issue`, `proposal`, and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
+Supported keys: `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`.
+Values for `proposal` and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
 
 ## Output Contract
 - Objects for load/get operations: `{ tasks, meta }` or task object
-- Arrays for find operations: `[fileKey1, fileKey2, ...]`
+- Arrays for find operations: `[taskId1, taskId2, ...]`
 - Success strings for `setStatus`, `updateTask`, and `appendTask`
 - Throws Error with descriptive message on failure
 
@@ -57,7 +54,7 @@ Values for `issue`, `proposal`, and `updates` may be JSON if the value starts wi
 - Missing required parameters are handled by BacklogManager
 
 ### Dependencies
-- `BacklogManager`: All exported functions (loadBacklog, getTask, recordIssue, proposeFix, approveResolution, findTasksByPrefix, findTaskByFileName, findTasksByStatus, setStatus, updateTask, appendTask)
+- `BacklogManager`: loadBacklog, getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask
 
 ## Code Generation Guidelines
 When regenerating this skill:

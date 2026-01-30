@@ -1,7 +1,7 @@
 # backlogIO
 
 ## Description
-`backlogIO` handles the I/O for backlog files (`specs_backlog.md`, `docs_backlog.md`): it reads/writes raw content, parses the standard structure (File / Description / Status / Issues / Options / Resolution) into structured tasks, renders back to text, and provides utilities to slice/merge only the needed task (context limiting). The goal is a stable, human-editable format with deterministic transforms.
+`backlogIO` handles the I/O for backlog files (`specs_backlog.md`, `docs_backlog.md`): it reads/writes raw content, parses the standard structure (Task Id / Description / Status / Options / Resolution) into structured tasks, renders back to text, and provides utilities to slice/merge only the needed task (context limiting). The goal is a stable, human-editable format with deterministic transforms.
 
 ## Dependencies
 - Node `fs/promises` — file reads/writes
@@ -10,16 +10,11 @@
 The backlog files use a markdown format with tasks for each file. Each task follows this structure:
 
 ```
-### File: relative/path/to/file.ext
+## 1
 
-**Description:** Brief description of the file's purpose or the issue.
+**Description:** Brief description of the task or requested change.
 
 **Status:** ok | needs_work | blocked
-
-**Issues:**
-1. Issue title
-   Additional details...
-2. Another issue...
 
 **Options:**
 1. Proposed fix title
@@ -29,9 +24,9 @@ The backlog files use a markdown format with tasks for each file. Each task foll
 **Resolution:** Approved resolution text or empty if not resolved.
 ```
 
-- File paths are relative to the project root.
+- Task ids are numeric and assigned internally.
 - Status values: `ok`, `needs_work`, `blocked`.
-- Issues and Options are numbered lists with optional details indented, but their headers are always present even when no items are listed.
+- Options are numbered lists with optional details indented, but the header is always present even when no items are listed.
 
 This format ensures human readability and deterministic parsing.
 
@@ -46,18 +41,18 @@ This format ensures human readability and deterministic parsing.
   - Behavior: writes exactly the provided string to disk.
 - `parse(rawContent) -> tasks`
   - Input: `rawContent` (string backlog text).
-  - Output: `tasks` (dictionary of task objects keyed by file key: `{ name, description, status, issues[], options[], resolution }`).
-  - Behavior: recognizes File/Description/Status/Issues/Options/Resolution blocks, builds structured data per file.
+  - Output: `tasks` (dictionary of task objects keyed by numeric id: `{ id, description, status, options[], resolution }`).
+  - Behavior: recognizes task id/Description/Status/Options/Resolution blocks, builds structured data per task.
 - `render(tasks) -> string`
   - Input: `tasks` (dictionary of structured tasks).
-  - Output: `string` (backlog text with ordered numeric lists for Issues/Options).
-  - Behavior: serializes structured tasks back to the stable backlog format, always including Issues and Options headers.
-- `sliceToTask(rawContent, fileKey) -> taskText`
-  - Input: `rawContent` (string), `fileKey` (string identifier for task).
+  - Output: `string` (backlog text with ordered numeric lists for Options).
+  - Behavior: serializes structured tasks back to the stable backlog format, always including the Options header.
+- `sliceToTask(rawContent, taskId) -> taskText`
+  - Input: `rawContent` (string), `taskId` (numeric task identifier).
   - Output: `taskText` (string of only that task in backlog format).
-  - Behavior: extracts the subtask matching `fileKey` to minimize context.
-- `mergeTask(rawContent, taskText, fileKey) -> newRaw`
-  - Input: `rawContent` (full backlog text), `taskText` (text of a single task), `fileKey` (string).
+  - Behavior: extracts the subtask matching `taskId` to minimize context.
+- `mergeTask(rawContent, taskText, taskId) -> newRaw`
+  - Input: `rawContent` (full backlog text), `taskText` (text of a single task), `taskId` (numeric id).
   - Output: `newRaw` (string with the task replaced/merged, other tasks unchanged).
   - Behavior: swaps the target task in-place while preserving the rest of the file.
 

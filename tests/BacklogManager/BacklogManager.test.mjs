@@ -1,17 +1,15 @@
 import assert from 'assert';
-import { getSection, recordIssue, proposeFix, approveResolution, findSectionsByPrefix, findSectionByFileName, findSectionsByStatus, loadBacklog, saveBacklog } from '../../src/BacklogManager/BacklogManager.mjs';
+import { getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask, loadBacklog } from '../../src/BacklogManager/BacklogManager.mjs';
 
 console.log('Setting up BacklogManager tests...');
 
 (async () => {
   const testFilePath = 'specs_backlog.md';
-  const testContent = `### File: docs/specs/DS01.md
+  const testContent = `## 1
 
 **Description:** Test
 
 **Status:** ok
-
-**Issues:**
 
 **Options:**
 
@@ -26,47 +24,42 @@ console.log('Setting up BacklogManager tests...');
     // First, load and modify a section
     await loadBacklog('specs'); // now the file exists
 
-    console.log('Testing getSection...');
-    const section = await getSection('specs', 'docs/specs/DS01.md');
-    assert(section && section.name === 'docs/specs/DS01.md');
-    console.log('getSection tests passed.');
-
-    console.log('Testing recordIssue...');
-    const initialSection = await getSection('specs', 'docs/specs/DS01.md');
-    const initialIssuesLength = initialSection.issues.length;
-    const updatedIssue = await recordIssue('specs', 'docs/specs/DS01.md', 'New issue');
-    assert(updatedIssue.issues.length === initialIssuesLength + 1);
-    assert(updatedIssue.issues[updatedIssue.issues.length - 1].title === 'New issue');
-    console.log('recordIssue tests passed.');
+    console.log('Testing getTask...');
+    const section = await getTask('specs', 1);
+    assert(section && section.id === 1);
+    console.log('getTask tests passed.');
 
     console.log('Testing proposeFix...');
-    const initialSection2 = await getSection('specs', 'docs/specs/DS01.md');
+    const initialSection2 = await getTask('specs', 1);
     const initialOptionsLength = initialSection2.options.length;
-    const updatedFix = await proposeFix('specs', 'docs/specs/DS01.md', 'New fix');
+    const updatedFix = await proposeFix('specs', 1, 'New fix');
     assert(updatedFix.options.length === initialOptionsLength + 1);
     assert(updatedFix.options[updatedFix.options.length - 1].title === 'New fix');
     console.log('proposeFix tests passed.');
 
     console.log('Testing approveResolution...');
-    const updatedRes = await approveResolution('specs', 'docs/specs/DS01.md', 'Approved');
+    const updatedRes = await approveResolution('specs', 1, 'Approved');
     assert(updatedRes.resolution === 'Approved');
     assert(updatedRes.status === 'ok');
     console.log('approveResolution tests passed.');
 
-    console.log('Testing findSectionsByPrefix...');
-    const names = await findSectionsByPrefix('specs', 'docs/specs');
-    assert.deepEqual(names, ['docs/specs/DS01.md']);
-    console.log('findSectionsByPrefix tests passed.');
+    console.log('Testing setStatus...');
+    await setStatus('specs', 1, 'needs_work');
+    const statusTasks = await findTasksByStatus('specs', 'needs_work');
+    assert(statusTasks.includes('1'));
+    console.log('setStatus tests passed.');
 
-    console.log('Testing findSectionByFileName...');
-    const name = await findSectionByFileName('specs', 'DS01.md');
-    assert(name === 'docs/specs/DS01.md');
-    console.log('findSectionByFileName tests passed.');
+    console.log('Testing updateTask...');
+    await updateTask('specs', 1, { description: 'Updated' });
+    const updatedTask = await getTask('specs', 1);
+    assert(updatedTask.description === 'Updated');
+    console.log('updateTask tests passed.');
 
-    console.log('Testing findSectionsByStatus...');
-    const namesStatus = await findSectionsByStatus('specs', 'ok');
-    assert(namesStatus.includes('docs/specs/DS01.md'));
-    console.log('findSectionsByStatus tests passed.');
+    console.log('Testing appendTask...');
+    await appendTask('specs', 'Second task');
+    const appendedTask = await getTask('specs', 2);
+    assert(appendedTask && appendedTask.description === 'Second task');
+    console.log('appendTask tests passed.');
 
     console.log('All BacklogManager tests passed!');
   } catch (e) {

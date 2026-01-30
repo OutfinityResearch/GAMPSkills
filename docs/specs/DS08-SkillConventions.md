@@ -89,5 +89,5 @@ Skills that interact with `specs_backlog.md` or `docs_backlog.md` follow these c
 - **Reading**: Parse specific sections (Global Specs, Local Specs, etc.) to maintain context focus.
 - **Approved Items**: An item is considered "Approved" for execution (by `fix-specs`, etc.) only if the `Resolution` field contains non-whitespace text.
 - **Status Updates**:
-  - `needs_work`: Set by Review skills when issues are found.
+  - `needs_work`: Set by Review skills when problems are found.
   - `ok`: Set by Fix/Create skills after successfully applying changes or generating content.

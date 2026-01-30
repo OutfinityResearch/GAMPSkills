@@ -7,11 +7,8 @@ export async function action(context) {
     const allowedOperations = new Set([
         'loadBacklog',
         'getTask',
-        'recordIssue',
         'proposeFix',
         'approveResolution',
-        'findTasksByPrefix',
-        'findTaskByFileName',
         'findTasksByStatus',
         'setStatus',
         'updateTask',
@@ -24,24 +21,18 @@ export async function action(context) {
 
     let operation = tokenMatch?.[1];
     let type = tokenMatch?.[2];
-    let issue;
     let proposal;
     let resolution;
-    let prefix;
-    let fileName;
     let status;
     let updates;
-    let fileKey;
+    let taskId;
     let initialContent;
 
     const paramText = tokenMatch?.[3] ?? '';
     const params = parseKeyValueParams(paramText);
-    if (params.fileKey !== undefined) fileKey = params.fileKey;
-    if (params.issue !== undefined) issue = params.issue;
+    if (params.taskId !== undefined) taskId = params.taskId;
     if (params.proposal !== undefined) proposal = params.proposal;
     if (params.resolution !== undefined) resolution = params.resolution;
-    if (params.prefix !== undefined) prefix = params.prefix;
-    if (params.fileName !== undefined) fileName = params.fileName;
     if (params.status !== undefined) status = params.status;
     if (params.updates !== undefined) updates = params.updates;
     if (params.initialContent !== undefined) initialContent = params.initialContent;
@@ -62,11 +53,11 @@ export async function action(context) {
             llmAgent,
             promptText,
             `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
-            ['operation', 'type', 'fileKey', 'status', 'initialContent'],
+            ['operation', 'type', 'taskId', 'status', 'initialContent'],
         );
 
         if (Array.isArray(llmResult)) {
-            [operation, type, fileKey, status, initialContent] = llmResult;
+            [operation, type, taskId, status, initialContent] = llmResult;
             if (typeof operation === 'string') {
                 operation = operation.trim().split(/\s+/)[0];
             }
@@ -79,7 +70,7 @@ export async function action(context) {
     }
 
     return await executeBacklogOperation({
-        operation, type, fileKey, issue, proposal, resolution, prefix, fileName, status, updates, initialContent
+        operation, type, taskId, proposal, resolution, status, updates, initialContent
     });
 }
 
@@ -89,7 +80,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(fileKey|issue|proposal|resolution|prefix|fileName|status|updates|initialContent)\s*:\s*/g;
+    const keyPattern = /\b(taskId|proposal|resolution|status|updates|initialContent)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;
@@ -108,7 +99,7 @@ function parseKeyValueParams(text) {
             continue;
         }
 
-        if (key === 'issue' || key === 'proposal' || key === 'updates') {
+        if (key === 'proposal' || key === 'updates') {
             result[key] = parseMaybeJson(rawValue);
         } else {
             result[key] = rawValue;
@@ -133,7 +124,7 @@ function parseMaybeJson(value) {
     return value;
 }
 
-async function executeBacklogOperation({ operation, type, fileKey, issue, proposal, resolution, prefix, fileName, status, updates, initialContent }) {
+async function executeBacklogOperation({ operation, type, taskId, proposal, resolution, status, updates, initialContent }) {
     if (!operation) {
         throw new Error('Invalid input: operation is required.');
     }
@@ -143,36 +134,27 @@ async function executeBacklogOperation({ operation, type, fileKey, issue, propos
             return await BacklogManager.loadBacklog(type);
         
         case 'getTask':
-            return await BacklogManager.getTask(type, fileKey);
-        
-        case 'recordIssue':
-            return await BacklogManager.recordIssue(type, fileKey, issue);
+            return await BacklogManager.getTask(type, taskId);
         
         case 'proposeFix':
-            return await BacklogManager.proposeFix(type, fileKey, proposal);
+            return await BacklogManager.proposeFix(type, taskId, proposal);
         
         case 'approveResolution':
-            return await BacklogManager.approveResolution(type, fileKey, resolution);
-        
-        case 'findTasksByPrefix':
-            return await BacklogManager.findTasksByPrefix(type, prefix);
-        
-        case 'findTaskByFileName':
-            return await BacklogManager.findTaskByFileName(type, fileName);
+            return await BacklogManager.approveResolution(type, taskId, resolution);
         
         case 'findTasksByStatus':
             return await BacklogManager.findTasksByStatus(type, status);
         
         case 'setStatus':
-            await BacklogManager.setStatus(type, fileKey, status);
+            await BacklogManager.setStatus(type, taskId, status);
             return 'Status updated successfully';
         
         case 'updateTask':
-            await BacklogManager.updateTask(type, fileKey, updates);
+            await BacklogManager.updateTask(type, taskId, updates);
             return 'Task updated successfully';
         
         case 'appendTask':
-            await BacklogManager.appendTask(type, fileKey, initialContent);
+            await BacklogManager.appendTask(type, initialContent);
             return 'Task appended successfully';
         
         default:

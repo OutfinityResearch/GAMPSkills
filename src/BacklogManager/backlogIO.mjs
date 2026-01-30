@@ -22,19 +22,18 @@ export function parse(rawContent) {
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
-    if (line.startsWith('### File: ')) {
-      const fileKey = line.replace('### File: ', '').trim();
+    const headerMatch = line.match(/^##\s+(\d+)\s*$/);
+    if (headerMatch) {
+      const taskId = headerMatch[1];
       let description = '';
       let status = '';
-      const issues = [];
       const options = [];
       let resolution = '';
 
       let currentField = '';
-      let issueId = 1;
       let optionId = 1;
       i++; // move to next line
-      while (i < lines.length && !lines[i].startsWith('### File: ')) {
+      while (i < lines.length && !lines[i].match(/^##\s+\d+\s*$/)) {
         const subline = lines[i];
         if (subline.startsWith('**Description:**')) {
           currentField = 'description';
@@ -42,17 +41,11 @@ export function parse(rawContent) {
         } else if (subline.startsWith('**Status:**')) {
           currentField = 'status';
           status = subline.replace('**Status:**', '').trim();
-        } else if (subline.startsWith('**Issues:**')) {
-          currentField = 'issues';
         } else if (subline.startsWith('**Options:**')) {
           currentField = 'options';
         } else if (subline.startsWith('**Resolution:**')) {
           currentField = 'resolution';
           resolution = subline.replace('**Resolution:**', '').trim();
-        } else if (currentField === 'issues' && /^\d+\./.test(subline)) {
-          const item = parseNumberedItem(lines, i);
-          issues.push({ id: issueId++, title: item.title, details: item.details, status: '' });
-          i += item.consumed - 1;
         } else if (currentField === 'options' && /^\d+\./.test(subline)) {
           const item = parseNumberedItem(lines, i);
           options.push({ id: optionId++, title: item.title, details: item.details, status: '' });
@@ -64,11 +57,10 @@ export function parse(rawContent) {
         }
         i++;
       }
-      tasks[fileKey] = {
-        name: fileKey,
+      tasks[taskId] = {
+        id: parseInt(taskId, 10),
         description: description.trim(),
         status,
-        issues,
         options,
         resolution: resolution.trim()
       };
@@ -100,20 +92,17 @@ function parseNumberedItem(lines, startIndex) {
 
 export function render(tasks) {
   let content = '';
-  for (const [fileKey, task] of Object.entries(tasks)) {
-    content += `### File: ${fileKey}\n\n`;
+  const sortedIds = Object.keys(tasks)
+    .map((key) => Number.parseInt(key, 10))
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)
+    .map((value) => String(value));
+
+  for (const taskId of sortedIds) {
+    const task = tasks[taskId];
+    content += `## ${taskId}\n\n`;
     content += `**Description:** ${task.description}\n\n`;
     content += `**Status:** ${task.status}\n\n`;
-    content += '**Issues:**\n';
-    if (task.issues.length > 0) {
-      for (const issue of task.issues) {
-        content += `${issue.id}. ${issue.title}\n`;
-        if (issue.details) {
-          content += `   ${issue.details}\n`;
-        }
-      }
-    }
-    content += '\n';
     content += '**Options:**\n';
     if (task.options.length > 0) {
       for (const option of task.options) {
@@ -129,29 +118,29 @@ export function render(tasks) {
   return content.trim();
 }
 
-export function sliceToTask(rawContent, fileKey) {
-  const tasks = rawContent.split(/^### File: /m);
+export function sliceToTask(rawContent, taskId) {
+  const tasks = rawContent.split(/^##\s+/m);
   for (let i = 1; i < tasks.length; i++) {
     const task = tasks[i];
     const lines = task.split('\n');
-    if (lines[0].trim() === fileKey) {
-      return `### File: ${task.trim()}`;
+    if (lines[0].trim() === String(taskId)) {
+      return `## ${task.trim()}`;
     }
   }
   return '';
 }
 
-export function mergeTask(rawContent, taskText, fileKey) {
-  const tasks = rawContent.split(/^### File: /m);
+export function mergeTask(rawContent, taskText, taskId) {
+  const tasks = rawContent.split(/^##\s+/m);
   let newContent = tasks[0]; // before first task
 
   for (let i = 1; i < tasks.length; i++) {
     const task = tasks[i];
     const lines = task.split('\n');
-    if (lines[0].trim() === fileKey) {
-      newContent += taskText.replace(/^### File: /, '');
+    if (lines[0].trim() === String(taskId)) {
+      newContent += taskText.replace(/^##\s+/, '');
     } else {
-      newContent += `### File: ${task}`;
+      newContent += `## ${task}`;
     }
   }
 

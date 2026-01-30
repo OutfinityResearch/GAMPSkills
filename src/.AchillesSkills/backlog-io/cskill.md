@@ -2,17 +2,14 @@
 Executes backlog operations via BacklogManager methods.
 
 ## Summary
-Executes backlog operations via BacklogManager methods. Provide natural language instructions like "load specs backlog" or "get task from docs backlog with key myfile".
+Executes backlog operations via BacklogManager methods. Provide command-like instructions such as "loadBacklog specs" or "getTask docs taskId: 2".
 
 ## Input Format
-- **operation** (string): Operation type (loadBacklog, getTask, recordIssue, proposeFix, approveResolution, findTasksByPrefix, findTaskByFileName, findTasksByStatus, setStatus, updateTask, appendTask).
+- **operation** (string): Operation type (loadBacklog, getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask).
 - **type** (string): Backlog type ('specs' or 'docs').
-- **fileKey** (string, optional): File key for task operations.
-- **issue** (object, optional): Issue object for recordIssue.
+- **taskId** (string or number, optional): Numeric task id for task operations.
 - **proposal** (object, optional): Proposal object for proposeFix.
 - **resolution** (string, optional): Resolution string for approveResolution.
-- **prefix** (string, optional): Prefix for findTasksByPrefix.
-- **fileName** (string, optional): File name for findTaskByFileName.
 - **status** (string, optional): Status for findTasksByStatus or setStatus.
 - **updates** (object, optional): Updates object for updateTask.
 - **initialContent** (string, optional): Initial content for appendTask.
@@ -24,13 +21,13 @@ Rules:
 
 Examples:
 - "loadBacklog specs"
-- "getTask docs myfile"
-- "findTasksByStatus specs status: completed"
-- "appendTask specs fileKey: SPEC-QUESTION-01 initialContent: First line\nSecond line"
+- "getTask docs taskId: 2"
+- "findTasksByStatus specs status: needs_work"
+- "appendTask specs initialContent: First line\nSecond line"
 
 ## Output Format
 - **Type**: `object | array | string`
-- **Success Example**: { tasks: {...}, meta: {...} } or ["file1.md", "file2.md"]
+- **Success Example**: { tasks: {...}, meta: {...} } or ["1", "2"]
 - **Error Example**: "Error: Invalid backlog type."
 
 ## Constraints

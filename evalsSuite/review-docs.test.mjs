@@ -31,39 +31,46 @@ async function runReviewDocs(agent, targetDir) {
 }
 
 function parseBacklog(content) {
-  const sections = {};
+  const tasks = [];
   const lines = (content || '').split(/\r?\n/);
   let current = null;
-  let collectingIssues = false;
+  let collectingDescription = false;
   for (const line of lines) {
-    if (line.startsWith('## ')) {
-      current = line.slice(3).trim();
-      sections[current] = { status: null, issues: [] };
-      collectingIssues = false;
+    const headerMatch = line.match(/^##\s+(\d+)\s*$/);
+    if (headerMatch) {
+      current = {
+        id: headerMatch[1],
+        status: null,
+        description: ''
+      };
+      tasks.push(current);
+      collectingDescription = false;
       continue;
     }
     if (!current) continue;
-    if (line.startsWith('- Description:')) {
+    if (line.startsWith('**Description:**')) {
+      current.description = line.replace('**Description:**', '').trim();
+      collectingDescription = true;
       continue;
     }
-    if (line.startsWith('- Status:')) {
-      sections[current].status = line.slice('- Status:'.length).trim().toLowerCase();
-      collectingIssues = false;
+    if (line.startsWith('**Status:**')) {
+      current.status = line.replace('**Status:**', '').trim().toLowerCase();
+      collectingDescription = false;
       continue;
     }
-    if (line.startsWith('- Issues:')) {
-      collectingIssues = true;
+    if (line.startsWith('**Options:**') || line.startsWith('**Resolution:**')) {
+      collectingDescription = false;
       continue;
     }
-    if (line.startsWith('- Proposed fixes')) {
-      collectingIssues = false;
-      continue;
-    }
-    if (collectingIssues && line.trim().startsWith('- ')) {
-      sections[current].issues.push(line.trim().slice(2));
+    if (collectingDescription && line.trim()) {
+      current.description = `${current.description} ${line.trim()}`.trim();
     }
   }
-  return sections;
+  return tasks;
+}
+
+function findTaskByDescription(tasks, pattern) {
+  return tasks.find((task) => pattern.test(task.description));
 }
 
 function expectRegex(name, value, regex, failures) {
@@ -111,54 +118,56 @@ async function testReviewDocs() {
       const backlog = await fs.readFile(backlogPath, 'utf8');
       console.log('[review-docs-test] Backlog:\n', backlog.trim());
 
-      const sections = parseBacklog(backlog);
+      const tasks = parseBacklog(backlog);
 
-      const complete = sections['docs/complete.html'];
+      const complete = findTaskByDescription(tasks, /complete\.html/i);
       if (!complete) {
         caseFailures.push('complete.html section missing');
       } else if (complete.status !== 'ok') {
         caseFailures.push(`complete.html should be ok (got ${complete.status})`);
       }
 
-      const vague = sections['docs/vague.html'];
+      const vague = findTaskByDescription(tasks, /vague\.html/i);
       if (!vague) {
         caseFailures.push('vague.html section missing');
       } else {
         if (vague.status === 'ok') {
           caseFailures.push(`vague.html status should not be ok (got ${vague.status})`);
         }
-        const joined = vague.issues.join(' ');
-        expectRegex('vague issues', joined, /missing|unclear|vague|detail/i, caseFailures);
+        expectRegex('vague description', vague.description, /missing|unclear|vague|detail/i, caseFailures);
       }
 
-      const inconsistent = sections['docs/inconsistent.html'];
+      const inconsistent = findTaskByDescription(tasks, /inconsistent\.html/i);
       if (!inconsistent) {
         caseFailures.push('inconsistent.html section missing');
       } else {
         if (inconsistent.status === 'ok') {
           caseFailures.push(`inconsistent.html should not be ok (got ${inconsistent.status})`);
         }
-        const joined = inconsistent.issues.join(' ');
         expectRegex(
-          'inconsistent issues',
-          joined,
+          'inconsistent description',
+          inconsistent.description,
           /(inconsisten|mismatch|contradic|purpose|terminolog|missing purpose|missing usage|no examples)/i,
           caseFailures
         );
       }
 
-      const broken = sections['docs/broken.html'];
+      const broken = findTaskByDescription(tasks, /broken\.html/i);
       if (!broken) {
         caseFailures.push('broken.html section missing');
       } else {
         if (broken.status === 'ok') {
           caseFailures.push(`broken.html should not be ok (got ${broken.status})`);
         }
-        const joined = broken.issues.join(' ');
-        expectRegex('broken issues', joined, /(structur|missing|incomplete|no examples|unclear|broken)/i, caseFailures);
+        expectRegex(
+          'broken description',
+          broken.description,
+          /(structur|missing|incomplete|no examples|unclear|broken)/i,
+          caseFailures
+        );
       }
 
-      const orphan = sections['docs/orphan.html'];
+      const orphan = findTaskByDescription(tasks, /orphan\.html/i);
       if (!orphan) {
         caseFailures.push('orphan.html section missing');
       } else {
