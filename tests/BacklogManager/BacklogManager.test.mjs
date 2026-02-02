@@ -46,7 +46,7 @@ console.log('Setting up BacklogManager tests...');
     console.log('Testing setStatus...');
     await setStatus('specs', 1, 'needs_work');
     const statusTasks = await findTasksByStatus('specs', 'needs_work');
-    assert(statusTasks.includes('1'));
+    assert(statusTasks.some((task) => task.id === 1));
     console.log('setStatus tests passed.');
 
     console.log('Testing updateTask...');

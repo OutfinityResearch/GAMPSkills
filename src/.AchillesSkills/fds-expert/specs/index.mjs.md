@@ -33,6 +33,7 @@ The fds-expert skill generates File Design Specification (FDS) content with deta
 - Content follows the required FDS section order
 - Includes code blocks for signatures (examples are optional)
 - Throws Error if prompt or llmAgent missing
+- Returns `undefined` if no prompt could be resolved from inputs
 
 ## Implementation Details
 
@@ -47,6 +48,13 @@ The skill constructs a short, structured prompt that:
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`
 - Deep mode ensures thorough technical analysis
 - Returns trimmed response text
+
+### LLM Call (Hardcoded Signature)
+Call signature (must match exactly):
+`llmAgent.executePrompt(technicalPrompt, { mode: 'deep' })`
+
+- `technicalPrompt` is the FDS prompt built by `buildTechnicalPrompt(userPrompt)`
+- Expected return: string; otherwise throw `fds-expert: llmAgent.executePrompt must return a string.`
 
 ### Content Guidelines Enforced
 - Focus on HOW, not just WHAT

@@ -26,6 +26,7 @@ The skill parses a single text command from `promptText`:
 
 - First token: `operation`
 - Second token: `type` (`specs` or `docs`)
+- Second token: `type` (`specs` or `docs`) when provided
 - Remaining text: chained `key: value` parameters
 
 Supported keys: `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`.
@@ -53,6 +54,21 @@ Values for `proposal` and `updates` may be JSON if the value starts with `{` or 
 - BacklogManager errors propagate unchanged
 - Missing required parameters are handled by BacklogManager
 
+### Regex Patterns (Hardcoded)
+- Token split: `/^(\S+)(?:\s+(\S+))?(?:\s+([\s\S]*))?$/`
+- Key/value scan: `/\b(taskId|proposal|resolution|status|updates|initialContent)\s*:\s*/g`
+- Operation trim: `/\s+/` (split on whitespace)
+
+### LLM Fallback (Hardcoded Signature)
+Triggered only when operation is not allowed or type is invalid.
+
+Call signature (must match exactly):
+`extractArgumentsWithLLM(llmAgent, promptText, instructionText, ['operation', 'type', 'taskId', 'status', 'initialContent'])`
+
+- `instructionText` must be: `Extract backlog operation arguments. Allowed operations: <comma-separated allowedOperations>`
+- Expected return: array in order `[operation, type, taskId, status, initialContent]`
+- If return is not an array, throw `Unknown operation: ${operation}`
+
 ### Dependencies
 - `BacklogManager`: loadBacklog, getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask
 
@@ -62,6 +78,6 @@ When regenerating this skill:
 2. Keep all operations async
 3. Import all BacklogManager functions as namespace
 4. Parse `promptText` into `operation`, `type`, and chained `key: value` parameters
-5. Parse JSON for `issue`, `proposal`, and `updates` only when the value starts with `{` or `[` 
+5. Parse JSON for `proposal` and `updates` only when the value starts with `{` or `[` 
 6. Return BacklogManager results unchanged except for status/update/append (return success strings)
 7. Use LLM fallback only if operation or type is invalid

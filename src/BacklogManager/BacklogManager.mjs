@@ -80,13 +80,13 @@ export async function saveBacklog(type, tasks) {
 
 export async function findTasksByStatus(type, status) {
   const { tasks } = await loadBacklog(type);
-  const names = [];
-  for (const [key, task] of Object.entries(tasks)) {
+  const matches = [];
+  for (const task of Object.values(tasks)) {
     if (task.status === status) {
-      names.push(key);
+      matches.push(task);
     }
   }
-  return names;
+  return matches;
 }
 
 export async function setStatus(type, taskId, status) {

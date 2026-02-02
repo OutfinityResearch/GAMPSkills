@@ -6,7 +6,7 @@ The file-system skill provides comprehensive file system operations for the Achi
 ## Capabilities
 
 ### File Operations
-- **readFile**: Read complete file content as UTF-8 string
+- **readFile**: Return a success string indicating the file path was read
 - **writeFile**: Write content to file, creating parent directories if needed
 - **appendFile**: Append content to existing file
 - **deleteFile**: Remove file from filesystem
@@ -44,6 +44,24 @@ For `writeFile` and `appendFile`, the payload may be `content: <text>` or raw te
 - Invalid operation or missing path triggers LLM argument extraction when possible
 - Missing required parameters throw descriptive errors
 - File system errors propagate with original error messages
+
+### Regex Patterns (Hardcoded)
+- First line split: `/\r?\n/`
+- Token split: `/\s+/`
+- Payload prefix checks:
+  - Destination: `/^destination\s*:/i`
+  - Content: `/^content\s*:/i`
+- Operation trim: `/\s+/` (split on whitespace)
+
+### LLM Fallback (Hardcoded Signature)
+Triggered only when operation is not allowed or path is missing.
+
+Call signature (must match exactly):
+`extractArgumentsWithLLM(llmAgent, promptText, instructionText, ['operation', 'path', 'content', 'destination'])`
+
+- `instructionText` must be: `Extract file system operation arguments. Allowed operations: <comma-separated allowedOperations>`
+- Expected return: array in order `[operation, path, content, destination]`
+- If return is not an array, throw `Unknown operation: ${operation}`
 
 ### Dependencies
 - `fs/promises`: readFile, writeFile, appendFile, unlink, mkdir, readdir, stat, copyFile, rename

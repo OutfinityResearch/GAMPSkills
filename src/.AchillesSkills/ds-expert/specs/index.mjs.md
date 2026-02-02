@@ -32,6 +32,7 @@ The ds-expert skill generates Design Specification (DS) content focused on globa
 ## Output Contract
 - Returns a trimmed string response from the LLM
 - Throws Error if prompt or llmAgent missing
+- Returns `undefined` if no prompt could be resolved from inputs
 
 ## Implementation Details
 
@@ -45,6 +46,13 @@ The skill constructs a concise DS prompt that:
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`
 - Deep mode ensures full reasoning for strategic content
 - Returns trimmed response text
+
+### LLM Call (Hardcoded Signature)
+Call signature (must match exactly):
+`llmAgent.executePrompt(technicalPrompt, { mode: 'deep' })`
+
+- `technicalPrompt` is the DS prompt built by `buildTechnicalPrompt(userPrompt)`
+- Expected return: string; otherwise throw `ds-expert: llmAgent.executePrompt must return a string.`
 
 ### Content Guidelines Enforced
 - Focus on WHAT and WHY, not HOW
