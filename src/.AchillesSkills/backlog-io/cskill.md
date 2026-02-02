@@ -8,7 +8,6 @@ Executes backlog operations via BacklogManager methods. Provide command-like ins
 - **operation** (string): Operation type (loadBacklog, getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask).
 - **type** (string): Backlog type ('specs' or 'docs').
 - **taskId** (string or number, optional): Numeric task id for task operations.
-- **affectedFiles** (string or array, optional): Affected files list (comma-separated string).
 - **proposal** (object, optional): Proposal object for proposeFix.
 - **resolution** (string, optional): Resolution string for approveResolution.
 - **status** (string, optional): Status for findTasksByStatus or setStatus.
@@ -25,7 +24,6 @@ Examples:
 - "getTask docs taskId: 2"
 - "findTasksByStatus specs status: needs_work"
 - "appendTask specs initialContent: First line\nSecond line"
-- "updateTask specs taskId: 2 affectedFiles: [\"docs/specs/DS01.md\", \"docs/specs/src/Feature.md\"]"
 
 ## Output Format
 - **Type**: `object | array | string`

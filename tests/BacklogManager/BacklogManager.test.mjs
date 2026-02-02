@@ -59,7 +59,6 @@ console.log('Setting up BacklogManager tests...');
     await appendTask('specs', 'Second task');
     const appendedTask = await getTask('specs', 2);
     assert(appendedTask && appendedTask.description === 'Second task');
-    assert(Array.isArray(appendedTask.affectedFiles));
     console.log('appendTask tests passed.');
 
     console.log('All BacklogManager tests passed!');

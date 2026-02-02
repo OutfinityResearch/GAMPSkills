@@ -1,7 +1,7 @@
 # BacklogManager
 
 ## Description
-BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./docs_backlog.md`) while enforcing the standard task format (Id / Description / Status / Affected Files / Options / Resolution). It loads raw backlog text, parses it into structured tasks, lets agents record proposed fixes, applies user-approved resolutions via injected hooks, and writes the serialized result back. It keeps operations deterministic and context-limited by extracting only the needed task and preserving a stable, human-editable layout.
+BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./docs_backlog.md`) while enforcing the standard task format (Id / Description / Status / Options / Resolution). It loads raw backlog text, parses it into structured tasks, lets agents record proposed fixes, applies user-approved resolutions via injected hooks, and writes the serialized result back. It keeps operations deterministic and context-limited by extracting only the needed task and preserving a stable, human-editable layout.
 
 ## Dependencies
 - `backlogIO` (see `./BacklogManager/backlogIO.md`) — reading/writing files, parsing/rendering backlog tasks, slicing/merging specific tasks
@@ -12,11 +12,11 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 ## Main functions
 - `loadBacklog(type) -> { tasks, meta }`
   - Input: `type` (string `"specs"` or `"docs"` for backlog type).
-  - Output: `{ tasks, meta }` where `tasks` is a dictionary keyed by numeric task id (fields: `id`, `description`, `status`, `affectedFiles[]`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
+  - Output: `{ tasks, meta }` where `tasks` is a dictionary keyed by numeric task id (fields: `id`, `description`, `status`, `options[]`, `resolution`), and `meta` includes file info like `mtime`, `size`.
   - Behavior: resolves path from type, reads file, parses via `backlogIO.parse`, returns structured data for further operations.
 - `getTask(type, taskId) -> task`
   - Input: `type` (string `"specs"` or `"docs"`), `taskId` (number or numeric string).
-  - Output: `task` object (`{ id, description, status, affectedFiles[], options[], resolution }`) or null if missing.
+  - Output: `task` object (`{ id, description, status, options[], resolution }`) or null if missing.
   - Behavior: loads and parses backlog for the type, fetches the task by id.
 - `proposeFix(type, taskId, proposal)`
   - Input: `type` (string `"specs"` or `"docs"`), `taskId` (number), `proposal` (raw string/object with `title`, optional `details`).
@@ -49,7 +49,7 @@ BacklogManager orchestrates both project backlogs (`./specs_backlog.md` and `./d
 - `appendTask(type, initialContent)`
   - Input: `type` (string `"specs"` or `"docs"`), `initialContent` (string).
   - Output: void; adds a new task with the next numeric id.
-  - Behavior: loads and parses backlog, creates the task with the initial content as description, status `needs_work`, empty affectedFiles/options, empty resolution, saves the backlog.
+  - Behavior: loads and parses backlog, creates the task with the initial content as description, status `needs_work`, empty options, empty resolution, saves the backlog.
 
 ## Exports
 - `loadBacklog`

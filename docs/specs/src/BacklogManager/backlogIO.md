@@ -16,10 +16,6 @@ The backlog files use a markdown format with tasks for each file. Each task foll
 
 **Status:** ok | needs_work | blocked
 
-**Affected Files:**
-- docs/specs/DS01.md
-- docs/specs/src/moduleA.md
-
 **Options:**
 1. Proposed fix title
    Details of the fix...
@@ -30,7 +26,6 @@ The backlog files use a markdown format with tasks for each file. Each task foll
 
 - Task ids are numeric and assigned internally.
 - Status values: `ok`, `needs_work`, `blocked`.
-- Affected Files are a bullet list of files to be edited for the task.
 - Options are numbered lists with optional details indented, but the header is always present even when no items are listed.
 
 This format ensures human readability and deterministic parsing.
@@ -46,12 +41,12 @@ This format ensures human readability and deterministic parsing.
   - Behavior: writes exactly the provided string to disk.
 - `parse(rawContent) -> tasks`
   - Input: `rawContent` (string backlog text).
-  - Output: `tasks` (dictionary of task objects keyed by numeric id: `{ id, description, status, affectedFiles[], options[], resolution }`).
-  - Behavior: recognizes task id/Description/Status/Affected Files/Options/Resolution blocks, builds structured data per task.
+  - Output: `tasks` (dictionary of task objects keyed by numeric id: `{ id, description, status, options[], resolution }`).
+  - Behavior: recognizes task id/Description/Status/Options/Resolution blocks, builds structured data per task.
 - `render(tasks) -> string`
   - Input: `tasks` (dictionary of structured tasks).
   - Output: `string` (backlog text with ordered numeric lists for Options).
-  - Behavior: serializes structured tasks back to the stable backlog format, always including the Affected Files and Options headers.
+  - Behavior: serializes structured tasks back to the stable backlog format, always including the Options header.
 - `sliceToTask(rawContent, taskId) -> taskText`
   - Input: `rawContent` (string), `taskId` (numeric task identifier).
   - Output: `taskText` (string of only that task in backlog format).

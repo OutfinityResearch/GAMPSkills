@@ -91,6 +91,3 @@ Skills that interact with `specs_backlog.md` or `docs_backlog.md` follow these c
 - **Status Updates**:
   - `needs_work`: Set by Review skills when problems are found.
   - `ok`: Set by Fix/Create skills after successfully applying changes or generating content.
-
-## Specification Dependencies
-Specification files may include a `# Dependencies` (or `## Dependencies`) section listing other spec files needed as context. These dependencies are treated as read-only context during fix workflows and must be referenced by relative paths under `./docs/specs/**`.

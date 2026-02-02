@@ -7,13 +7,10 @@ The fix-specs skill applies user-approved resolutions from the specs backlog to 
 This skill processes approved tasks from `./specs_backlog.md` and applies their resolutions to the corresponding specification files. The workflow is:
 
 1. Load the specs backlog and select tasks where `status` is `needs_work` and `Resolution` is non-empty.
-2. For each selected task, read the `Affected Files` list from the backlog entry.
-3. For each affected file:
-   - Read the file content using `file-system`.
-   - Extract its `# Dependencies` (or `## Dependencies`) list and read those dependency files as read-only context.
-   - Provide the primary file content, dependency context, and the resolution text to `ds-expert` to produce updated file content.
-   - Write the updated content back to the same file using `file-system`.
-4. After all affected files are updated, set the backlog task status to `ok` using `backlog-io`.
+2. Use file-system to list all files that end with .md (these are spec files)
+3. For each selected task, use ds-expert or fds-expert and the list of files to produce a new list of files that need to be worked on.
+4. For each file in that list, use file-system to read it, use ds/fds-expert, task description, resolution and all previously generated content to create a new file content, then write the new content.
+5. Update the backlog task status to `ok` using `backlog-io`.
 
 Each step should be performed per task, and only tasks with non-empty resolutions are applied.
 
@@ -21,3 +18,6 @@ Each step should be performed per task, and only tasks with non-empty resolution
 - backlog-io
 - file-system
 - ds-expert
+
+## Loop
+true
