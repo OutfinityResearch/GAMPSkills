@@ -1,10 +1,10 @@
-import { readFile, writeFile, appendFile, unlink, mkdir, readdir, stat, copyFile, rename } from 'fs/promises';
+import { readFile, writeFile, appendFile, unlink, mkdir, readdir, copyFile, rename } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { existsSync } from 'fs';
 import { extractArgumentsWithLLM } from '../../ArgumentResolver.mjs';
 
 export async function action(context) {
-    const { llmAgent, recursiveAgent, promptText } = context;
+    const { llmAgent, promptText } = context;
 
     // Otherwise, resolve from natural language input
     if (!promptText) {
@@ -85,6 +85,8 @@ async function executeFileOperation({ operation, path, content, destination }) {
 
     switch (operation) {
         case 'readFile':
+            // Per spec, does not return content, just confirms read
+            await readFile(fullPath);
             return `Read file at ${fullPath} successfully.`;
         
         case 'writeFile':
@@ -105,10 +107,12 @@ async function executeFileOperation({ operation, path, content, destination }) {
             return `Created directory at ${fullPath} successfully.`;
         
         case 'listDirectory':
-            return `Listed entries at ${fullPath} successfully: ${JSON.stringify(await readdir(fullPath))}.`;
+            const entries = await readdir(fullPath);
+            return `Listed entries at ${fullPath} successfully: ${JSON.stringify(entries)}.`;
         
         case 'fileExists':
-            return `Checked file existence at ${fullPath}: ${existsSync(fullPath)}.`;
+            const exists = existsSync(fullPath);
+            return `Checked file existence at ${fullPath}: ${exists}.`;
         
         case 'copyFile':
             if (!destination) throw new Error('Destination required for copyFile');

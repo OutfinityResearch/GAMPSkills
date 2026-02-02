@@ -1,4 +1,3 @@
-
 function validateInputs(options) {
   if (!options || typeof options !== 'object') {
     throw new Error('ds-expert: options object is required.');
@@ -6,7 +5,7 @@ function validateInputs(options) {
 
   const { prompt, llmAgent } = options;
 
-  if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
     throw new Error('ds-expert: "prompt" (non-empty string) is required.');
   }
 
@@ -18,8 +17,7 @@ function validateInputs(options) {
 }
 
 function buildTechnicalPrompt(userPrompt) {
-  return `
-You are a Design Specification (DS) expert.
+  const template = `You are a Design Specification (DS) expert.
 
 Imagine you are talking to a client who can only discuss Global Design Specifications with you.
 You work at a high level: vision, scope, principles, governance, stakeholders, major capabilities, risks, and success criteria.
@@ -48,17 +46,8 @@ You may provide:
 User Prompt:
 """
 ${userPrompt}
-"""
-  `.trim();
-}
-
-export async function action(context) {
-  const { llmAgent, recursiveAgent, ...args } = context;
-
-  const resolvedPrompt = args.prompt || args.input || Object.values(args)[0];
-  if (resolvedPrompt) {
-    return await executeDSGeneration({ prompt: resolvedPrompt, llmAgent });
-  }
+"""`;
+  return template;
 }
 
 async function executeDSGeneration({ prompt, llmAgent }) {
@@ -75,4 +64,10 @@ async function executeDSGeneration({ prompt, llmAgent }) {
   }
 
   return response.trim();
+}
+
+export async function action(context) {
+  const { llmAgent, promptText } = context;
+
+  return await executeDSGeneration({ prompt: promptText, llmAgent });
 }

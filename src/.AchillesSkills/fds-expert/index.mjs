@@ -1,8 +1,5 @@
-function validateInputs(context) {
-
-  const { prompt, llmAgent } = context;
-
-  if (typeof prompt !== 'string' || prompt.trim().length === 0) {
+function validateInputs({ prompt, llmAgent }) {
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
     throw new Error('fds-expert: "prompt" (non-empty string) is required.');
   }
 
@@ -14,8 +11,7 @@ function validateInputs(context) {
 }
 
 function buildTechnicalPrompt(userPrompt) {
-  return `
-You are a File Design Specification (FDS) expert.
+  return `You are a File Design Specification (FDS) expert.
 
 Focus on a single code file/module. Provide implementation-focused, regeneration-ready details.
 Do not include code or low-level implementation steps beyond FDS descriptions.
@@ -37,17 +33,7 @@ Guidelines:
 User Prompt:
 """
 ${userPrompt}
-"""
-  `.trim();
-}
-
-export async function action(context) {
-  const { llmAgent, recursiveAgent, ...args } = context;
-
-  const resolvedPrompt = args.prompt || args.input || Object.values(args)[0];
-  if (resolvedPrompt) {
-    return await executeFdsGeneration({ prompt: resolvedPrompt, llmAgent });
-  }
+"""`;
 }
 
 async function executeFdsGeneration({ prompt, llmAgent }) {
@@ -64,4 +50,16 @@ async function executeFdsGeneration({ prompt, llmAgent }) {
   }
 
   return response.trim();
+}
+
+export async function action(context) {
+  const { llmAgent, ...args } = context;
+
+  const resolvedPrompt = args.prompt || args.input || Object.values(args)[0];
+
+  if (!resolvedPrompt) {
+    return null;
+  }
+
+  return await executeFdsGeneration({ prompt: resolvedPrompt, llmAgent });
 }

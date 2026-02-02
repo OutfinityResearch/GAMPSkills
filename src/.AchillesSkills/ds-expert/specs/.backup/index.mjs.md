@@ -26,7 +26,8 @@ The ds-expert skill generates Design Specification (DS) content focused on globa
 - Component architecture (high-level)
 
 ## Input Contract
-- Has context object has input from which you need to extract `promptText` and `llmAgent`.
+- The action resolves the prompt from `prompt`, `input`, or the first argument value.
+- Requires `llmAgent` with `executePrompt`.
 
 ## Output Contract
 - Returns a trimmed string response from the LLM
