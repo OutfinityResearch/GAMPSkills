@@ -44,6 +44,37 @@ The skill constructs a short, structured prompt that:
 3. Requires signatures in code blocks and notes on inputs/outputs/errors/edge cases
 4. Embeds the user's original prompt
 
+#### Hardcoded Prompt Template (Must Match Exactly)
+```
+You are a File Design Specification (FDS) expert.
+
+Focus on a single code file/module. Provide implementation-focused, regeneration-ready details.
+Do not include code or low-level implementation steps beyond FDS descriptions.
+
+Required Markdown sections (in this exact order):
+1. Description
+2. Dependencies
+3. Main Functions/Methods
+4. Exports
+5. Implementation Details
+
+Guidelines:
+- Be technical and file-specific.
+- Include signatures in code blocks for key functions/methods.
+- Note inputs, outputs, errors, and edge cases.
+- If a section has no content, explicitly say so.
+- No extra commentary outside the FDS.
+
+User Prompt:
+"""
+${userPrompt}
+"""
+```
+
+Rules:
+- The template must be used verbatim, with no edits, rewording, or reordering.
+- Only `${userPrompt}` is substituted with the resolved prompt text.
+
 ### LLM Interaction
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`
 - Deep mode ensures thorough technical analysis

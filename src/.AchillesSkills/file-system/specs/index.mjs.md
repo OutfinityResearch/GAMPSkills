@@ -6,7 +6,7 @@ The file-system skill provides comprehensive file system operations for the Achi
 ## Capabilities
 
 ### File Operations
-- **readFile**: Return a success string indicating the file path was read
+- **readFile**: Return a success string indicating the file path was read (does not return file contents)
 - **writeFile**: Write content to file, creating parent directories if needed
 - **appendFile**: Append content to existing file
 - **deleteFile**: Remove file from filesystem
@@ -39,6 +39,7 @@ For `writeFile` and `appendFile`, the payload may be `content: <text>` or raw te
 ### Path Resolution
 - All paths are resolved with `path.resolve()`
 - Parent directories are created automatically for `writeFile`
+- Output messages use the resolved full path as printed string
 
 ### Error Handling
 - Invalid operation or missing path triggers LLM argument extraction when possible
