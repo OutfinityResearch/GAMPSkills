@@ -9,6 +9,7 @@ By executing the allowed skills you must achieve the following results:
 - Create files `./specs_backlog.md` and `./docs_backlog.md`
 - Create initial DS files with relevant content in `./docs/specs`
 - Generate content for `./specs_backlog.md` with project-specific questions and proposals based on the user prompt, regarding the initial DS files and whether to add more DS files. You must write the exact names of the affected files in the task description.
+- Generate Options(numbered list) for the task created using as context the task Description and the user prompt and update the task using backlog-io.
 
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-io/file-system skills write that content to files.
 - Make the prompt for ds-expert in such a way that you create the DS files one step at a time (generate content for file 1 → write to file 1 → generate content for file 2 → write to file 2)

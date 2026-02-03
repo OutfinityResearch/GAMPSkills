@@ -9,10 +9,10 @@ export async function loadBacklog(type) {
   }
   const path = resolve(`./${type}_backlog.md`);
   const rawContent = await readBacklog(path);
-  const tasks = parse(rawContent);
+  const { tasks, history } = parse(rawContent);
   const stats = await stat(path);
   const meta = { mtime: stats.mtime, size: stats.size };
-  return { tasks, meta };
+  return { tasks, history, meta };
 }
 
 export async function getTask(type, taskId) {
@@ -21,31 +21,44 @@ export async function getTask(type, taskId) {
 }
 
 export async function proposeFix(type, taskId, proposal) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const task = tasks[String(taskId)];
   if (!task) return null;
   const normalized = normalizeProposal(proposal);
   normalized.id = task.options.length + 1;
   task.options.push(normalized);
-  await saveBacklog(type, tasks);
+  task.resolution = '';
+  await saveBacklog(type, { tasks, history });
+  return task;
+}
+
+export async function addOptionsFromText(type, taskId, text) {
+  const { tasks, history } = await loadBacklog(type);
+  const task = tasks[String(taskId)];
+  if (!task) return null;
+  const items = parseOptionsText(text);
+  if (items.length === 0) return task;
+  let nextId = task.options.length + 1;
+  for (const item of items) {
+    task.options.push({ id: nextId++, title: item.title, details: item.details, status: '' });
+  }
+  task.resolution = '';
+  await saveBacklog(type, { tasks, history });
   return task;
 }
 
 export async function approveResolution(type, taskId, resolutionString) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const task = tasks[String(taskId)];
   if (!task) return null;
   task.resolution = resolutionString;
-  // Update status if resolution is set
-  if (resolutionString.trim()) {
-    task.status = 'ok';
-  }
-  await saveBacklog(type, tasks);
+  task.options = [];
+  await saveBacklog(type, { tasks, history });
   return task;
 }
 
 export async function applyChanges(type, taskId, approvedItems, hooks) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const task = tasks[String(taskId)];
   if (!task) return null;
   const queue = new ChangeQueue();
@@ -66,15 +79,15 @@ export async function applyChanges(type, taskId, approvedItems, hooks) {
       }
     }
   }
-  // Update status
-  task.status = 'ok';
-  await saveBacklog(type, tasks);
+  const doneText = task.resolution || 'Executed.';
+  moveTaskToHistory(String(taskId), tasks, history, doneText);
+  await saveBacklog(type, { tasks, history });
   return changes;
 }
 
-export async function saveBacklog(type, tasks) {
+export async function saveBacklog(type, data) {
   const path = resolve(`./${type}_backlog.md`);
-  const content = render(tasks);
+  const content = render(data);
   await writeBacklog(path, content);
 }
 
@@ -82,7 +95,8 @@ export async function findTasksByStatus(type, status) {
   const { tasks } = await loadBacklog(type);
   const matches = [];
   for (const task of Object.values(tasks)) {
-    if (task.status === status) {
+    const inferred = inferStatus(task);
+    if (inferred === status) {
       matches.push(task);
     }
   }
@@ -90,34 +104,54 @@ export async function findTasksByStatus(type, status) {
 }
 
 export async function setStatus(type, taskId, status) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const task = tasks[String(taskId)];
-  if (task) {
-    task.status = status;
+  if (!task) {
+    await saveBacklog(type, { tasks, history });
+    return;
   }
-  await saveBacklog(type, tasks);
+
+  if (status === 'done') {
+    moveTaskToHistory(taskId, tasks, history, task.resolution || 'Executed.');
+  }
+  await saveBacklog(type, { tasks, history });
+}
+
+export async function markDone(type, taskId, doneText) {
+  const { tasks, history } = await loadBacklog(type);
+  const task = tasks[String(taskId)];
+  if (!task) return null;
+  const resolution = doneText && doneText.trim() ? doneText.trim() : task.resolution || 'Executed.';
+  moveTaskToHistory(taskId, tasks, history, resolution);
+  await saveBacklog(type, { tasks, history });
+  return history[history.length - 1] || null;
 }
 
 export async function updateTask(type, taskId, updates) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const task = tasks[String(taskId)];
   if (task) {
     Object.assign(task, updates);
+    if (task.resolution) {
+      task.options = [];
+    }
   }
-  await saveBacklog(type, tasks);
+  if (updates?.status === 'done') {
+    moveTaskToHistory(taskId, tasks, history, task.resolution || 'Executed.');
+  }
+  await saveBacklog(type, { tasks, history });
 }
 
 export async function appendTask(type, initialContent) {
-  const { tasks } = await loadBacklog(type);
+  const { tasks, history } = await loadBacklog(type);
   const nextId = getNextTaskId(tasks);
   tasks[String(nextId)] = {
     id: nextId,
     description: initialContent,
-    status: 'needs_work',
     options: [],
     resolution: ''
   };
-  await saveBacklog(type, tasks);
+  await saveBacklog(type, { tasks, history });
 }
 
 function getNextTaskId(tasks) {
@@ -142,4 +176,56 @@ function normalizeProposal(raw) {
   }
 
   return { id: 0, title, details, status };
+}
+
+function parseOptionsText(text) {
+  if (!text || typeof text !== 'string') return [];
+  const lines = text.split('\n');
+  const items = [];
+  let current = null;
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\r$/, '');
+    const numberedMatch = line.match(/^\s*(\d+)[\.)]\s+(.+)$/);
+    const bulletMatch = line.match(/^\s*[-*]\s+(.+)$/);
+
+    if (numberedMatch || bulletMatch) {
+      if (current) items.push(current);
+      const title = numberedMatch ? numberedMatch[2] : bulletMatch[1];
+      current = { title: title.trim(), details: '' };
+      continue;
+    }
+
+    if (current && line.trim()) {
+      const normalized = line.trim();
+      current.details = current.details ? `${current.details}\n${normalized}` : normalized;
+    }
+  }
+
+  if (current) items.push(current);
+  return items;
+}
+
+function inferStatus(task) {
+  if (!task) return '';
+  if (task.resolution && task.resolution.trim()) {
+    return 'done';
+  }
+  if (task.options && task.options.length > 0) {
+    return 'needs_work';
+  }
+  return 'needs_work';
+}
+
+function moveTaskToHistory(taskId, tasks, history, resolutionText) {
+  const task = tasks[String(taskId)];
+  if (!task) return;
+  const resolution = resolutionText && resolutionText.trim() ? resolutionText.trim() : task.resolution && task.resolution.trim() ? task.resolution : 'Executed.';
+  history.push({
+    id: history.length + 1,
+    description: task.description,
+    options: [],
+    resolution
+  });
+  delete tasks[String(taskId)];
 }

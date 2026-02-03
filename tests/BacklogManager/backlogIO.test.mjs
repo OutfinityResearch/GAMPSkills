@@ -5,52 +5,82 @@ const sampleContent = `## 1
 
 **Description:** Vision document
 
-**Status:** ok
-
-**Options:**
-1. Fix one
-
 **Resolution:** Approved
 
 ## 2
 
 **Description:** Backlog manager
 
-**Status:** needs_work
-
 **Options:**
+1. Fix one
 
-**Resolution:**
+# History
+
+## 1
+
+**Description:** Old task
+
+**Resolution:** Done
 `;
 
 console.log('Testing parse...');
-const sections = parse(sampleContent);
-assert.deepEqual(sections['1'], {
+const { tasks, history } = parse(sampleContent);
+assert.deepEqual(tasks['1'], {
   id: 1,
   description: 'Vision document',
-  status: 'ok',
+  options: [],
+  resolution: 'Approved'
+});
+assert.deepEqual(tasks['2'], {
+  id: 2,
+  description: 'Backlog manager',
   options: [
     { id: 1, title: 'Fix one', details: '', status: '' }
   ],
-  resolution: 'Approved'
+  resolution: ''
+});
+assert.deepEqual(history[0], {
+  id: 1,
+  description: 'Old task',
+  options: [],
+  resolution: 'Done'
 });
 console.log('parse tests passed.');
 
 console.log('Testing render...');
 const sectionsRender = {
-  '1': {
-    id: 1,
-    description: 'Vision document',
-    status: 'ok',
-    options: [],
-    resolution: 'Approved'
-  }
+  tasks: {
+    '1': {
+      id: 1,
+      description: 'Vision document',
+      options: [],
+      resolution: 'Approved'
+    },
+    '2': {
+      id: 2,
+      description: 'Backlog manager',
+      options: [{ id: 1, title: 'Fix one', details: '', status: '' }],
+      resolution: ''
+    }
+  },
+  history: [
+    {
+      id: 10,
+      description: 'Old task',
+      options: [],
+      resolution: 'Done'
+    }
+  ]
 };
 const rendered = render(sectionsRender);
 assert(rendered.includes('## 1'));
 assert(rendered.includes('**Description:** Vision document'));
-assert(rendered.includes('**Status:** ok'));
 assert(rendered.includes('**Resolution:** Approved'));
+assert(rendered.includes('## 2'));
+assert(rendered.includes('**Options:**'));
+assert(rendered.includes('1. Fix one'));
+assert(rendered.includes('# History'));
+assert(rendered.includes('**Description:** Old task'));
 console.log('render tests passed.');
 
 console.log('Testing sliceToTask...');
@@ -64,15 +94,12 @@ const newSection = `## 1
 
 **Description:** Updated
 
-**Status:** ok
-
-**Options:**
-
 **Resolution:** Updated resolution
 `;
 const merged = mergeTask(sampleContent, newSection, '1');
 assert(merged.includes('**Description:** Updated'));
 assert(merged.includes('**Resolution:** Updated resolution'));
+assert(merged.includes('# History'));
 console.log('mergeTask tests passed.');
 
 console.log('All backlogIO tests passed!');

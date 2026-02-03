@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask, loadBacklog } from '../../src/BacklogManager/BacklogManager.mjs';
+import { getTask, proposeFix, approveResolution, findTasksByStatus, setStatus, updateTask, appendTask, loadBacklog, markDone, addOptionsFromText } from '../../src/BacklogManager/BacklogManager.mjs';
 
 console.log('Setting up BacklogManager tests...');
 
@@ -9,11 +9,9 @@ console.log('Setting up BacklogManager tests...');
 
 **Description:** Test
 
-**Status:** ok
-
 **Options:**
-
-**Resolution:**`;
+1. First option
+`;
 
   try {
     // Create the test backlog file dynamically
@@ -37,29 +35,53 @@ console.log('Setting up BacklogManager tests...');
     assert(updatedFix.options[updatedFix.options.length - 1].title === 'New fix');
     console.log('proposeFix tests passed.');
 
+    console.log('Testing addOptionsFromText...');
+    const optionsText = `1. First option\n2. Second option\n- Third option`;
+    const updatedFromText = await addOptionsFromText('specs', 1, optionsText);
+    assert(updatedFromText.options.length >= 3);
+    assert(updatedFromText.options[updatedFromText.options.length - 3].title === 'First option');
+    assert(updatedFromText.options[updatedFromText.options.length - 2].title === 'Second option');
+    assert(updatedFromText.options[updatedFromText.options.length - 1].title === 'Third option');
+    console.log('addOptionsFromText tests passed.');
+
     console.log('Testing approveResolution...');
     const updatedRes = await approveResolution('specs', 1, 'Approved');
     assert(updatedRes.resolution === 'Approved');
-    assert(updatedRes.status === 'ok');
+    assert(updatedRes.options.length === 0);
     console.log('approveResolution tests passed.');
 
-    console.log('Testing setStatus...');
-    await setStatus('specs', 1, 'needs_work');
-    const statusTasks = await findTasksByStatus('specs', 'needs_work');
-    assert(statusTasks.some((task) => task.id === 1));
-    console.log('setStatus tests passed.');
+    console.log('Testing findTasksByStatus...');
+    const doneTasks = await findTasksByStatus('specs', 'done');
+    assert(doneTasks.some((task) => task.id === 1));
+    console.log('findTasksByStatus tests passed.');
 
-    console.log('Testing updateTask...');
-    await updateTask('specs', 1, { description: 'Updated' });
-    const updatedTask = await getTask('specs', 1);
-    assert(updatedTask.description === 'Updated');
-    console.log('updateTask tests passed.');
+    console.log('Testing setStatus...');
+    await setStatus('specs', 1, 'done');
+    const removedTask = await getTask('specs', 1);
+    assert(removedTask === null);
+    const afterDone = await loadBacklog('specs');
+    assert(afterDone.history.length === 1);
+    console.log('setStatus tests passed.');
 
     console.log('Testing appendTask...');
     await appendTask('specs', 'Second task');
-    const appendedTask = await getTask('specs', 2);
-    assert(appendedTask && appendedTask.description === 'Second task');
+    const afterAppend = await loadBacklog('specs');
+    const appendedTask = Object.values(afterAppend.tasks).find((task) => task.description === 'Second task');
+    assert(appendedTask);
     console.log('appendTask tests passed.');
+
+    console.log('Testing updateTask...');
+    await updateTask('specs', appendedTask.id, { description: 'Updated' });
+    const updatedTask = await getTask('specs', appendedTask.id);
+    assert(updatedTask.description === 'Updated');
+    console.log('updateTask tests passed.');
+
+    console.log('Testing markDone...');
+    await markDone('specs', appendedTask.id, 'Executed');
+    const afterMarkDone = await loadBacklog('specs');
+    assert(afterMarkDone.history.length === 2);
+    assert(afterMarkDone.history[1].resolution === 'Executed');
+    console.log('markDone tests passed.');
 
     console.log('All BacklogManager tests passed!');
   } catch (e) {
