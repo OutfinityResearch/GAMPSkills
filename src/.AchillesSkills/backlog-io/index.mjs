@@ -132,12 +132,10 @@ async function executeBacklogOperation({ operation, type, taskId, optionIndex, u
 
     switch (operation) {
         case 'createBacklog':
-            await BacklogManager.createBacklog(type);
-            return 'Backlog created successfully';
+            return await BacklogManager.createBacklog(type);
 
         case 'flush':
-            await BacklogManager.flush(type);
-            return 'Backlog flushed successfully';
+            return await BacklogManager.flush(type);
 
         case 'loadBacklog':
             return await BacklogManager.loadBacklog(type);
@@ -155,17 +153,15 @@ async function executeBacklogOperation({ operation, type, taskId, optionIndex, u
             return await BacklogManager.getNewTasks(type);
         
         case 'markDone':
-            await BacklogManager.markDone(type, taskId);
-            return 'Task moved to history successfully';
+            return await BacklogManager.markDone(type, taskId);
 
         case 'addOptionsFromText':
             await BacklogManager.addOptionsFromText(type, taskId, optionsText);
-            return 'Options added successfully';
-        
+            return "";
+
         case 'updateTask':
-            await BacklogManager.updateTask(type, taskId, updates);
-            return 'Task updated successfully';
-        
+            return await BacklogManager.updateTask(type, taskId, updates);
+
         case 'addTask':
             return await BacklogManager.addTask(type, initialContent);
         

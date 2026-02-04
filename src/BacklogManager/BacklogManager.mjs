@@ -46,6 +46,11 @@ export async function markDone(type, taskId) {
   return await CoreBacklogManager.markDone(backlogPath, taskId);
 }
 
+export async function flush(type) {
+  const backlogPath = resolve(`./${type}_backlog.backlog`);
+  await CoreBacklogManager.flush(backlogPath);
+}
+
 export async function updateTask(type, taskId, updates) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
   await CoreBacklogManager.updateTask(backlogPath, taskId, updates);
