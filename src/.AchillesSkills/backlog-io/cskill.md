@@ -1,20 +1,16 @@
 # backlog-io
-Executes backlog operations via BacklogManager methods.
 
 ## Summary
 Executes backlog operations via BacklogManager methods. Provide command-like instructions such as "loadBacklog specs" or "getTask docs taskId: 2".
 
 ## Input Format
-- **operation** (string): Operation type (loadBacklog, getTask, proposeFix, approveResolution, addOptionsFromText, findTasksByStatus, setStatus, markDone, updateTask, appendTask).
+- **operation** (string): Operation type (createBacklog, flush, loadBacklog, getTask, approveOption, getApprovedTasks, getNewTasks, addOptionsFromText, markDone, updateTask, addTask).
 - **type** (string): Backlog type ('specs' or 'docs').
 - **taskId** (string or number, optional): Numeric task id for task operations.
-- **proposal** (object, optional): Proposal object for proposeFix.
-- **resolution** (string, optional): Resolution string for approveResolution.
-- **status** (string, optional): Status for findTasksByStatus or setStatus (only `done` supported).
-- **doneText** (string, optional): Resolution text when moving to History via markDone.
+- **optionIndex** (string or number, optional): 1-based option index for approveOption.
 - **optionsText** (string, optional): Plain text list to parse into options for addOptionsFromText.
-- **updates** (object, optional): Updates object for updateTask.
-- **initialContent** (string, optional): Initial content for appendTask.
+- **updates** (object, optional): Updates object for updateTask (description/options/resolution only).
+- **initialContent** (string, optional): Initial content for addTask.
 
 Rules:
 - First token is always the operation.
@@ -22,16 +18,20 @@ Rules:
 - Optional parameters must be provided as `paramName: value` on the same line.
 
 Examples:
+- "createBacklog specs"
+- "flush specs"
 - "loadBacklog specs"
 - "getTask docs taskId: 2"
-- "findTasksByStatus specs status: needs_work"
-- "markDone specs taskId: 3 doneText: Implemented and verified"
+- "getApprovedTasks specs"
+- "getNewTasks docs"
+- "approveOption specs taskId: 1 optionIndex: 2"
+- "markDone specs taskId: 3"
 - "addOptionsFromText specs taskId: 2 optionsText: 1. First\n2. Second"
-- "appendTask specs initialContent: First line\nSecond line"
+- "addTask specs initialContent: First line\nSecond line"
 
 ## Output Format
-- **Type**: `object | array | string`
-- **Success Example**: { tasks: {...}, history: [...], meta: {...} } or ["1", "2"]
+- **Type**: `object | array | string | number`
+- **Success Example**: { tasks: {...}, history: [...], meta: {...} } or ["1", "2"] or 3
 - **Error Example**: "Error: Invalid backlog type."
 
 ## Constraints

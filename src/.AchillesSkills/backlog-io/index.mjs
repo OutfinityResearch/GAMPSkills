@@ -5,16 +5,17 @@ export async function action(context) {
     const { llmAgent, recursiveAgent, promptText } = context;
     
     const allowedOperations = new Set([
+        'createBacklog',
+        'flush',
         'loadBacklog',
         'getTask',
-        'proposeFix',
-        'approveResolution',
-        'findTasksByStatus',
-        'setStatus',
+        'approveOption',
+        'getApprovedTasks',
+        'getNewTasks',
         'markDone',
         'addOptionsFromText',
         'updateTask',
-        'appendTask',
+        'addTask',
     ]);
 
     const rawText = String(promptText ?? '');
@@ -23,24 +24,18 @@ export async function action(context) {
 
     let operation = tokenMatch?.[1];
     let type = tokenMatch?.[2];
-    let proposal;
-    let resolution;
-    let status;
+    let optionIndex;
     let updates;
     let taskId;
     let initialContent;
-    let doneText;
     let optionsText;
 
     const paramText = tokenMatch?.[3] ?? '';
     const params = parseKeyValueParams(paramText);
     if (params.taskId !== undefined) taskId = params.taskId;
-    if (params.proposal !== undefined) proposal = params.proposal;
-    if (params.resolution !== undefined) resolution = params.resolution;
-    if (params.status !== undefined) status = params.status;
+    if (params.optionIndex !== undefined) optionIndex = params.optionIndex;
     if (params.updates !== undefined) updates = params.updates;
     if (params.initialContent !== undefined) initialContent = params.initialContent;
-    if (params.doneText !== undefined) doneText = params.doneText;
     if (params.optionsText !== undefined) optionsText = params.optionsText;
 
     if (typeof operation === 'string') {
@@ -59,11 +54,11 @@ export async function action(context) {
             llmAgent,
             promptText,
             `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
-            ['operation', 'type', 'taskId', 'status', 'initialContent', 'doneText', 'optionsText'],
+            ['operation', 'type', 'taskId', 'optionIndex', 'initialContent', 'optionsText'],
         );
 
         if (Array.isArray(llmResult)) {
-            [operation, type, taskId, status, initialContent, doneText, optionsText] = llmResult;
+            [operation, type, taskId, optionIndex, initialContent, optionsText] = llmResult;
             if (typeof operation === 'string') {
                 operation = operation.trim().split(/\s+/)[0];
             }
@@ -76,7 +71,7 @@ export async function action(context) {
     }
 
     return await executeBacklogOperation({
-        operation, type, taskId, proposal, resolution, status, updates, initialContent, doneText, optionsText
+        operation, type, taskId, optionIndex, updates, initialContent, optionsText
     });
 }
 
@@ -86,7 +81,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(taskId|proposal|resolution|status|updates|initialContent|doneText|optionsText)\s*:\s*/g;
+    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;
@@ -105,7 +100,7 @@ function parseKeyValueParams(text) {
             continue;
         }
 
-        if (key === 'proposal' || key === 'updates') {
+        if (key === 'updates') {
             result[key] = parseMaybeJson(rawValue);
         } else {
             result[key] = rawValue;
@@ -130,33 +125,37 @@ function parseMaybeJson(value) {
     return value;
 }
 
-async function executeBacklogOperation({ operation, type, taskId, proposal, resolution, status, updates, initialContent, doneText, optionsText }) {
+async function executeBacklogOperation({ operation, type, taskId, optionIndex, updates, initialContent, optionsText }) {
     if (!operation) {
         throw new Error('Invalid input: operation is required.');
     }
 
     switch (operation) {
+        case 'createBacklog':
+            await BacklogManager.createBacklog(type);
+            return 'Backlog created successfully';
+
+        case 'flush':
+            await BacklogManager.flush(type);
+            return 'Backlog flushed successfully';
+
         case 'loadBacklog':
             return await BacklogManager.loadBacklog(type);
         
         case 'getTask':
             return await BacklogManager.getTask(type, taskId);
         
-        case 'proposeFix':
-            return await BacklogManager.proposeFix(type, taskId, proposal);
+        case 'approveOption':
+            return await BacklogManager.approveOption(type, taskId, optionIndex);
         
-        case 'approveResolution':
-            return await BacklogManager.approveResolution(type, taskId, resolution);
+        case 'getApprovedTasks':
+            return await BacklogManager.getApprovedTasks(type);
         
-        case 'findTasksByStatus':
-            return await BacklogManager.findTasksByStatus(type, status);
+        case 'getNewTasks':
+            return await BacklogManager.getNewTasks(type);
         
-        case 'setStatus':
-            await BacklogManager.setStatus(type, taskId, status);
-            return 'Status updated successfully';
-
         case 'markDone':
-            await BacklogManager.markDone(type, taskId, doneText);
+            await BacklogManager.markDone(type, taskId);
             return 'Task moved to history successfully';
 
         case 'addOptionsFromText':
@@ -167,9 +166,8 @@ async function executeBacklogOperation({ operation, type, taskId, proposal, reso
             await BacklogManager.updateTask(type, taskId, updates);
             return 'Task updated successfully';
         
-        case 'appendTask':
-            await BacklogManager.appendTask(type, initialContent);
-            return 'Task appended successfully';
+        case 'addTask':
+            return await BacklogManager.addTask(type, initialContent);
         
         default:
             throw new Error(`Unknown operation: ${operation}`);
