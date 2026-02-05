@@ -1,0 +1,8 @@
+{
+  "name": "gamp-skills",
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "achillesAgentLib": "github:OutfinityResearch/achillesAgentLib#master"
+  }
+}

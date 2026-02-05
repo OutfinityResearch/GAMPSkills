@@ -1,5 +1,5 @@
 import { resolve } from 'path';
-import * as CoreBacklogManager from '../../../BacklogManager/BacklogManager.mjs';
+import * as CoreBacklogManager from 'achillesAgentLib/BacklogManager';
 
 export async function loadBacklog(type) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);

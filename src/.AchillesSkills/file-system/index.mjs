@@ -84,11 +84,11 @@ async function executeFileOperation({ operation, path, content, destination }) {
     const fullPath = resolve(path);
 
     switch (operation) {
-        case 'readFile':
-            // Per spec, does not return content, just confirms read
-            await readFile(fullPath);
-            return `Read file at ${fullPath} successfully.`;
-        
+        case 'readFile': {
+            const fileContent = await readFile(fullPath, 'utf8');
+            return `FILE_CONTENT:\n${fileContent}`;
+        }
+
         case 'writeFile':
             await mkdir(dirname(fullPath), { recursive: true });
             await writeFile(fullPath, content || '', 'utf8');
