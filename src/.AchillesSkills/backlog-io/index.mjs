@@ -13,6 +13,7 @@ export async function action(context) {
         'getNewTasks',
         'markDone',
         'addOptionsFromText',
+        'addTasksFromText',
         'updateTask',
         'addTask',
     ]);
@@ -28,6 +29,7 @@ export async function action(context) {
     let taskId;
     let initialContent;
     let optionsText;
+    let tasksText;
 
     const paramText = tokenMatch?.[3] ?? '';
     const params = parseKeyValueParams(paramText);
@@ -36,6 +38,7 @@ export async function action(context) {
     if (params.updates !== undefined) updates = params.updates;
     if (params.initialContent !== undefined) initialContent = params.initialContent;
     if (params.optionsText !== undefined) optionsText = params.optionsText;
+    if (params.tasksText !== undefined) tasksText = params.tasksText;
 
     if (typeof operation === 'string') {
         operation = operation.trim().split(/\s+/)[0];
@@ -53,11 +56,11 @@ export async function action(context) {
             llmAgent,
             promptText,
             `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
-            ['operation', 'type', 'taskId', 'optionIndex', 'initialContent', 'optionsText'],
+            ['operation', 'type', 'taskId', 'optionIndex', 'initialContent', 'optionsText', 'tasksText'],
         );
 
         if (Array.isArray(llmResult)) {
-            [operation, type, taskId, optionIndex, initialContent, optionsText] = llmResult;
+            [operation, type, taskId, optionIndex, initialContent, optionsText, tasksText] = llmResult;
             if (typeof operation === 'string') {
                 operation = operation.trim().split(/\s+/)[0];
             }
@@ -70,7 +73,7 @@ export async function action(context) {
     }
 
     return await executeBacklogOperation({
-        operation, type, taskId, optionIndex, updates, initialContent, optionsText
+        operation, type, taskId, optionIndex, updates, initialContent, optionsText, tasksText
     });
 }
 
@@ -80,7 +83,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText|dependsOn)\s*:\s*/g;
+    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText|tasksText|dependsOn)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;
@@ -124,7 +127,7 @@ function parseMaybeJson(value) {
     return value;
 }
 
-async function executeBacklogOperation({ operation, type, taskId, optionIndex, updates, initialContent, optionsText }) {
+async function executeBacklogOperation({ operation, type, taskId, optionIndex, updates, initialContent, optionsText, tasksText }) {
     if (!operation) {
         throw new Error('Invalid input: operation is required.');
     }
@@ -154,6 +157,9 @@ async function executeBacklogOperation({ operation, type, taskId, optionIndex, u
         case 'addOptionsFromText':
             await BacklogManager.addOptionsFromText(type, taskId, optionsText);
             return "";
+
+        case 'addTasksFromText':
+            return await BacklogManager.addTasksFromText(type, tasksText);
 
         case 'updateTask':
             return await BacklogManager.updateTask(type, taskId, updates);

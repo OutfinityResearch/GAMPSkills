@@ -9,6 +9,7 @@ Executes backlog operations via BacklogManager methods. Provide command-like ins
 - **taskId** (string or number, optional): Numeric task id for task operations.
 - **optionIndex** (string or number, optional): 1-based option index for approveOption.
 - **optionsText** (string, optional): Plain text list to parse into options for addOptionsFromText.
+- **tasksText** (string, optional): Plain text list to parse into tasks for addTasksFromText.
 - **updates** (object, optional): Updates object for updateTask (description/options/resolution only).
 - **initialContent** (string, optional): Initial content for addTask.
 - **dependsOn** (string, optional): Dependency markers to enforce ordering; ignored by this skill.
@@ -29,11 +30,13 @@ Examples:
 - "approveOption specs taskId: 1 optionIndex: 2"
 - "markDone specs taskId: 3"
 - "addOptionsFromText specs taskId: 2 optionsText: 1. First\n2. Second"
+- "addTasksFromText specs tasksText: 1. Task one\n2. Task two"
 - "addTask specs initialContent: First line\nSecond line"
 
 ## Output Format
 - **Type**: `object | array | string | number`
 - **Success Example**: { tasks: {...}, history: [...], meta: {...} } or [{"index":1,"description":"...","options":[],"resolution":"..."}] or 3
+- **Success Example (addTasksFromText)**: [1, 2, 3]
 - **Error Example**: "Error: Invalid backlog type."
 
 ## Constraints
