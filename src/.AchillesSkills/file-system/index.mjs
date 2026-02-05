@@ -34,13 +34,14 @@ export async function action(context) {
 
     const pathIndex = typeof path === 'string' ? rawPrompt.indexOf(path) : -1;
     const payload = pathIndex >= 0 ? rawPrompt.slice(pathIndex + path.length).trim() : '';
+    const sanitizedPayload = stripDependsOn(payload);
 
-    if (/^destination\s*:/i.test(payload)) {
-        destination = payload.replace(/^destination\s*:\s*/i, '');
-    } else if (/^content\s*:/i.test(payload)) {
-        content = payload.replace(/^content\s*:\s*/i, '');
+    if (/^destination\s*:/i.test(sanitizedPayload)) {
+        destination = sanitizedPayload.replace(/^destination\s*:\s*/i, '');
+    } else if (/^content\s*:/i.test(sanitizedPayload)) {
+        content = sanitizedPayload.replace(/^content\s*:\s*/i, '');
     } else if (operation === 'writeFile' || operation === 'appendFile') {
-        content = payload;
+        content = sanitizedPayload;
     }
 
     if (typeof operation === 'string') {
@@ -130,4 +131,13 @@ async function executeFileOperation({ operation, path, content, destination }) {
             console.error('[file-system] Unknown operation:', { operation: typeof operation, operationValue: operation });
             throw new Error(`Unknown operation: ${operation}`);
     }
+}
+
+function stripDependsOn(input) {
+    if (!input) return '';
+    const match = input.match(/\bdependsOn\s*:\s*/i);
+    if (!match || match.index === undefined) {
+        return input;
+    }
+    return input.slice(0, match.index).trimEnd();
 }

@@ -6,6 +6,7 @@ Generates File Design Specification (FDS) content with technical implementation 
 
 ## Input Format
 - **prompt** (string): User instructions for FDS content generation.
+- **dependsOn** (string, optional): Dependency markers to enforce ordering; ignored by this skill.
 
 Examples:
 - "Create FDS for user authentication module"

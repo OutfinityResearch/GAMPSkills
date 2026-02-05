@@ -80,7 +80,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText)\s*:\s*/g;
+    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText|dependsOn)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;

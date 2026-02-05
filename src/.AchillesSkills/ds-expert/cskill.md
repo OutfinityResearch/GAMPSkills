@@ -5,6 +5,7 @@ Generates Design Specification (DS) content with global vision and high-level fe
 
 ## Input Format
 - **prompt** (string): Instructions in natural language for DS content generation.
+- **dependsOn** (string, optional): Dependency markers to enforce ordering; ignored by this skill.
 
 ## Output Format
 - **Type**: `string`

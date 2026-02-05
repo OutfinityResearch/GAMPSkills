@@ -11,11 +11,13 @@ Executes backlog operations via BacklogManager methods. Provide command-like ins
 - **optionsText** (string, optional): Plain text list to parse into options for addOptionsFromText.
 - **updates** (object, optional): Updates object for updateTask (description/options/resolution only).
 - **initialContent** (string, optional): Initial content for addTask.
+- **dependsOn** (string, optional): Dependency markers to enforce ordering; ignored by this skill.
 
 Rules:
 - First token is always the operation.
 - Second token is always the backlog type.
 - Optional parameters must be provided as `paramName: value` on the same line.
+- `dependsOn` can be provided to enforce execution order and is ignored by the parser.
 
 Examples:
 - "createBacklog specs"

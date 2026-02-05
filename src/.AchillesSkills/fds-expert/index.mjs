@@ -54,12 +54,20 @@ async function executeFdsGeneration({ prompt, llmAgent }) {
 
 export async function action(context) {
   const { llmAgent, ...args } = context;
-
-  const resolvedPrompt = args.prompt || args.input || Object.values(args)[0];
+  const resolvedPrompt = stripDependsOn(args.prompt || args.input || Object.values(args)[0]);
 
   if (!resolvedPrompt) {
     return null;
   }
 
   return await executeFdsGeneration({ prompt: resolvedPrompt, llmAgent });
+}
+
+function stripDependsOn(input) {
+  if (!input) return '';
+  const match = input.match(/\bdependsOn\s*:\s*/i);
+  if (!match || match.index === undefined) {
+    return input;
+  }
+  return input.slice(0, match.index).trimEnd();
 }
