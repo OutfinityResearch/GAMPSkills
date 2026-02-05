@@ -31,11 +31,6 @@ export async function approveOption(type, taskId, optionIndex) {
   return await CoreBacklogManager.approveOption(backlogPath, taskId, optionIndex);
 }
 
-export async function saveBacklog(type, data) {
-  const backlogPath = resolve(`./${type}_backlog.backlog`);
-  await CoreBacklogManager.saveBacklog(backlogPath, data);
-}
-
 export async function getApprovedTasks(type) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
   return await CoreBacklogManager.getApprovedTasks(backlogPath);
@@ -49,11 +44,6 @@ export async function getNewTasks(type) {
 export async function markDone(type, taskId) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
   return await CoreBacklogManager.markDone(backlogPath, taskId);
-}
-
-export async function flush(type) {
-  const backlogPath = resolve(`./${type}_backlog.backlog`);
-  await CoreBacklogManager.flush(backlogPath);
 }
 
 export async function updateTask(type, taskId, updates) {
