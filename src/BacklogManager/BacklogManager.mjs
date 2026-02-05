@@ -21,6 +21,11 @@ export async function addOptionsFromText(type, taskId, text) {
   return await CoreBacklogManager.addOptionsFromText(backlogPath, taskId, text);
 }
 
+export async function addTasksFromText(type, text) {
+  const backlogPath = resolve(`./${type}_backlog.backlog`);
+  return await CoreBacklogManager.addTasksFromText(backlogPath, text);
+}
+
 export async function approveOption(type, taskId, optionIndex) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
   return await CoreBacklogManager.approveOption(backlogPath, taskId, optionIndex);
