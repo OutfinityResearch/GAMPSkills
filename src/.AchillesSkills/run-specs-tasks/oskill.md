@@ -14,7 +14,7 @@ This skill processes approved tasks from `./specs_backlog.backlog` and applies t
 6. Call backlog-io flush specs after all updates are written.
 
 Each file should be edited at most once per run (aggregate tasks by file).
-
+If no tasks are ready to run simply say that no tasks have been approved and end the execution.
 ## Allowed Skills
 - backlog-io
 - file-system
