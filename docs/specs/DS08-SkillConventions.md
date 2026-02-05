@@ -87,7 +87,7 @@ When a skill requires the LLM to generate or modify files (especially multiple f
 ## Backlog Interaction
 Skills that interact with `specs_backlog.md` or `docs_backlog.md` follow these conventions:
 - **Reading**: Parse specific sections (Global Specs, Local Specs, etc.) to maintain context focus.
-- **Approved Items**: An item is considered "Approved" for execution (by `fix-specs`, etc.) only if the `Resolution` field contains non-whitespace text.
+- **Approved Items**: An item is considered "Approved" for execution (by `run-specs-tasks`, etc.) only if the `Resolution` field contains non-whitespace text.
 - **Status Updates**:
   - `needs_work`: Set by Review skills when problems are found.
   - `ok`: Set by Fix/Create skills after successfully applying changes or generating content.

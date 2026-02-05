@@ -24,7 +24,7 @@ This skill reads existing specification files under `./docs/specs` to find gaps,
 ## Skill: review-docs
 This skill examines `.hmtl` files under `./docs`, except the `html` static converter. It notes problems in `./docs_backlog.md`, proposing options that require user approval before any edits occur. Backlog operations for docs are handled through BacklogManager on `./docs_backlog.md`.
 
-## Skill: fix-specs
+## Skill: run-specs-tasks
 This skill reads `./specs_backlog.md`, applies the user-approved resolution to specification files in `./docs/specs`, and then updates the backlog to reflect current statuses and any other affected sections. It respects the backlog as the source of approved work.
 
 ## Skill: fix-docs

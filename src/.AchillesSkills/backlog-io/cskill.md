@@ -31,7 +31,7 @@ Examples:
 
 ## Output Format
 - **Type**: `object | array | string | number`
-- **Success Example**: { tasks: {...}, history: [...], meta: {...} } or ["1", "2"] or 3
+- **Success Example**: { tasks: {...}, history: [...], meta: {...} } or [{"index":1,"description":"...","options":[],"resolution":"..."}] or 3
 - **Error Example**: "Error: Invalid backlog type."
 
 ## Constraints
