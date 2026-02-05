@@ -14,7 +14,9 @@ By executing the allowed skills you must achieve the following results:
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-io/file-system skills write that content to files.
 - Make the prompt for ds-expert in such a way that you create the DS files one step at a time (generate content for file 1 → write to file 1 → generate content for file 2 → write to file 2)
 - Each skill call handles only ONE operation. To perform multiple actions, call the same skill multiple times with different parameters.
-- To ensure backlog content is persisted to disk, after all backlog-io addTask/addOptionsFromText calls, call backlog-io flush specs $lastOp where lastOp is the result of the last Op working with the backlog.
+- For any action that must run after a previous action, pass the previous action's result as a last parameter to the dependent action to enforce execution order.
+  Example: @createDir file-system createDirectory ./docs
+           @createBacklog backlog-io createBacklog specs $createDir
 
 ## Allowed Skills
 - file-system

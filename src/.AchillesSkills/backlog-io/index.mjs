@@ -6,7 +6,6 @@ export async function action(context) {
     
     const allowedOperations = new Set([
         'createBacklog',
-        'flush',
         'loadBacklog',
         'getTask',
         'approveOption',
@@ -133,9 +132,6 @@ async function executeBacklogOperation({ operation, type, taskId, optionIndex, u
     switch (operation) {
         case 'createBacklog':
             return await BacklogManager.createBacklog(type);
-
-        case 'flush':
-            return await BacklogManager.flush(type);
 
         case 'loadBacklog':
             return await BacklogManager.loadBacklog(type);
