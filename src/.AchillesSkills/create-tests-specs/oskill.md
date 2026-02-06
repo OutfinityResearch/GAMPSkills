@@ -25,6 +25,7 @@ Adaptive context + context tiering workflow:
    - After each write, append the generated file name + description to the shared context for subsequent generations.
 
 Notes:
+- Test files must have the .md extension.
 - FDS stands for File Design Specification.
 - FDS files use the naming convention `name.mjs.md` where `name` is the intended JS filename.
 - FDS test files should only be written to `./docs/specs/tests`.
