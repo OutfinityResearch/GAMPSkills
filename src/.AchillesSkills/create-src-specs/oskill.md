@@ -13,6 +13,7 @@ Workflow:
 6. For the next specification generation append the previously generated file content to the shared context, so fds-expert can see what was already produced and continue consistently.
 7. Continue the generation file-by-file until all aspects in the DS files have been covered.
 
+- Note: FDS stands for File Design Specification
 - Note: FDS files should have the following naming convention: "name.mjs.md" where name is the intended file name to be used when the js code is finished
 - Note: FDS src files should only be written to `./docs/specs/src`
 
