@@ -11,14 +11,14 @@ export async function createBacklog(type) {
   await CoreBacklogManager.createBacklog(backlogPath);
 }
 
-export async function getTask(type, taskId) {
+export async function getTask(type, taskIndex) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
-  return await CoreBacklogManager.getTask(backlogPath, taskId);
+  return await CoreBacklogManager.getTask(backlogPath, taskIndex);
 }
 
-export async function addOptionsFromText(type, taskId, text) {
+export async function addOptionsFromText(type, taskIndex, text) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
-  return await CoreBacklogManager.addOptionsFromText(backlogPath, taskId, text);
+  return await CoreBacklogManager.addOptionsFromText(backlogPath, taskIndex, text);
 }
 
 export async function addTasksFromText(type, text) {
@@ -26,9 +26,9 @@ export async function addTasksFromText(type, text) {
   return await CoreBacklogManager.addTasksFromText(backlogPath, text);
 }
 
-export async function approveOption(type, taskId, optionIndex) {
+export async function approveTask(type, taskIndex, resolution) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
-  return await CoreBacklogManager.approveOption(backlogPath, taskId, optionIndex);
+  return await CoreBacklogManager.approveTask(backlogPath, taskIndex, resolution);
 }
 
 export async function getApprovedTasks(type) {
@@ -41,14 +41,14 @@ export async function getNewTasks(type) {
   return await CoreBacklogManager.getNewTasks(backlogPath);
 }
 
-export async function markDone(type, taskId) {
+export async function markDone(type, taskIndex) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
-  return await CoreBacklogManager.markDone(backlogPath, taskId);
+  return await CoreBacklogManager.markDone(backlogPath, taskIndex);
 }
 
-export async function updateTask(type, taskId, updates) {
+export async function updateTask(type, taskIndex, updates) {
   const backlogPath = resolve(`./${type}_backlog.backlog`);
-  await CoreBacklogManager.updateTask(backlogPath, taskId, updates);
+  await CoreBacklogManager.updateTask(backlogPath, taskIndex, updates);
 }
 
 export async function addTask(type, initialContent) {

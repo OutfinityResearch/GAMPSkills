@@ -8,7 +8,7 @@ export async function action(context) {
         'createBacklog',
         'loadBacklog',
         'getTask',
-        'approveOption',
+        'approveTask',
         'getApprovedTasks',
         'getNewTasks',
         'markDone',
@@ -24,7 +24,7 @@ export async function action(context) {
 
     let operation = tokenMatch?.[1];
     let type = tokenMatch?.[2];
-    let optionIndex;
+    let resolution;
     let updates;
     let taskId;
     let initialContent;
@@ -34,7 +34,7 @@ export async function action(context) {
     const paramText = tokenMatch?.[3] ?? '';
     const params = parseKeyValueParams(paramText);
     if (params.taskId !== undefined) taskId = params.taskId;
-    if (params.optionIndex !== undefined) optionIndex = params.optionIndex;
+    if (params.resolution !== undefined) resolution = params.resolution;
     if (params.updates !== undefined) updates = params.updates;
     if (params.initialContent !== undefined) initialContent = params.initialContent;
     if (params.optionsText !== undefined) optionsText = params.optionsText;
@@ -56,11 +56,11 @@ export async function action(context) {
             llmAgent,
             promptText,
             `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
-            ['operation', 'type', 'taskId', 'optionIndex', 'initialContent', 'optionsText', 'tasksText'],
+            ['operation', 'type', 'taskId', 'resolution', 'initialContent', 'optionsText', 'tasksText'],
         );
 
         if (Array.isArray(llmResult)) {
-            [operation, type, taskId, optionIndex, initialContent, optionsText, tasksText] = llmResult;
+            [operation, type, taskId, resolution, initialContent, optionsText, tasksText] = llmResult;
             if (typeof operation === 'string') {
                 operation = operation.trim().split(/\s+/)[0];
             }
@@ -73,7 +73,7 @@ export async function action(context) {
     }
 
     return await executeBacklogOperation({
-        operation, type, taskId, optionIndex, updates, initialContent, optionsText, tasksText
+        operation, type, taskId, resolution, updates, initialContent, optionsText, tasksText
     });
 }
 
@@ -83,7 +83,7 @@ function parseKeyValueParams(text) {
         return result;
     }
 
-    const keyPattern = /\b(taskId|optionIndex|updates|initialContent|optionsText|tasksText|dependsOn)\s*:\s*/g;
+    const keyPattern = /\b(taskId|resolution|updates|initialContent|optionsText|tasksText|dependsOn)\s*:\s*/g;
     const matches = Array.from(text.matchAll(keyPattern));
     if (matches.length === 0) {
         return result;
@@ -127,7 +127,7 @@ function parseMaybeJson(value) {
     return value;
 }
 
-async function executeBacklogOperation({ operation, type, taskId, optionIndex, updates, initialContent, optionsText, tasksText }) {
+async function executeBacklogOperation({ operation, type, taskId, resolution, updates, initialContent, optionsText, tasksText }) {
     if (!operation) {
         throw new Error('Invalid input: operation is required.');
     }
@@ -142,8 +142,8 @@ async function executeBacklogOperation({ operation, type, taskId, optionIndex, u
         case 'getTask':
             return await BacklogManager.getTask(type, taskId);
         
-        case 'approveOption':
-            return await BacklogManager.approveOption(type, taskId, optionIndex);
+        case 'approveTask':
+            return await BacklogManager.approveTask(type, taskId, resolution);
         
         case 'getApprovedTasks':
             return await BacklogManager.getApprovedTasks(type);
