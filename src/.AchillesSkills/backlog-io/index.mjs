@@ -1,4 +1,4 @@
-import * as BacklogManager from '../../BacklogManager/BacklogManager.mjs';
+import * as BacklogManager from '../../BacklogManager.mjs';
 import { extractArgumentsWithLLM } from '../../ArgumentResolver.mjs';
 
 export async function action(context) {
