@@ -1,20 +1,3 @@
-function validateInputs(options) {
-  if (!options || typeof options !== 'object') {
-    throw new Error('ds-expert: options object is required.');
-  }
-
-  const { prompt, llmAgent } = options;
-
-  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
-    throw new Error('ds-expert: "prompt" (non-empty string) is required.');
-  }
-
-  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
-    throw new Error(
-      'ds-expert: "llmAgent" with an "executePrompt" function is required.'
-    );
-  }
-}
 
 function buildTechnicalPrompt(userPrompt) {
   const template = `You are a Design Specification (DS) expert.
@@ -51,7 +34,6 @@ ${userPrompt}
 }
 
 async function executeDSGeneration({ prompt, llmAgent }) {
-  validateInputs({ prompt, llmAgent });
 
   const technicalPrompt = buildTechnicalPrompt(prompt);
 

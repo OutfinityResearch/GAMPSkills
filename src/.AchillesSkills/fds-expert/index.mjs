@@ -1,14 +1,3 @@
-function validateInputs({ prompt, llmAgent }) {
-  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
-    throw new Error('fds-expert: "prompt" (non-empty string) is required.');
-  }
-
-  if (!llmAgent || typeof llmAgent.executePrompt !== 'function') {
-    throw new Error(
-      'fds-expert: "llmAgent" with an "executePrompt" function is required.'
-    );
-  }
-}
 
 function buildTechnicalPrompt(userPrompt) {
   return `You are a File Design Specification (FDS) expert.
@@ -37,7 +26,6 @@ ${userPrompt}
 }
 
 async function executeFdsGeneration({ prompt, llmAgent }) {
-  validateInputs({ prompt, llmAgent });
 
   const technicalPrompt = buildTechnicalPrompt(prompt);
 

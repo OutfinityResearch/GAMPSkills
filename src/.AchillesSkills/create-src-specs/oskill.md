@@ -1,16 +1,24 @@
 # create-src-specs
 
-## Description
-The create-src-specs skill generates detailed technical functional design specifications for source code, mirroring the project's source structure. It uses global specifications and user prompts to produce markdown files describing functions, inputs, outputs, dependencies, and test links under the specs source directory.
+## Intents
+The create-src-specs skill generates technical specifications for source files by transforming DS inputs into FDS documents under the specs source directory.
 
 ## Instructions
-The LLM integrates global project specifications with user-provided requirements to develop comprehensive technical descriptions for source components. It organizes the details into structured specifications that support accurate implementation. The process involves synthesizing information from various sources, ensuring the output is detailed and aligned with the project's technical needs, potentially refining the content through evaluation and adjustment to achieve clarity and completeness.
+Workflow:
+1. Use file-system to list all DS files under `./docs/specs`.
+2. Read every selected DS file and combine them into a shared context, ignore any file under `./docs/specs/src` or `./docs/specs/tests`.
+3. Using this shared context call fds-expert to generate a plan of what files need to be made and a short description for each file what its role should be.
+4. Using the shared context and a description and name of a fds file call fds-expert to generate the technical specification for that file.
+5. Write the generated specification to `./docs/specs/src` using file-system.
+6. For the next specification generation append the previously generated file content to the shared context, so fds-expert can see what was already produced and continue consistently.
+7. Continue the generation file-by-file until all aspects in the DS files have been covered.
+
+- Note: FDS files should have the following naming convention: "name.mjs.md" where name is the intended file name to be used when the js code is finished
+- Note: FDS src files should only be written to `./docs/specs/src`
 
 ## Allowed Skills
-- scan-directory
-- read-file
-- generate-text
-- review-text
-- iterate-on-feedback
-- parse-file-markers
-- write-file
+- file-system
+- fds-expert
+
+## Loop
+true
