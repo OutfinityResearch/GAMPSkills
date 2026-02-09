@@ -11,7 +11,6 @@ The workflow is:
 4. Add all generated tasks to the specs backlog using backlog-io addTasksFromText.
 5. For each added task ID, call ds-expert again with the task description plus only the relevant spec file contents (planner decides which files are relevant) to generate numbered options (1., 2., 3. only, no extra prose).
 6. Add the generated options to the task using backlog-io addOptionsFromText.
-7. Call backlog-io flush specs after all tasks and options are added.
 
 ## Allowed Skills
 - file-system
