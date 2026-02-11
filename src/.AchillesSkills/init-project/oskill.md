@@ -7,7 +7,7 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 
 ## Preparation
 1. Create initial DS files with relevant content in `./docs/specs` using ds-expert.
-2. load those files as context, using context-loader.
+2. return those files' content as context, one variable per file .
 
 
 ## Instructions

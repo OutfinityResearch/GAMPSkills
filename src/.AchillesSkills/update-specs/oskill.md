@@ -4,14 +4,13 @@
 The update-specs skill directly modifies specification files under `./docs/specs` based on the user prompt. It does not use the backlog system — changes are applied immediately.
 
 ## Preparation
-1. Use context-loader to load specification files relevant to the user prompt.
-   options: {"dir": "./docs/specs", "filter": "*.md"}
-   Store the result as @context_specs.
+1. Use context-loader to list all files in ./docs/specs and load specification files relevant to the user prompt.
+2. Store the results as multiple variables for context.
 
 ## Instructions
-1. From the loaded context ($context-piece-1), determine which specification files need to be modified based on the user prompt.
-2. For each file that needs modification, call ds-expert with:
-   - the full loaded context ($context-piece-1) for cross-file reference
+1. From the loaded context ($context_specs), determine which specification files need to be modified based on the user prompt. Do call context-loader.
+2. For each file that needs modification, first read the file to get initial content, then call ds-expert with:
+   - the full loaded context ($context_specs) for cross-file reference
    - the original file content to be updated
    - the user prompt
    - a brief note listing which files have already been updated and what change was intended, so ds-expert maintains cross-file consistency
