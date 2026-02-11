@@ -5,8 +5,8 @@ The review-specs skill analyzes existing specification files for gaps, inconsist
 
 ## Preparation
 
-1. Use file-system listDirectory to list all spec files under `./docs/specs` (only .md files).
-2. Read each spec file and collect the full contents.
+/1. Use file-system listDirectory to list all spec files under `./docs/specs` (only .md files).
+/2. Read each spec file and collect the full contents.
 
 ## Instructions
 

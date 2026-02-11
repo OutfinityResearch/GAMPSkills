@@ -1,3 +1,5 @@
+import { parseKeyValueOptions, stripDependsOn } from '../../utils/optionsParser.mjs';
+
 const KNOWN_OPTIONS = new Set([
     'dir', 'filter', 'maxDepth', 'exclude', 'maxFiles', 'maxFileSize', 'include',
 ]);
@@ -9,33 +11,31 @@ const KNOWN_OPTIONS = new Set([
  */
 export function parseInput(promptText) {
     if (!promptText || typeof promptText !== 'string') {
-        return { prompt: '', options: buildDefaults() };
+        return { prompt: '', options: buildDefaults(), optionsRaw: '', parseError: null };
     }
 
     const raw = stripDependsOn(promptText);
     const optionsMatch = raw.match(/\boptions\s*:\s*/i);
 
     if (!optionsMatch) {
-        return { prompt: raw.trim(), options: buildDefaults() };
+        return { prompt: raw.trim(), options: buildDefaults(), optionsRaw: '', parseError: null };
     }
 
     const prompt = raw.slice(0, optionsMatch.index).trim();
-    const jsonText = raw.slice(optionsMatch.index + optionsMatch[0].length).trim();
+    const optionsRaw = raw.slice(optionsMatch.index + optionsMatch[0].length).trim();
 
-    let parsed = {};
     try {
-        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            parsed = JSON.parse(jsonMatch[0]);
-        }
-    } catch {
-        // Invalid JSON — use defaults
+        const parsed = parseKeyValueOptions(optionsRaw, {
+            allowedKeys: KNOWN_OPTIONS,
+            repeatableKeys: new Set(['include']),
+        });
+        return { prompt, options: applyDefaults(parsed), optionsRaw, parseError: null };
+    } catch (error) {
+        return { prompt, options: buildDefaults(), optionsRaw, parseError: error };
     }
-
-    return { prompt, options: applyDefaults(parsed) };
 }
 
-function buildDefaults() {
+export function buildDefaults() {
     return {
         dir: '.',
         filter: null,
@@ -47,7 +47,7 @@ function buildDefaults() {
     };
 }
 
-function applyDefaults(parsed) {
+export function applyDefaults(parsed) {
     const defaults = buildDefaults();
 
     if (typeof parsed.dir === 'string' && parsed.dir.trim()) {
@@ -81,11 +81,4 @@ function applyDefaults(parsed) {
     }
 
     return defaults;
-}
-
-function stripDependsOn(input) {
-    if (!input) return '';
-    const match = input.match(/\bdependsOn\s*:\s*/i);
-    if (!match || match.index === undefined) return input;
-    return input.slice(0, match.index).trimEnd();
 }

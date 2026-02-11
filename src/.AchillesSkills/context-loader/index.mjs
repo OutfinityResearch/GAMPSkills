@@ -1,4 +1,4 @@
-import { parseInput } from './parser.mjs';
+import { parseInput, applyDefaults } from './parser.mjs';
 import { listDirectory } from './listing.mjs';
 import { readRequestedFiles, readIncludeFiles, buildContextXml } from './context.mjs';
 import { askLLMForFiles, buildConstraintsSection } from './prompts.mjs';
@@ -9,7 +9,12 @@ export async function action(context) {
     const { llmAgent, promptText } = context;
 
     // Step 1: Parse input into prompt + options
-    const { prompt, options } = parseInput(promptText);
+    const { prompt, options, parseError } = parseInput(promptText);
+    let resolvedOptions = options;
+
+    if (parseError) {
+        resolvedOptions = applyDefaults({});
+    }
 
     if (!prompt) {
         throw new Error('No input provided for context-loader.');
@@ -18,16 +23,16 @@ export async function action(context) {
     const readFiles = new Map();
 
     // Step 2: Force-read include files before anything else
-    if (options.include) {
-        await readIncludeFiles(options.include, readFiles, options);
+    if (resolvedOptions.include) {
+        await readIncludeFiles(resolvedOptions.include, readFiles, resolvedOptions);
     }
 
     // Step 3: Get filtered directory listing
-    const dirListing = await listDirectory(options);
+    const dirListing = await listDirectory(resolvedOptions);
     const treeText = dirListing.join('\n');
 
     // Step 4: Build constraints section for LLM prompts
-    const constraints = buildConstraintsSection(options);
+    const constraints = buildConstraintsSection(resolvedOptions);
 
     // Step 5: Iterative LLM-guided file reading
     let iteration = 0;
@@ -37,10 +42,10 @@ export async function action(context) {
         iteration++;
 
         // Enforce maxFiles cap before reading
-        if (options.maxFiles !== null && readFiles.size >= options.maxFiles) break;
+        if (resolvedOptions.maxFiles !== null && readFiles.size >= resolvedOptions.maxFiles) break;
 
         // Read requested files (respects filter, maxFiles, maxFileSize)
-        await readRequestedFiles(llmResponse.files, readFiles, options);
+        await readRequestedFiles(llmResponse.files, readFiles, resolvedOptions);
 
         // Build accumulated context
         const contextXml = buildContextXml(readFiles);

@@ -2,6 +2,7 @@ import { readFile, writeFile, appendFile, unlink, mkdir, readdir, copyFile, rena
 import { resolve, dirname } from 'path';
 import { existsSync } from 'fs';
 import { extractArgumentsWithLLM } from '../../ArgumentResolver.mjs';
+import { parseKeyValueOptionsWithMultiline, stripDependsOn } from '../../utils/optionsParser.mjs';
 
 export async function action(context) {
     const { llmAgent, promptText } = context;
@@ -24,25 +25,14 @@ export async function action(context) {
     ]);
 
     const rawPrompt = String(promptText ?? '');
-    const firstLine = rawPrompt.split(/\r?\n/, 1)[0].trim();
-    const tokens = firstLine.split(/\s+/).filter(Boolean);
+    const sanitizedPrompt = stripDependsOn(rawPrompt);
+    const tokens = sanitizedPrompt.split(/\s+/).filter(Boolean);
 
     let operation = tokens[0];
     let path = tokens[1];
     let content;
     let destination;
-
-    const pathIndex = typeof path === 'string' ? rawPrompt.indexOf(path) : -1;
-    const payload = pathIndex >= 0 ? rawPrompt.slice(pathIndex + path.length).trim() : '';
-    const sanitizedPayload = stripDependsOn(payload);
-
-    if (/^destination\s*:/i.test(sanitizedPayload)) {
-        destination = sanitizedPayload.replace(/^destination\s*:\s*/i, '');
-    } else if (/^content\s*:/i.test(sanitizedPayload)) {
-        content = sanitizedPayload.replace(/^content\s*:\s*/i, '');
-    } else if (operation === 'writeFile' || operation === 'appendFile') {
-        content = sanitizedPayload;
-    }
+    let options;
 
     if (typeof operation === 'string') {
         operation = operation.trim().split(/\s+/)[0];
@@ -52,29 +42,58 @@ export async function action(context) {
     }
 
     if (!allowedOperations.has(operation) || !path) {
-        if (!llmAgent || typeof llmAgent.complete !== 'function') {
-            throw new Error(`Unknown operation: ${operation}`);
-        }
+        throw new Error('Invalid input: operation and path are required and must be valid.');
+    }
 
-        const llmResult = await extractArgumentsWithLLM(
-            llmAgent,
-            promptText,
-            `Extract file system operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
-            ['operation', 'path', 'content', 'destination'],
-        );
+    const optionsMatch = sanitizedPrompt.match(/\boptions\s*:\s*/i);
+    if (optionsMatch && optionsMatch.index !== undefined) {
+        const optionsRaw = sanitizedPrompt.slice(optionsMatch.index + optionsMatch[0].length).trim();
+        if (optionsRaw) {
+            try {
+                options = parseKeyValueOptionsWithMultiline(optionsRaw, {
+                    allowedKeys: new Set(['content', 'destination']),
+                    multilineKeys: new Set(['content']),
+                });
+            } catch (error) {
+                if (!llmAgent || typeof llmAgent.complete !== 'function') {
+                    throw new Error('Invalid options: unable to parse.');
+                }
 
-        if (Array.isArray(llmResult)) {
-            [operation, path, content, destination] = llmResult;
-            if (typeof operation === 'string') {
-                operation = operation.trim().split(/\s+/)[0];
+                const llmResult = await extractArgumentsWithLLM(
+                    llmAgent,
+                    optionsRaw,
+                    'Extract file system operation options as key-value pairs.',
+                    ['content', 'destination'],
+                );
+
+                if (Array.isArray(llmResult)) {
+                    [content, destination] = llmResult;
+                } else {
+                    throw new Error('Invalid options: unable to parse.');
+                }
             }
-        } else {
-            throw new Error(`Unknown operation: ${operation}`);
         }
     }
 
-    return await executeFileOperation({ operation, path, content, destination });
+    if (options !== undefined) {
+        if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+            throw new Error('Invalid options: expected an object.');
+        }
+        if (Object.prototype.hasOwnProperty.call(options, 'content')) {
+            content = options.content;
+        }
+        if (Object.prototype.hasOwnProperty.call(options, 'destination')) {
+            destination = options.destination;
+        }
+    }
+
+    const result = await executeFileOperation({ operation, path, content, destination });
+    if (typeof result === 'string') {
+        return result;
+    }
+    return JSON.stringify(result);
 }
+
 
 async function executeFileOperation({ operation, path, content, destination }) {
     if (!operation || !path) {
@@ -131,13 +150,4 @@ async function executeFileOperation({ operation, path, content, destination }) {
             console.error('[file-system] Unknown operation:', { operation: typeof operation, operationValue: operation });
             throw new Error(`Unknown operation: ${operation}`);
     }
-}
-
-function stripDependsOn(input) {
-    if (!input) return '';
-    const match = input.match(/\bdependsOn\s*:\s*/i);
-    if (!match || match.index === undefined) {
-        return input;
-    }
-    return input.slice(0, match.index).trimEnd();
 }

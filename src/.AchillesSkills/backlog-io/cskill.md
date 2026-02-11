@@ -4,7 +4,7 @@
 Executes backlog operations via BacklogManager methods. Provide command-like instructions such as "loadBacklog specs" or "getTask docs taskId: 2".
 
 ## Input Format
-- **operation** (string): Operation type (createBacklog, flush, loadBacklog, getTask, approveOption, getApprovedTasks, getNewTasks, addOptionsFromText, markDone, updateTask, addTask).
+- **operation** (string): Operation type (createBacklog, loadBacklog, getTask, approveOption, getApprovedTasks, getNewTasks, addOptionsFromText, markDone, updateTask, addTask).
 - **type** (string): Backlog type ('specs' or 'docs').
 - **taskId** (string or number, optional): Numeric task id for task operations.
 - **optionIndex** (string or number, optional): 1-based option index for approveOption.
@@ -21,17 +21,12 @@ Rules:
 - `dependsOn` can be provided to enforce execution order and is ignored by the parser.
 
 Examples:
-- "createBacklog specs"
-- "flush specs"
-- "loadBacklog specs"
-- "getTask docs taskId: 2"
-- "getApprovedTasks specs"
-- "getNewTasks docs"
-- "approveOption specs taskId: 1 optionIndex: 2"
-- "markDone specs taskId: 3"
-- "addOptionsFromText specs taskId: 2 optionsText: 1. First\n2. Second"
-- "addTasksFromText specs tasksText: 1. Task one\n2. Task two"
-- "addTask specs initialContent: First line\nSecond line"
+- createBacklog specs
+- addTask specs initialContent: "First line\nSecond line" dependsOn: $createBacklog
+- addOptionsFromText specs taskId: $addTask optionsText: 1. First\n2. Second dependsOn: $addTask
+- loadBacklog specs
+- approveOption specs taskId: 1 optionIndex: 2
+- markDone specs taskId: 3
 
 ## Output Format
 - **Type**: `object | array | string | number`
