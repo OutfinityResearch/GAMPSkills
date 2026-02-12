@@ -9,6 +9,7 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 1. Create initial DS files with relevant content in `./docs/specs` using ds-expert.
 2. return those files' content as context, one variable per file .
 
+- Note: Create 4-5 DS files max, named like `DS001-Vision.md`, `DS002-Architecture.md`, etc.
 
 ## Instructions
 1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
@@ -17,9 +18,10 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 4. Add tasks using backlog-io addTask.
 5. Generate options (numbered list of strings) for each task created using as context the task Description and the user prompt. Options are possible solutions to the task and the user can choose only one. Ensure option generation outputs ONLY numbered lines (Ex: "1.", "2.", "3.") with no extra prose or headings.
 6. Add task options using backlog-io addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
+7. Add or update `./Agents.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
 
+- Keep documents readable and concise; avoid excessive headings and bullet lists.
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-io/file-system skills write that content to files.
-- Make the prompt for ds-expert in such a way that you create the DS files one step at a time (generate content for file 1 → write to file 1 → generate content for file 2 → write to file 2)
 - Each skill call handles only ONE operation. To perform multiple actions, call the same skill multiple times with different parameters.
 - For any action that must run after a previous action, pass the previous action's result as a last parameter to the dependent action to enforce execution order.
   Example: @createDir file-system createDirectory ./docs
