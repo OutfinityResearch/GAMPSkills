@@ -14,7 +14,7 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 ## Instructions
 1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
 2. Create files `./specs_backlog.backlog` and `./docs_backlog.backlog` using backlog-io createBacklog
-3. Generate multiple tasks for `./specs_backlog.backlog` with project-specific options based on the user prompt, regarding the initial DS files (use them as context) using ds-expert. You must write the exact names of the affected files in the task description. Do not use markdown for task description. A task must focus on a single aspect of the project. 
+3. Generate multiple tasks for `./specs_backlog.backlog` with project-specific options based on the user prompt, regarding the initial DS files (use them as context) using backlog-expert. You must write the exact names of the affected files in the task description. Do not use markdown for task description. A task must focus on a single aspect of the project. 
 4. Add tasks using backlog-io addTask.
 5. Generate options (numbered list of strings) for each task created using as context the task Description and the user prompt. Options are possible solutions to the task and the user can choose only one. Ensure option generation outputs ONLY numbered lines (Ex: "1.", "2.", "3.") with no extra prose or headings.
 6. Add task options using backlog-io addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
@@ -32,3 +32,4 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 - file-system
 - backlog-io  
 - ds-expert
+- backlog-expert

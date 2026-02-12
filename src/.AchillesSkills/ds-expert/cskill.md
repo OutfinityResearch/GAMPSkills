@@ -1,10 +1,10 @@
 # ds-expert
 
 ## Summary
-Generates Design Specification (DS) content with global vision and high-level feature descriptions. Provide natural language instructions describing the project vision and requirements.
+Generates Design Specification (DS) content for one file with global vision and high-level feature descriptions. Provide natural language instructions describing the project vision and requirements.
 
 ## Input Format
-- **prompt** (string): Instructions in natural language for DS content generation.
+- **prompt** (string): Instructions in natural language for DS file content generation.
 - **dependsOn** (string, optional): Dependency markers to enforce ordering; ignored by this skill.
 
 ## Output Format
