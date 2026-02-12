@@ -1,7 +1,7 @@
 # Backlog IO Skill - Implementation Specification
 
 ## Purpose
-The backlog-io skill provides a complete interface to the BacklogManager module, enabling the Achilles agent to manage project backlogs (specs and docs) through structured operations for tracking issues, proposals, resolutions, and task management.
+The backlog-api skill provides a complete interface to the BacklogManager module, enabling the Achilles agent to manage project backlogs (specs and docs) through structured operations for tracking issues, proposals, resolutions, and task management.
 
 ## Capabilities
 

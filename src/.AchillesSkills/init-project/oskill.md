@@ -13,23 +13,23 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 
 ## Instructions
 1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
-2. Create files `./specs_backlog.backlog` and `./docs_backlog.backlog` using backlog-io createBacklog
+2. Create files `./specs_backlog.backlog` and `./docs_backlog.backlog` using backlog-api createBacklog
 3. Generate multiple tasks for `./specs_backlog.backlog` with project-specific options based on the user prompt, regarding the initial DS files (use them as context) using backlog-expert. You must write the exact names of the affected files in the task description. Do not use markdown for task description. A task must focus on a single aspect of the project. 
-4. Add tasks using backlog-io addTask.
+4. Add tasks using backlog-api addTask.
 5. Generate options (numbered list of strings) for each task created using as context the task Description and the user prompt. Options are possible solutions to the task and the user can choose only one. Ensure option generation outputs ONLY numbered lines (Ex: "1.", "2.", "3.") with no extra prose or headings.
-6. Add task options using backlog-io addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
+6. Add task options using backlog-api addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
 7. Add or update `./Agents.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
 
 - Keep documents readable and concise; avoid excessive headings and bullet lists.
-- Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-io/file-system skills write that content to files.
+- Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-api/file-system skills write that content to files.
 - Each skill call handles only ONE operation. To perform multiple actions, call the same skill multiple times with different parameters.
 - For any action that must run after a previous action, pass the previous action's result as a last parameter to the dependent action to enforce execution order.
   Example: @createDir file-system createDirectory ./docs
-           @createBacklog backlog-io createBacklog specs $createDir
+           @createBacklog backlog-api createBacklog specs $createDir
 
 ## Allowed Skills
 - context-loader
 - file-system
-- backlog-io  
+- backlog-api  
 - ds-expert
 - backlog-expert

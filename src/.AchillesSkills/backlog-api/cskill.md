@@ -1,4 +1,4 @@
-# backlog-io
+# backlog-api
 
 ## Summary
 Executes backlog operations via BacklogManager methods. Provide command-like instructions such as "loadBacklog specs" or "getTask docs taskId: 2".

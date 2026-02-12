@@ -6,7 +6,7 @@ Skills Inventory lists the core GAMPSkills that coordinate how specifications an
 ## Skill: init-project
 This skill initializes a fresh project by creating `./docs`, `./docs/specs`, `./docs/specs/src`, and `./docs/specs/tests`, along with the root backlogs `./specs_backlog.md` and `./docs_backlog.md`. It also copies the static (non-LLM) spec-to-HTML converter into `./docs` for viewing specs as HTML. It consumes a user prompt describing the intended project, creates the initial global DS files under `./docs/specs`, and seeds `./specs_backlog.md` with questions and proposals that reflect the prompt’s complexity, including suggestions for which specification files to create next.
 
-## Skill: backlog-io
+## Skill: backlog-api
 This deterministic code skill wraps BacklogManager operations with a compact prompt format. It expects the first token to be the operation, the second token to be the backlog type (`specs` or `docs`), and any remaining text to be chained `key: value` parameters (such as `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`). For `proposal` and `updates`, JSON values are accepted when the value starts with `{` or `[`. If the operation or type is invalid, it falls back to LLM-based argument extraction. It returns the underlying BacklogManager result or a simple success string for status, update, and append operations.
 
 ## Skill: file-system
