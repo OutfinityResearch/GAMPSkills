@@ -14,11 +14,12 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 ## Instructions
 1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
 2. Create files `./specs_backlog.backlog` and `./docs_backlog.backlog` using backlog-api createBacklog
-3. Generate multiple tasks for `./specs_backlog.backlog` with project-specific options based on the user prompt, regarding the initial DS files (use them as context) using backlog-expert. 
-4. Add tasks using backlog-api addTask.
-5. Generate options for each task created using as context the task Description and the user prompt.
-6. Add task options using backlog-api addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
-7. Add or update `./Agents.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
+3. Get specLoader content using load-spec-loader and then write it to `./docs/specLoader.html` using file-system.
+4. Generate multiple tasks for `./specs_backlog.backlog` with project-specific options based on the user prompt, regarding the initial DS files (use them as context) using backlog-expert. 
+5. Add tasks using backlog-api addTask.
+6. Generate options for each task created using as context the task Description and the user prompt.
+7. Add task options using backlog-api addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
+8. Add or update `./Agents.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
 
 - Keep documents readable and concise; avoid excessive headings and bullet lists.
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-api/file-system skills write that content to files.
@@ -33,3 +34,4 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 - backlog-api  
 - ds-expert
 - backlog-expert
+- load-spec-loader
