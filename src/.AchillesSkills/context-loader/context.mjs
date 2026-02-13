@@ -1,5 +1,6 @@
 import { readFile, stat } from 'fs/promises';
-import { resolve, extname, relative } from 'path';
+import { randomUUID } from 'crypto';
+import { resolve, relative } from 'path';
 import { buildMatcher } from './listing.mjs';
 
 /**
@@ -79,39 +80,27 @@ export async function readIncludeFiles(includePaths, readFiles, options) {
 }
 
 /**
- * Builds the <context> XML string from accumulated read files.
+ * Builds SOPLang assign lines from accumulated read files.
  * Paths in output are relative to process.cwd().
  * @param {Map<string, string>} readFiles - map of path → content
  * @returns {string}
  */
-export function buildContextXml(readFiles) {
-    if (readFiles.size === 0) return '<context>\n</context>';
+export function buildContextAssignString(readFiles) {
+    if (readFiles.size === 0) return '';
 
     const cwd = process.cwd();
-    const parts = ['<context>'];
+    const lines = [];
 
     for (const [filePath, content] of readFiles) {
-        const relPath = relative(cwd, resolve(filePath));
-        const language = extname(filePath).replace('.', '');
-        parts.push(`  <file path="${escapeXmlAttr(relPath)}" language="${language}">`);
-        parts.push(`    <content>`);
-        parts.push(indentContent(content, 6));
-        parts.push(`    </content>`);
-        parts.push(`  </file>`);
+        const relPath = relative(cwd, resolve(filePath)).replace(/\\/g, '/');
+        const token = `context-${randomUUID()}`;
+        lines.push(`@${relPath} assign`);
+        lines.push(`--begin-${token}--`);
+        if (content) {
+            lines.push(content);
+        }
+        lines.push(`--end-${token}--`);
     }
 
-    parts.push('</context>');
-    return parts.join('\n');
-}
-
-function indentContent(content, spaces) {
-    const indent = ' '.repeat(spaces);
-    return content
-        .split('\n')
-        .map(line => indent + line)
-        .join('\n');
-}
-
-function escapeXmlAttr(str) {
-    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return lines.join('\n');
 }

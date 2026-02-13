@@ -1,6 +1,6 @@
 import { parseInput, applyDefaults } from './parser.mjs';
 import { listDirectory } from './listing.mjs';
-import { readRequestedFiles, readIncludeFiles, buildContextXml } from './context.mjs';
+import { readRequestedFiles, readIncludeFiles, buildContextAssignString } from './context.mjs';
 import { askLLMForFiles, buildConstraintsSection } from './prompts.mjs';
 
 const MAX_ITERATIONS = 5;
@@ -48,11 +48,11 @@ export async function action(context) {
         await readRequestedFiles(llmResponse.files, readFiles, resolvedOptions);
 
         // Build accumulated context
-        const contextXml = buildContextXml(readFiles);
+        const contextAssigns = buildContextAssignString(readFiles);
 
         // Ask LLM if more files are needed
-        llmResponse = await askLLMForFiles(llmAgent, prompt, treeText, contextXml, constraints);
+        llmResponse = await askLLMForFiles(llmAgent, prompt, treeText, contextAssigns, constraints);
     }
 
-    return buildContextXml(readFiles);
+    return buildContextAssignString(readFiles);
 }

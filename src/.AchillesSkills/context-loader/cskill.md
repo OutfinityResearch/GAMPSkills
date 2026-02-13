@@ -34,19 +34,15 @@ Examples:
 ## Output Format
 - **Type**: `string`
 - **Success Example**:
-  ```xml
-  <context>
-    <file path="src/utils/helper.js" language="js">
-      <content>
-        // code here
-      </content>
-    </file>
-    <file path="src/main.ts" language="ts">
-      <content>
-        // code here
-      </content>
-    </file>
-  </context>
+  ```text
+  @src/utils/helper.js assign
+  --begin-context-123--
+  // code here
+  --end-context-123--
+  @src/main.ts assign
+  --begin-context-456--
+  // code here
+  --end-context-456--
   ```
 - **Error Example**: "Error: No input provided for context-loader."
 
