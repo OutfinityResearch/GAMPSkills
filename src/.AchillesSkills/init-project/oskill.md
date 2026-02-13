@@ -19,7 +19,7 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 5. Add tasks using backlog-api addTask.
 6. Generate options for each task created using as context the task Description and the user prompt.
 7. Add task options using backlog-api addOptionsFromText. Use the taskId returned by addTask for addOptionsFromText (do not hard-code indices).
-8. Add or update `./Agents.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
+8. Add or update `./AGENTS.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
 
 - Keep documents readable and concise; avoid excessive headings and bullet lists.
 - Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-api/file-system skills write that content to files.
