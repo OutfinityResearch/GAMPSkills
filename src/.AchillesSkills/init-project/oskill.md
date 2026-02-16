@@ -7,9 +7,14 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 
 ## Preparation
 1. Create initial DS files with relevant content in `./docs/specs` using ds-expert.
-2. return those files' content as context, one variable per file .
+2. return those files' content as context.
 
 - Note: Create 4-5 DS files max, named like `DS001-Vision.md`, `DS002-Architecture.md`, etc.
+
+## Allowed Preparation Skills
+- context-loader
+- ds-expert
+- file-system
 
 ## Instructions
 1. Create directories: `./docs`, `./docs/specs`, `./docs/specs/src`, `./docs/specs/tests`
@@ -22,16 +27,13 @@ It will also seed `./specs_backlog.backlog` with tasks (regarding DS files) and 
 8. Add or update `./AGENTS.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
 
 - Keep documents readable and concise; avoid excessive headings and bullet lists.
-- Do not generate DS content on your own, use ds-expert skill for that, then use its result and backlog-api/file-system skills write that content to files.
 - Each skill call handles only ONE operation. To perform multiple actions, call the same skill multiple times with different parameters.
 - For any action that must run after a previous action, pass the previous action's result as a last parameter to the dependent action to enforce execution order.
   Example: @createDir file-system createDirectory ./docs
            @createBacklog backlog-api createBacklog specs $createDir
 
 ## Allowed Skills
-- context-loader
 - file-system
-- backlog-api  
-- ds-expert
+- backlog-api
 - backlog-expert
 - load-spec-loader

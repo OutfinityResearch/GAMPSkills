@@ -7,6 +7,9 @@ The review-specs skill analyzes existing specification files for gaps, inconsist
 
 Load all spec files under `./docs/specs` (only .md files).
 
+## Allowed Preparation Skills
+- context-loader
+
 ## Instructions
 
 1. Call backlog-expert once with the context of all spec files to generate multiple task descriptions.

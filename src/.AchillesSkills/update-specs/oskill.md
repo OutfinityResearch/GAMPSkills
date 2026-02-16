@@ -5,10 +5,12 @@ The update-specs skill directly modifies specification files under `./docs/specs
 
 ## Preparation
 1. Use context-loader to list all files in ./docs/specs and load specification files relevant to the user prompt.
-2. Store the results as multiple variables for context.
+
+## Allowed Preparation Skills
+- context-loader
 
 ## Instructions
-1. From the loaded context ($context_specs), determine which specification files need to be modified based on the user prompt. Do call context-loader. Never invent filenames; only choose paths that appear in the loaded context.
+1. From the loaded context ($context_specs), determine which specification files need to be modified based on the user prompt.
 2. For each file that needs modification, first read the file to get initial content, then call ds-expert with:
    - the full loaded context ($context_specs) for cross-file reference
    - the original file content to be updated
@@ -21,12 +23,9 @@ The update-specs skill directly modifies specification files under `./docs/specs
 - Each skill call handles only ONE operation.
 - Process files one at a time: generate content → write → next file.
 - ds-expert must receive the full original file content as context, not just a summary. Pass the original content as a separate argument, not embedded in a quoted string.
-- Never embed $variables inside quoted strings. Pass variables as separate arguments.
-- The written content must be the complete file, not a partial patch.
 - When calling ds-expert for the Nth file, include a note like: "The following files have already been updated for this change: [list]. Ensure your output is consistent with those updates."
 - The change intent summary is derived from the user prompt, not from the actual generated content.
 
 ## Allowed Skills
-- context-loader
 - ds-expert
 - file-system

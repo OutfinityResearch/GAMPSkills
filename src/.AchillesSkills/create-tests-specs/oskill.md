@@ -7,6 +7,9 @@ The create-tests-specs skill produces detailed functional design specifications 
 1. Call context-loader to load all files under `./docs/specs` except `./docs/specs/tests`
 2. Call context-loader again to load all files under `./docs/specs/src`
 
+## Allowed Preparation Skills
+- context-loader
+
 ## Instructions
 1. Determine which test files need to be created based on the context provided and the user prompt.
 2. For each planned file, call fds-expert and provide as context enough information to create the technical specification for that file.
@@ -22,4 +25,3 @@ Notes:
 ## Allowed Skills
 - file-system
 - fds-expert
-- context-loader

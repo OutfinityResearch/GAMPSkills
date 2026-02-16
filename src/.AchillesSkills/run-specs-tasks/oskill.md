@@ -8,6 +8,10 @@ This skill processes approved tasks from `./specs_backlog.backlog` and applies t
 2. Use context-loader to load AGENTS.md, list all spec files in `./docs/specs` and then read them.
 3. Store tasks and files as separate variables.
 
+## Allowed Preparation Skills
+- context-loader
+- backlog-api
+
 ## Instructions
 
 1. Determine the affected file paths for each task. If a task targets multiple files, include it for each file it references.
@@ -16,13 +20,11 @@ This skill processes approved tasks from `./specs_backlog.backlog` and applies t
 4. Mark each executed task as done using backlog-api markDone (use the task index from getApprovedTasks).
 5. Call getApprovedTasks at the end of the plan to check for leftover tasks and re-execute the flow if you find any tasks.
 
-Do not use context-loader
 If tasks have been executed list which ones (by index).
 Each file should be edited at most once per run if possible (aggregate tasks by file).
 If no tasks are ready to run simply say that no tasks have been approved and end the execution.
 
 ## Allowed Skills
-- context-loader
 - backlog-api
 - file-system
 - ds-expert
