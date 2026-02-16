@@ -35,11 +35,13 @@ Examples:
 - **Type**: `string`
 - **Success Example**:
   ```text
-  @src/utils/helper.js assign
+  @spec_helper assign "src/utils/helper.js"
+  @spec_helperContent assign
   --begin-context-123--
   // code here
   --end-context-123--
-  @src/main.ts assign
+  @spec_main assign "src/main.ts"
+  @spec_mainContent assign
   --begin-context-456--
   // code here
   --end-context-456--

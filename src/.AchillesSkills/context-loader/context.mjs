@@ -1,6 +1,6 @@
 import { readFile, stat } from 'fs/promises';
 import { randomUUID } from 'crypto';
-import { resolve, relative } from 'path';
+import { resolve, relative, basename, extname } from 'path';
 import { buildMatcher } from './listing.mjs';
 
 /**
@@ -85,6 +85,29 @@ export async function readIncludeFiles(includePaths, readFiles, options) {
  * @param {Map<string, string>} readFiles - map of path → content
  * @returns {string}
  */
+function buildSafeBaseName(filePath, prefix = 'spec_') {
+    const fileName = basename(filePath);
+    const ext = extname(fileName);
+    const withoutExt = ext ? fileName.slice(0, -ext.length) : fileName;
+    const normalized = withoutExt
+        .replace(/[^A-Za-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    const base = normalized || 'file';
+    const safe = /^[A-Za-z]/.test(base) ? base : `F_${base}`;
+    return `${prefix}${safe}`;
+}
+
+function buildHereDocToken(content, base = 'context') {
+    const raw = typeof content === 'string' ? content : '';
+    let token = base;
+    let counter = 0;
+    while (raw.includes(`--begin-${token}--`) || raw.includes(`--end-${token}--`)) {
+        counter += 1;
+        token = `${base}-${counter}`;
+    }
+    return token;
+}
+
 export function buildContextAssignString(readFiles) {
     if (readFiles.size === 0) return '';
 
@@ -93,8 +116,10 @@ export function buildContextAssignString(readFiles) {
 
     for (const [filePath, content] of readFiles) {
         const relPath = relative(cwd, resolve(filePath)).replace(/\\/g, '/');
-        const token = `context-${randomUUID()}`;
-        lines.push(`@${relPath} assign`);
+        const baseName = buildSafeBaseName(relPath);
+        const token = buildHereDocToken(content, `context-${randomUUID()}`);
+        lines.push(`@${baseName} assign "${relPath}"`);
+        lines.push(`@${baseName}Content assign`);
         lines.push(`--begin-${token}--`);
         if (content) {
             lines.push(content);
