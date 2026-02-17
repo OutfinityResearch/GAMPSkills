@@ -1,8 +1,8 @@
 # fds-expert
-Generates File Design Specification (FDS) content with technical implementation details.
+
 
 ## Summary
-Generates File Design Specification (FDS) content with technical implementation details. Provide natural language instructions describing the technical module or component to be specified.
+Generates File Design Specification (FDS) content for a file with technical implementation details. Provide natural language instructions describing the technical module or component to be specified.
 
 ## Input Format
 - **prompt** (string): User instructions for FDS content generation.
