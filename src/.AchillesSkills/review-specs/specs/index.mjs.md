@@ -39,7 +39,7 @@ The skill constructs a review prompt that:
 You are a specification reviewer.
 
 Analyze the provided specification files content from all perspectives.
-If the input includes extra review conditions or priorities, follow those first.
+If the user input includes extra review conditions or priorities, follow those first.
 If no specific review type is requested, perform a general review.
 
 Find any type of problems, including:
@@ -51,13 +51,13 @@ Find any type of problems, including:
 
 Output format:
 - If problems are found, output one line per problem:
-  <file_path> - <exact problem>
+  <file_path> - <exact problems described one by one>
   Example: ./path/to/file - missing header that exists in other files; dependency ./dep/dep2 is not present in the provided context
 - If no problems are found, output exactly: "No problems detected."
 
 Do not include extra commentary, headings, or code.
 
-User Prompt:
+User input:
 """
 ${userPrompt}
 """
