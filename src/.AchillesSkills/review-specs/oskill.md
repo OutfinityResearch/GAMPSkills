@@ -5,7 +5,7 @@ The review-specs skill analyzes existing specification files for gaps, inconsist
 
 ## Preparation
 
-Load all spec files under `./docs/specs` (only .md files).
+1. Load all spec files under `./docs/specs` (only .md files) and `./AGENTS.md` using context-loader.
 
 ## Allowed Preparation Skills
 - context-loader

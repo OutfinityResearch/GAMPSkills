@@ -4,7 +4,7 @@
 The create-src-specs skill generates technical specifications for source files by transforming DS inputs into FDS documents under the specs source directory.
 
 ## Preparation
-1. Using context-loader load all global DS files that are only at the level `./docs/specs`, basically depth 0. 
+1. Using context-loader load all global DS files that are only at the level `./docs/specs`, basically depth 0. Also include `./AGENTS.md`.
 
 ## Allowed Preparation Skills
 - context-loader

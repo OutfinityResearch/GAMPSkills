@@ -5,7 +5,7 @@ This skill processes approved tasks from `./specs_backlog.backlog` and applies t
 
 ## Preparation 
 1. Load ready to run tasks using backlog-api getApprovedTasks.
-2. Use context-loader to load AGENTS.md, list all spec files in `./docs/specs` and then read them.
+2. Use context-loader to load AGENTS.md, list all spec files in `./docs/specs` and then load them.
 3. Store tasks and files as separate variables.
 
 ## Allowed Preparation Skills

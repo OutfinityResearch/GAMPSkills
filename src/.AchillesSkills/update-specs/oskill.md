@@ -4,7 +4,7 @@
 The update-specs skill directly modifies specification files under `./docs/specs` based on the user prompt. It does not use the backlog system — changes are applied immediately.
 
 ## Preparation
-1. Use context-loader to list all files in ./docs/specs and load specification files relevant to the user prompt.
+1. Use context-loader to list all files in `./docs/specs` and load specification files relevant to the user prompt. Also include `./AGENTS.md`.
 
 ## Allowed Preparation Skills
 - context-loader
