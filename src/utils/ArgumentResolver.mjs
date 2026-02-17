@@ -120,3 +120,12 @@ export async function extractArgumentsWithLLM(agent, prompt, instruction, schema
 
     return null;
 }
+
+export function stripDependsOn(input) {
+    if (!input) return '';
+    const match = input.match(/\bdependsOn\s*:\s*/i);
+    if (!match || match.index === undefined) {
+        return input;
+    }
+    return input.slice(0, match.index).trimEnd();
+}

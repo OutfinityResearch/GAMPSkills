@@ -1,4 +1,6 @@
 
+import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
+
 function buildTechnicalPrompt(userPrompt) {
   return `You are a File Design Specification (FDS) expert.
 
@@ -54,13 +56,4 @@ export async function action(context) {
   }
 
   return await executeFdsGeneration({ prompt: resolvedPrompt, llmAgent });
-}
-
-function stripDependsOn(input) {
-  if (!input) return '';
-  const match = input.match(/\bdependsOn\s*:\s*/i);
-  if (!match || match.index === undefined) {
-    return input;
-  }
-  return input.slice(0, match.index).trimEnd();
 }

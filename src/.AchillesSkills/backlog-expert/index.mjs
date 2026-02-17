@@ -1,3 +1,5 @@
+import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
+
 function buildBacklogExpertPrompt(userPrompt) {
   const template = `You are a backlog expert. Your job is to generate content that can be written in files of type backlog.
    A backlog is split into tasks, each task has a description, a list of options that represent the possible solutions to that task and a resolution field. 
@@ -36,13 +38,4 @@ export async function action(context) {
   const sanitizedPrompt = stripDependsOn(promptText);
 
   return await executeBacklogExpert({ prompt: sanitizedPrompt, llmAgent });
-}
-
-function stripDependsOn(input) {
-  if (!input) return '';
-  const match = input.match(/\bdependsOn\s*:\s*/i);
-  if (!match || match.index === undefined) {
-    return input;
-  }
-  return input.slice(0, match.index).trimEnd();
 }

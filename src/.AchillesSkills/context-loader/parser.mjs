@@ -1,4 +1,5 @@
-import { parseKeyValueOptions, stripDependsOn } from '../../utils/optionsParser.mjs';
+import { parseKeyValueOptions } from '../../utils/optionsParser.mjs';
+import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
 
 const KNOWN_OPTIONS = new Set([
     'dir', 'filter', 'maxDepth', 'exclude', 'maxFiles', 'maxFileSize', 'include',
