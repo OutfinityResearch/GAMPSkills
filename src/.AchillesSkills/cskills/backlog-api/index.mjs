@@ -1,5 +1,5 @@
-import * as BacklogManager from '../../BacklogManager.mjs';
-import { extractArgumentsWithLLM } from '../../utils/ArgumentResolver.mjs';
+import * as BacklogManager from '../../../BacklogManager.mjs';
+import { extractArgumentsWithLLM } from '../../../utils/ArgumentResolver.mjs';
 
 export async function action(context) {
     const { llmAgent, recursiveAgent, promptText } = context;

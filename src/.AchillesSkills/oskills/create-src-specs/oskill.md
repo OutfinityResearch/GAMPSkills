@@ -5,13 +5,12 @@ Generate file-level technical specifications (FDS) from existing DS files and th
 
 ## Preparation
 1. Using context-loader load all global DS files that are only at the level `./docs/specs`, basically depth 0. Also include `./AGENTS.md`.
-2. Generate an initial FDS manifest from the DS context. The manifest must include the full list of intended FDS files under `./docs/specs/src`, their dependencies (import paths), and public exports per file.
-3. Write the manifest to `./docs/specs/src/FDS_MANIFEST.md` using file-system.
-4. Use context-loader to load `./docs/specs/src/FDS_MANIFEST.md` and return it as preparation context.
+2. Update `./AGENTS.md` with the full list of intended FDS files under `./docs/specs/src`, their dependencies (import paths), and public exports per file.
+3. Write the manifest to `./AGENTS.md` using file-system.
+4. Use context-loader to load `./AGENTS.md` and return it as preparation context.
 
 ## Allowed Preparation Skills
 - context-loader
-- fds-expert
 - file-system
 
 ## Instructions

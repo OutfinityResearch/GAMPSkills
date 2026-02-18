@@ -1,4 +1,4 @@
-import {stripDependsOn} from '../../utils/ArgumentResolver.mjs';
+import {stripDependsOn} from '../../../utils/ArgumentResolver.mjs';
 import {DS_STRUCTURE_PROFILE} from '../ds-expert/index.mjs';
 import {FDS_STRUCTURE_PROFILE} from '../fds-expert/index.mjs';
 

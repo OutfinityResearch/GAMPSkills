@@ -1,5 +1,5 @@
 
-import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
+import { stripDependsOn } from '../../../utils/ArgumentResolver.mjs';
 
 export const FDS_STRUCTURE_PROFILE = `An FDS (File Design Specification) is a concise technical blueprint for a single source file. It defines the file’s responsibilities, boundaries, and externally visible contract, so that implementation can be done consistently and reviewed objectively. It is used when you want a file to be created, refactored, or reviewed with clear intent, stable interfaces, and minimal ambiguity.
 Use these required sections in this exact order:

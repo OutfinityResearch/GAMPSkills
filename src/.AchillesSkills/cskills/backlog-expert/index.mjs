@@ -1,4 +1,4 @@
-import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
+import { stripDependsOn } from '../../../utils/ArgumentResolver.mjs';
 
 function buildBacklogExpertPrompt(userPrompt) {
   const template = `You are a backlog expert. Your job is to generate content that can be written in files of type backlog.

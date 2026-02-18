@@ -1,5 +1,5 @@
 
-import { stripDependsOn } from '../../utils/ArgumentResolver.mjs';
+import { stripDependsOn } from '../../../utils/ArgumentResolver.mjs';
 
 export const DS_STRUCTURE_PROFILE = `A Global DS (Domain Specification) file is the minimal top-level document that fixes the project’s intent and boundaries. It is not a comprehensive specification and should not try to anticipate every aspect of delivery. Its role is to provide a stable, non-code reference point that remains valid even as implementation details change, while delegating depth to other DS files (e.g., requirements DS, data DS, security DS, integrations DS).
 Accordingly, a Global DS should always contain only the sections that are universally necessary.
