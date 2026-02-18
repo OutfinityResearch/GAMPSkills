@@ -38,8 +38,23 @@ The ds-expert skill generates Design Specification (DS) content focused on globa
 ### Technical Prompt Construction
 The skill constructs a concise DS prompt that:
 1. Sets DS scope and tone (global, non-technical, “what/why”)
-2. Lists high-level guidance for short, clear responses
+2. Injects a separate DS structure profile (plain text guidance)
 3. Embeds the user's original prompt
+
+### DS Structure Profile (Exported)
+The structure guidance is isolated and exported for reuse by other skills:
+```
+A DS file should stay flexible and high-level, focused on the product or system vision.
+Cover the "what" and "why" rather than implementation details.
+Prefer clear sections or short paragraphs that address:
+- Vision and goals
+- Scope and boundaries
+- Stakeholders and audiences
+- Key capabilities and user outcomes
+- Constraints, assumptions, and risks
+- Success criteria and metrics
+Avoid code, APIs, low-level technical decisions, and step-by-step implementation details.
+```
 
 #### Hardcoded Prompt Template (Must Match Exactly)
 ```
@@ -69,6 +84,9 @@ You may provide:
 - High-level drafts or outlines if requested
 - Questions that help define the DS
 
+DS file structure guidance:
+{{DS_STRUCTURE_PROFILE}}
+
 User Prompt:
 """
 ${userPrompt}
@@ -77,7 +95,7 @@ ${userPrompt}
 
 Rules:
 - The template must be used verbatim, with no edits, rewording, or reordering.
-- Only `${userPrompt}` is substituted with the resolved prompt text.
+- Only `${userPrompt}` and the DS structure profile are substituted into the template.
 
 ### LLM Interaction
 - Uses `llmAgent.executePrompt()` with `mode: 'deep'`

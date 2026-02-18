@@ -17,9 +17,8 @@ Generate file-level technical specifications (FDS) from existing DS files and th
 ## Instructions
 1. Use `./docs/specs/src/FDS_MANIFEST.md` as the single source of truth for which FDS files to create and what they depend on.
 2. For each FDS file listed in the manifest, using the DS files context and the manifest call fds-expert to generate the technical specification for that file.
-3. Write the generated specification to `./docs/specs/src` using file-system.
-4. Call review-specs using as context all the generated FDS content with their file paths.
-5. Return as final answer the result from review-specs
+3. Call quality-expert for evaluation with the generated content, use profile fds and provide as context what was given at step 2.
+4. Write the generated specification to `./docs/specs/src` using file-system.
 
 - Create the source code folder structure as if you were implementing the project, but write FDS documents instead of code.
 - Note: FDS stands for File Design Specification
@@ -28,3 +27,4 @@ Generate file-level technical specifications (FDS) from existing DS files and th
 ## Allowed Skills
 - file-system
 - fds-expert
+- quality-expert

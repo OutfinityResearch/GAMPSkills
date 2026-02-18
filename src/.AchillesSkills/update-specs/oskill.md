@@ -10,9 +10,9 @@ The update-specs skill directly modifies specification files under `./docs/specs
 - context-loader
 
 ## Instructions
-1. From the loaded context ($context_specs), determine which specification files need to be modified based on the user prompt.
+1. From the loaded context, determine which specification files need to be modified based on the user prompt.
 2. For each file that needs modification, first read the file to get initial content, then call ds-expert with:
-   - the full loaded context ($context_specs) for cross-file reference
+   - the full loaded context  for cross-file reference
    - the original file content to be updated
    - the user prompt
    - a brief note listing which files have already been updated and what change was intended, so ds-expert maintains cross-file consistency
