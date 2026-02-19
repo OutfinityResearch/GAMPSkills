@@ -5,20 +5,18 @@ Generate file-level technical specifications (FDS) from existing DS files and th
 
 ## Preparation
 1. Using context-loader load all global DS files that are only at the level `./docs/specs`, basically depth 0.
-2. Call fds-planner with the DS context to generate the FDS plan (file paths and dependencies).
-3. Write the plan to `./docs/specs/src/FDS_MANIFEST.md` using file-system.
-4. Use context-loader to load `./docs/specs/src/FDS_MANIFEST.md` and return it as preparation context.
 
 ## Allowed Preparation Skills
 - context-loader
-- file-system
-- fds-planner
 
 ## Instructions
-1. Use `./docs/specs/src/FDS_MANIFEST.md` as the single source of truth for which FDS files to create and what they depend on.
-2. For each FDS file listed in the manifest, using the DS files context and the manifest call fds-expert to generate the technical specification for that file.
-3. Call quality-expert for evaluation with the generated content, use profile fds and provide as context the same DS context used at step 2 plus the manifest and any FDS content generated so far.
-4. Write the generated specification to `./docs/specs/src` using file-system.
+ You will receive as context all the global DS files.
+
+1. For each FDS entry in the manifest, call fds-expert to generate its content. Include as context the DS files that reference that file and additional instructions for generating that file.
+    - The input given to the fds-expert skill must be descriptive enough to produce a complete, well-scoped FDS: describe the file’s purpose as a short narrative of what it must accomplish, its boundaries, and how it fits with dependencies. Use plain text only, no code examples.
+    - When referencing other variables in this step always give a short explanation of the variables content. Example: Here are the DS files that you need to use as guidelines $dsFiles 
+2. Call quality-expert to review the result from step 1, use profile fds and provide as context the same DS context used at step 1 plus the manifest and any other relevant FDS content generated so far.
+3. Write the result from step 2 to `./docs/specs/src` using file-system.
 
 - Create the source code folder structure as if you were implementing the project, but write FDS documents instead of code.
 - Note: FDS stands for File Design Specification

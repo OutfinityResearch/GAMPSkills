@@ -114,39 +114,75 @@ export function parseKeyValueOptions(optionsRaw, { allowedKeys = null, repeatabl
 }
 
 export function parseKeyValueOptionsWithMultiline(optionsRaw, { allowedKeys = null, repeatableKeys = null, multilineKeys = null } = {}) {
-    try {
+    const trimmed = String(optionsRaw ?? '').trim();
+    if (!trimmed) {
+        return {};
+    }
+
+    const allowed = allowedKeys
+        ? (allowedKeys instanceof Set ? allowedKeys : new Set(allowedKeys))
+        : null;
+    const multiline = multilineKeys
+        ? (multilineKeys instanceof Set ? multilineKeys : new Set(multilineKeys))
+        : new Set();
+
+    const multilinePresent = [...multiline].some((key) => {
+        const pattern = new RegExp(`(^|\\s)${key}\\s*:`);
+        return pattern.test(trimmed);
+    });
+
+    if (!multilinePresent) {
         return parseKeyValueOptions(optionsRaw, { allowedKeys, repeatableKeys });
-    } catch (error) {
-        const trimmed = String(optionsRaw ?? '').trim();
-        if (!trimmed) {
-            throw error;
-        }
+    }
 
-        const match = trimmed.match(/^([A-Za-z0-9_-]+)\s*:\s*/);
-        if (!match) {
-            throw error;
+    const keyRegex = /(^|\s)([A-Za-z0-9_-]+)\s*:/g;
+    const matches = [];
+    let match = keyRegex.exec(trimmed);
+    while (match) {
+        const key = match[2];
+        if (!allowed || allowed.has(key)) {
+            const matchStart = match.index + (match[1] ? match[1].length : 0);
+            const valueStart = match.index + match[0].length;
+            matches.push({ key, matchStart, valueStart });
         }
+        match = keyRegex.exec(trimmed);
+    }
 
-        const key = match[1];
-        const allowed = allowedKeys
-            ? (allowedKeys instanceof Set ? allowedKeys : new Set(allowedKeys))
-            : null;
-        const multiline = multilineKeys
-            ? (multilineKeys instanceof Set ? multilineKeys : new Set(multilineKeys))
-            : new Set();
+    if (matches.length === 0) {
+        throw new Error('Invalid options: no valid key-value pairs found.');
+    }
 
-        if (allowed && !allowed.has(key)) {
-            throw error;
-        }
-        if (!multiline.has(key)) {
-            throw error;
-        }
+    const options = {};
+    const repeatable = repeatableKeys
+        ? (repeatableKeys instanceof Set ? repeatableKeys : new Set(repeatableKeys))
+        : new Set();
 
-        const value = trimmed.slice(match[0].length);
+    for (let index = 0; index < matches.length; index += 1) {
+        const { key, valueStart } = matches[index];
+        const next = matches[index + 1];
+        const valueEnd = next ? next.matchStart : trimmed.length;
+        let value = trimmed.slice(valueStart, valueEnd).trim();
+
         if (!value) {
             throw new Error(`Invalid options: missing value for ${key}.`);
         }
 
-        return { [key]: value };
+        if (!multiline.has(key)) {
+            const tokens = tokenizeKeyValueOptions(value);
+            if (tokens.length > 0) {
+                value = tokens[0];
+            }
+        }
+
+        if (repeatable.has(key)) {
+            if (!Array.isArray(options[key])) {
+                options[key] = [];
+            }
+            options[key].push(value);
+        } else {
+            options[key] = value;
+        }
     }
+
+    return options;
 }

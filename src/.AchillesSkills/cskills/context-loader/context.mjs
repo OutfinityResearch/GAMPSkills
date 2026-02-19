@@ -1,6 +1,6 @@
 import { readFile, stat } from 'fs/promises';
 import { randomUUID } from 'crypto';
-import { resolve, relative, basename, extname } from 'path';
+import { resolve, relative, basename, extname, isAbsolute } from 'path';
 import { buildMatcher } from './listing.mjs';
 
 /**
@@ -12,6 +12,7 @@ import { buildMatcher } from './listing.mjs';
 export async function readRequestedFiles(filePaths, readFiles, options) {
     const { maxFiles = null, maxFileSize = null, filter = null, dir = '.' } = options;
     const filterMatcher = filter ? buildMatcher(filter) : null;
+    const baseDir = dir || '.';
 
     for (const filePath of filePaths) {
         // Enforce maxFiles cap
@@ -26,7 +27,7 @@ export async function readRequestedFiles(filePaths, readFiles, options) {
         }
 
         try {
-            const fullPath = resolve(filePath);
+            const fullPath = isAbsolute(filePath) ? filePath : resolve(baseDir, filePath);
 
             // Enforce maxFileSize
             if (maxFileSize !== null) {
@@ -55,13 +56,14 @@ export async function readRequestedFiles(filePaths, readFiles, options) {
 export async function readIncludeFiles(includePaths, readFiles, options) {
     if (!includePaths || !Array.isArray(includePaths)) return;
 
-    const { maxFileSize = null } = options;
+    const { maxFileSize = null, dir = '.' } = options;
+    const baseDir = dir || '.';
 
     for (const filePath of includePaths) {
         if (readFiles.has(filePath)) continue;
 
         try {
-            const fullPath = resolve(filePath);
+            const fullPath = isAbsolute(filePath) ? filePath : resolve(baseDir, filePath);
 
             if (maxFileSize !== null) {
                 const fileStat = await stat(fullPath);
