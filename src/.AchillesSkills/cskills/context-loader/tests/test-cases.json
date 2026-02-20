@@ -1,0 +1,136 @@
+{
+  "tests": [
+    {
+      "name": "askLLMForFiles initial prompt with options and normalization",
+      "input": {
+        "api": "askLLMForFiles",
+        "userRequest": "Find main source files",
+        "directoryTree": "src/\n  index.js\n  util.js",
+        "currentContext": null,
+        "constraints": "## Active Constraints:\n- Only select files within the directory: src",
+        "mockMode": "validate",
+        "requireOptionsExact": true,
+        "requiredPromptIncludes": [
+          "Role: context-loading assistant",
+          "## Request:\nFind main source files",
+          "## Project Directory Structure:\nsrc/\n  index.js\n  util.js",
+          "## Active Constraints:\n- Only select files within the directory: src",
+          "Respond ONLY with JSON"
+        ],
+        "requiredPromptExcludes": [
+          "## Already Loaded Context:"
+        ],
+        "responseOnMatch": {
+          "done": 1,
+          "files": [
+            " src/index.js ",
+            "",
+            12,
+            "src/util.js"
+          ],
+          "reason": 42
+        },
+        "responseOnMismatch": {
+          "done": false,
+          "files": [
+            "wrong.js"
+          ],
+          "reason": "mismatch"
+        }
+      },
+      "expectedOutput": {
+        "done": true,
+        "files": [
+          "src/index.js",
+          "src/util.js"
+        ],
+        "reason": "42"
+      }
+    },
+    {
+      "name": "askLLMForFiles follow-up prompt parses JSON string",
+      "input": {
+        "api": "askLLMForFiles",
+        "userRequest": "Trace dependencies",
+        "directoryTree": "lib/\n  core.js\n  helpers.js",
+        "currentContext": "Loaded lib/start.js",
+        "constraints": "",
+        "mockMode": "validate",
+        "requireOptionsExact": true,
+        "requiredPromptIncludes": [
+          "Role: context-loading assistant (has already read some files)",
+          "## Original Request:\nTrace dependencies",
+          "## Already Loaded Context:\nLoaded lib/start.js",
+          "Respond ONLY with JSON"
+        ],
+        "requiredPromptExcludes": [
+          "## Request:"
+        ],
+        "responseOnMatch": "Model output: {\"done\":false,\"files\":[\"lib/core.js\",\"   \",\"lib/helpers.js\"],\"reason\":\"Need dependency files\"}",
+        "responseOnMismatch": "{\"done\":true,\"files\":[],\"reason\":\"unexpected\"}"
+      },
+      "expectedOutput": {
+        "done": false,
+        "files": [
+          "lib/core.js",
+          "lib/helpers.js"
+        ],
+        "reason": "Need dependency files"
+      }
+    },
+    {
+      "name": "askLLMForFiles returns fallback when response is plain string",
+      "input": {
+        "api": "askLLMForFiles",
+        "userRequest": "List config",
+        "directoryTree": "config/\n  app.json",
+        "currentContext": null,
+        "constraints": "",
+        "mockMode": "static",
+        "mockResponse": "No structured data available right now."
+      },
+      "expectedOutput": {
+        "done": true,
+        "files": [],
+        "reason": "Could not parse LLM response."
+      }
+    },
+    {
+      "name": "buildConstraintsSection with all active constraints",
+      "input": {
+        "api": "buildConstraintsSection",
+        "options": {
+          "filter": "*.js",
+          "exclude": "*.test.js",
+          "maxFiles": 5,
+          "include": [
+            "src/a.js",
+            "src/b.js"
+          ],
+          "dir": "src"
+        }
+      },
+      "expectedOutput": "## Active Constraints:\n- ONLY select files whose name matches the pattern: *.js\n- Do NOT select files whose name matches the pattern: *.test.js\n- Maximum 5 files can be read in total. Be selective.\n- The following files are already force-included and loaded. Do NOT request them again: src/a.js, src/b.js\n- Only select files within the directory: src"
+    },
+    {
+      "name": "buildConstraintsSection omits dir when dot and includes max/include",
+      "input": {
+        "api": "buildConstraintsSection",
+        "options": {
+          "maxFiles": 3,
+          "include": "README.md",
+          "dir": "."
+        }
+      },
+      "expectedOutput": "## Active Constraints:\n- Maximum 3 files can be read in total. Be selective.\n- The following files are already force-included and loaded. Do NOT request them again: README.md"
+    },
+    {
+      "name": "buildConstraintsSection returns empty when no constraints",
+      "input": {
+        "api": "buildConstraintsSection",
+        "options": {}
+      },
+      "expectedOutput": ""
+    }
+  ]
+}
