@@ -1,8 +1,8 @@
 import { readFile, writeFile, appendFile, unlink, mkdir, readdir, copyFile, rename } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { existsSync } from 'fs';
-import { extractArgumentsWithLLM, stripDependsOn } from '../../../utils/ArgumentResolver.mjs';
-import { parseKeyValueOptionsWithMultiline } from '../../../utils/optionsParser.mjs';
+import { extractArgumentsWithLLM, stripDependsOn } from '../../../../utils/ArgumentResolver.mjs';
+import { parseKeyValueOptionsWithMultiline } from '../../../../utils/optionsParser.mjs';
 
 export async function action(context) {
     const { llmAgent, promptText } = context;

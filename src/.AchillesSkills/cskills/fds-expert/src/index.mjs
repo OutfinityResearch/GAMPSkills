@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { stripDependsOn } from '../../../utils/ArgumentResolver.mjs';
+import { stripDependsOn } from '../../../../utils/ArgumentResolver.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const FDS_STRUCTURE_PROFILE = await readFile(

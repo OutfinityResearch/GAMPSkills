@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 import { fileURLToPath } from 'node:url';
 
-import { action as fileSystemAction } from '../src/.AchillesSkills/cskills/file-system/index.mjs';
+import { action as fileSystemAction } from '../src/.AchillesSkills/cskills/file-system/src/index.mjs';
 
 const testsDir = path.dirname(fileURLToPath(import.meta.url));
 
