@@ -1,80 +1,97 @@
 # File System Skill - Implementation Specification
 
 ## Purpose
-The file-system skill provides comprehensive file system operations for the Achilles agent, enabling it to read, write, manipulate, and query files and directories within the project workspace.
+Provides a set of file system operations for the Achilles agent. It parses a command string and routes it to the appropriate operation.
 
-## Capabilities
+## Dependencies (Explicit Paths)
+- `fs/promises`
+- `fs`
+- `path`
+- `../../../../utils/ArgumentResolver.mjs`
+  - `extractArgumentsWithLLM`
+  - `stripDependsOn`
+- `../../../../utils/optionsParser.mjs`
+  - `parseKeyValueOptionsWithMultiline(text: string, config: { allowedKeys: Set<string>, multilineKeys?: Set<string> }) -> object`
 
-### File Operations
-- **readFile**: Return a success string indicating the file path was read (does not return file contents)
-- **writeFile**: Write content to file, creating parent directories if needed
-- **appendFile**: Append content to existing file
-- **deleteFile**: Remove file from filesystem
-- **copyFile**: Copy file from source to destination path
-- **moveFile**: Move/rename file from source to destination path
+## Public Exports
+- `action(context: { llmAgent: object, promptText: string }) -> Promise<string>`
 
-### Directory Operations
-- **createDirectory**: Create directory with recursive parent creation
-- **listDirectory**: List all entries in a directory
+## Supported Operations
+- `readFile`
+- `writeFile`
+- `appendFile`
+- `deleteFile`
+- `createDirectory`
+- `listDirectory`
+- `fileExists`
+- `copyFile`
+- `moveFile`
 
-### Query Operations
-- **fileExists**: Check if file or directory exists at given path
+## `action(context)`
+Parses the command, extracts options, and executes the operation.
 
-## Input Contract
-The skill parses a single text command from `promptText`:
+Signature:
+```
+action(context: { llmAgent: object, promptText: string }) -> Promise<string>
+```
 
-- First token: `operation`
-- Second token: `path`
-- Remaining text: payload for `content:` or `destination:`, or raw content for write/append
+Parameters:
+- `context.llmAgent`: LLM agent (used only as a fallback for options parsing)
+- `context.promptText`: input string, required
 
-For `copyFile` and `moveFile`, the payload must be `destination: <path>`.
-For `writeFile` and `appendFile`, the payload may be `content: <text>` or raw text after the path.
+Returns:
+- A string for all operations (for non-strings, JSON stringification is applied)
 
-## Output Contract
-- String messages for all successful operations, including `readFile`, `listDirectory`, and `fileExists`
-- Throws Error with descriptive message on failure
+Throws:
+- `Error('No input provided for file-system operation')` if `promptText` is missing
+- `Error('Invalid input: operation and path are required and must be valid.')` for invalid operation/path
+- Operation-specific errors from the underlying fs calls
 
-## Implementation Details
+Parsing behavior:
+- Strips `dependsOn:` suffix via `stripDependsOn()`
+- Tokens are split by whitespace; `operation` is the first token, `path` is the second
+- Options are parsed only if an `options:` marker exists
+- Options parser accepts `content` and `destination` keys; `content` may be multiline
+- If options parsing fails and `llmAgent.complete` exists, falls back to `extractArgumentsWithLLM`
 
-### Path Resolution
-- All paths are resolved with `path.resolve()`
-- Parent directories are created automatically for `writeFile`
-- Output messages use the resolved full path as printed string
-
-### Error Handling
-- Invalid operation or missing path triggers LLM argument extraction when possible
-- Missing required parameters throw descriptive errors
-- File system errors propagate with original error messages
-
-### Regex Patterns (Hardcoded)
-- First line split: `/\r?\n/`
-- Token split: `/\s+/`
-- Payload prefix checks:
-  - Destination: `/^destination\s*:/i`
-  - Content: `/^content\s*:/i`
-- Operation trim: `/\s+/` (split on whitespace)
-
-### LLM Fallback (Hardcoded Signature)
-Triggered only when operation is not allowed or path is missing.
+### LLM Fallback for Options Parsing
+Triggered only when `parseKeyValueOptionsWithMultiline` throws for `options:`.
 
 Call signature (must match exactly):
-`extractArgumentsWithLLM(llmAgent, promptText, instructionText, ['operation', 'path', 'content', 'destination'])`
+```
+extractArgumentsWithLLM(
+  llmAgent,
+  optionsRaw,
+  'Extract file system operation options as key-value pairs.',
+  ['content', 'destination']
+)
+```
 
-- `instructionText` must be: `Extract file system operation arguments. Allowed operations: <comma-separated allowedOperations>`
-- Expected return: array in order `[operation, path, content, destination]`
-- If return is not an array, throw `Unknown operation: ${operation}`
+Expected return:
+- Array `[content, destination]`, otherwise throws `Error('Invalid options: unable to parse.')`
 
-### Dependencies
-- `fs/promises`: readFile, writeFile, appendFile, unlink, mkdir, readdir, stat, copyFile, rename
-- `fs`: existsSync (synchronous check for exists operation)
-- `path`: resolve, dirname
+## Internal Functions
+- `executeFileOperation({ operation, path, content, destination }) -> Promise<string | object>`
+
+## `executeFileOperation` Behavior
+Routes to the concrete file system operation and returns success messages.
+
+### Operation Details
+- `readFile`: reads UTF-8 and returns `FILE_CONTENT:\n<content>`
+- `writeFile`: creates parent directories, writes UTF-8, returns success string
+- `appendFile`: appends UTF-8, returns success string
+- `deleteFile`: deletes file, returns success string
+- `createDirectory`: mkdir recursive, returns success string
+- `listDirectory`: returns success string with JSON list of entries
+- `fileExists`: uses `existsSync`, returns success string with boolean
+- `copyFile`: requires `destination`, copies file, returns success string
+- `moveFile`: requires `destination`, renames file, returns success string
+
+All paths are resolved with `resolve()` before operations are executed.
 
 ## Code Generation Guidelines
-When regenerating this skill:
-1. Maintain switch-case structure for operation routing
-2. Keep all operations async
-3. Validate required parameters at function entry
-4. Use resolve() for all path operations
-5. Create parent directories for write operations
-6. Return consistent success messages or structured data
-7. Throw errors with clear messages for invalid inputs
+- Keep the switch-case routing structure
+- Validate required parameters before executing
+- Use `resolve()` for all path operations
+- Create parent directories for `writeFile`
+- Keep error messages consistent with the current implementation

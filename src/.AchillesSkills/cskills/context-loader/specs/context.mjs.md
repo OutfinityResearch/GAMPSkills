@@ -10,49 +10,91 @@ Reads files into a Map and builds the context assign output string. Handles incl
 - `./listing.mjs`
   - `buildMatcher(pattern: string) -> (value: string) => boolean`
 
-## Exports
+## Public Exports
 - `readRequestedFiles(filePaths: string[], readFiles: Map<string, string>, options: { dir?: string, filter?: string | null, maxFiles?: number | null, maxFileSize?: number | null }) -> Promise<void>`
 - `readIncludeFiles(includePaths: string[] | null, readFiles: Map<string, string>, options: { dir?: string, maxFileSize?: number | null }) -> Promise<void>`
 - `buildContextAssignString(readFiles: Map<string, string>) -> string`
 
-## `readRequestedFiles(filePaths, readFiles, options)` Flow
-Options used: `{ maxFiles, maxFileSize, filter, dir }`
+## `readRequestedFiles(filePaths, readFiles, options)`
+Reads LLM-requested files with filter and size guards.
 
+Signature:
+```
+readRequestedFiles(filePaths: string[], readFiles: Map<string, string>, options: { dir?: string, filter?: string | null, maxFiles?: number | null, maxFileSize?: number | null }) -> Promise<void>
+```
+
+Parameters:
+- `filePaths`: list of file paths (absolute or relative)
+- `readFiles`: Map to mutate with `fullPath -> content/error`
+- `options`: read guards and directory base
+
+Returns:
+- `Promise<void>`; errors are recorded in the Map, not thrown
+
+Flow:
 1. Build `filterMatcher` from `options.filter` (if set) via `buildMatcher()`
 2. For each `filePath` in `filePaths`:
-   a. If `maxFiles` is set and `readFiles.size >= maxFiles` → break
-   b. If `filePath` already in `readFiles` → skip
-   c. If `filterMatcher` exists: extract filename (last segment after `/`), skip if no match
-   d. Resolve to absolute path via `resolve(dir || '.', filePath)` unless `filePath` is already absolute
-   e. If `maxFileSize` is set: call `stat(fullPath)`, if `size > maxFileSize` → store skip message, continue
-   f. Call `readFile(fullPath, 'utf8')`, store in `readFiles` Map
-   g. On error → store error message string `[Error reading file: <message>]`
+   - Break if `maxFiles` is set and `readFiles.size >= maxFiles`
+   - Resolve `fullPath` with `resolve(dir || '.', filePath)` unless `filePath` is absolute
+   - Skip if `readFiles` already has `fullPath`
+   - If `filterMatcher` exists, test `basename(filePath)` and skip if no match
+   - If `maxFileSize` is set: call `stat(fullPath)`; if `size > maxFileSize`, store skip message and continue
+   - Call `readFile(fullPath, 'utf8')` and store content
+   - On error: store `[Error reading file: <message>]`
 
-## `readIncludeFiles(includePaths, readFiles, options)` Flow
-Options used: `{ maxFileSize, dir }`
+## `readIncludeFiles(includePaths, readFiles, options)`
+Reads include files before LLM selection, bypassing filter/maxFiles.
 
+Signature:
+```
+readIncludeFiles(includePaths: string[] | null, readFiles: Map<string, string>, options: { dir?: string, maxFileSize?: number | null }) -> Promise<void>
+```
+
+Parameters:
+- `includePaths`: list of file paths (absolute or relative)
+- `readFiles`: Map to mutate with `fullPath -> content/error`
+- `options`: `{ dir, maxFileSize }`
+
+Returns:
+- `Promise<void>`; errors are recorded in the Map, not thrown
+
+Flow:
 - Similar to `readRequestedFiles` but:
   - Does NOT check filter (include bypasses filter)
   - Does NOT check maxFiles (include files are always loaded)
-  - Still respects maxFileSize
+  - Still respects `maxFileSize`
 
-## `buildContextAssignString(readFiles)` Flow
+## `buildContextAssignString(readFiles)`
+Builds the final context assign string from read files.
+
+Signature:
+```
+buildContextAssignString(readFiles: Map<string, string>) -> string
+```
+
+Parameters:
+- `readFiles`: Map of `fullPath -> content` entries
+
+Returns:
+- A newline-joined string of assigns; empty string if no files
+
+Flow:
 1. If `readFiles.size === 0` → return empty string
-2. For each `[filePath, content]` in readFiles:
-   a. Compute `relPath = relative(process.cwd(), resolve(filePath))`
-   b. Compute `baseName` from `relPath` via `buildSafeBaseName()`
-   c. Compute `token` via `buildHereDocToken(content, `context-${randomUUID()}`)
-   d. Emit lines:
-      - `@${baseName} assign "${relPath}"`
-      - `@${baseName}Content assign`
-      - `--begin-${token}--`
-      - file content (if non-empty)
-      - `--end-${token}--`
+2. For each `[fullPath, content]` in readFiles:
+   - Compute `relPath = relative(process.cwd(), fullPath).replace(/\\/g, '/')`
+   - Compute `baseName` from `relPath` via `buildSafeBaseName()`
+   - Compute `token` via `buildHereDocToken(content, `context-${randomUUID()}`)
+   - Emit lines:
+     - `@${baseName} assign "${relPath}"`
+     - `@${baseName}Content assign`
+     - `--begin-${token}--`
+     - file content (if non-empty)
+     - `--end-${token}--`
 3. Return the joined string with `\n`
 
 ## Internal Functions
-- `buildSafeBaseName(filePath, prefix = 'spec_')`
-- `buildHereDocToken(content, base = 'context')`
+- `buildSafeBaseName(filePath, prefix = 'spec_')` — builds a safe identifier from a path
+- `buildHereDocToken(content, base = 'context')` — ensures begin/end tokens do not collide with content
 
 ## Key Behaviors
 - Filter acts as a guard on `readRequestedFiles`: LLM-requested files that don't match filter are silently skipped

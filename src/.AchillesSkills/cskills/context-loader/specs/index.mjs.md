@@ -17,13 +17,31 @@ Orchestrates the context-loading workflow: parses input, lists directories, forc
   - `askLLMForFiles(llmAgent: object, userRequest: string, directoryTree: string, currentContext: string | null, constraints: string) -> Promise<{ done: boolean, files: string[], reason: string }>`
   - `buildConstraintsSection(options: object) -> string`
 
-## Exports
+## Public Exports
 - `action(context: { llmAgent: object, promptText: string }) -> Promise<string>`
 
 ## Constants (Hardcoded)
 - `MAX_ITERATIONS = 5` — maximum LLM loop iterations.
 
-## Flow
+## `action(context)` Behavior
+Orchestrates the full flow and returns the final context assign string.
+
+Signature:
+```
+action(context: { llmAgent: object, promptText: string }) -> Promise<string>
+```
+
+Parameters:
+- `context.llmAgent`: LLM agent with `executePrompt`
+- `context.promptText`: raw input string
+
+Returns:
+- The final context assigns string built from all read files
+
+Throws:
+- `Error('No input prompt provided for context-loader.')` when the parsed prompt is empty
+
+Flow:
 1. Call `parseInput(promptText)` → `{ prompt, options, parseError }`
 2. If `parseError` is set, replace options with `applyDefaults({})`
 3. Throw Error if `prompt` is empty
@@ -32,16 +50,16 @@ Orchestrates the context-loading workflow: parses input, lists directories, forc
 6. Call `buildConstraintsSection(options)` → constraints string
 7. Call `askLLMForFiles(llmAgent, prompt, treeText, null, constraints)` → initial response
 8. Enter while loop: `!llmResponse.done && iteration < MAX_ITERATIONS`
-   a. Increment iteration
-   b. Break if `maxFiles` reached (`readFiles.size >= options.maxFiles`)
-   c. Call `readRequestedFiles(llmResponse.files, readFiles, options)`
-   d. Call `buildContextAssignString(readFiles)` → accumulated context assigns
-   e. Call `askLLMForFiles(llmAgent, prompt, treeText, contextAssigns, constraints)`
+   - Increment iteration
+   - Break if `maxFiles` reached (`readFiles.size >= options.maxFiles`)
+   - Call `readRequestedFiles(llmResponse.files, readFiles, options)`
+   - Call `buildContextAssignString(readFiles)` → accumulated context assigns
+   - Call `askLLMForFiles(llmAgent, prompt, treeText, contextAssigns, constraints)`
 9. Return `buildContextAssignString(readFiles)`
 
 ## Code Generation Guidelines
 - Keep this file minimal — only orchestration logic
 - All parsing, listing, reading, prompting is delegated to modules
 - The only constant is MAX_ITERATIONS
-- readFiles is a `Map<string, string>` shared across all steps
-- The loop passes context assigns (not XML) to follow-up prompts
+- `readFiles` is a `Map<string, string>` shared across all steps
+- The loop passes context assigns to follow-up prompts

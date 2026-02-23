@@ -3,13 +3,13 @@
 ## Purpose
 Parses the raw `promptText` string into a clean prompt and a structured options object. Options are provided as key-value pairs after the `options:` marker.
 
-## External Dependencies
+## Dependencies (Explicit Paths)
 - `../../../../utils/optionsParser.mjs`
   - `parseKeyValueOptions(text: string, config: { allowedKeys: Set<string>, repeatableKeys?: Set<string> }) -> object`
 - `../../../../utils/ArgumentResolver.mjs`
   - `stripDependsOn(input: string) -> string`
 
-## Exports
+## Public Exports
 - `parseInput(promptText: string) -> { prompt: string, options: object, optionsRaw: string, parseError: Error | null }`
 - `buildDefaults() -> object`
 - `applyDefaults(parsed: object) -> object`
@@ -43,27 +43,54 @@ const KNOWN_OPTIONS = new Set([
 }
 ```
 
-## Parsing Flow
+## `parseInput(promptText)`
+Parses prompt text and returns the prompt plus normalized options.
+
+Signature:
+```
+parseInput(promptText: string) -> { prompt: string, options: object, optionsRaw: string, parseError: Error | null }
+```
+
+Parameters:
+- `promptText`: raw input string
+
+Returns:
+- `{ prompt, options, optionsRaw, parseError }`, never throws
+
+Flow:
 1. If `promptText` is falsy/non-string → return `{ prompt: '', options: defaults, optionsRaw: '', parseError: null }`
-2. Strip `dependsOn:` suffix (case-insensitive)
-3. Search for `options:` marker (case-insensitive) via regex `\boptions\s*:\s*`
+2. Strip `dependsOn:` suffix via `stripDependsOn()`
+3. Search for `options:` marker via regex `\boptions\s*:\s*`
 4. If no `options:` found → return `{ prompt: trimmed_input, options: defaults, optionsRaw: '', parseError: null }`
 5. Split text at `options:` marker: before = prompt, after = options text
 6. Parse options text with `parseKeyValueOptions(optionsRaw, { allowedKeys, repeatableKeys })`
 7. If parsing throws: return defaults and surface the error in `parseError`
-8. Apply type normalization in `applyDefaults()`:
-   - `dir`: string, trimmed
-   - `filter`: string, trimmed
-   - `maxDepth`: parsed to number, must be > 0
-   - `exclude`: string, trimmed
-   - `maxFiles`: parsed to number, must be > 0
-   - `maxFileSize`: parsed to number, must be > 0
-   - `include`: accepts both `string[]` and comma-separated string, normalized to `string[]`
+8. Apply type normalization in `applyDefaults()`
 
-## Internal Functions
-- `buildDefaults()` — returns fresh defaults object
-- `applyDefaults(parsed)` — merges parsed values over defaults with type coercion
-- `stripDependsOn(input)` — strips `dependsOn: ...` suffix
+## `buildDefaults()`
+Returns a fresh defaults object.
+
+Signature:
+```
+buildDefaults() -> object
+```
+
+## `applyDefaults(parsed)`
+Merges parsed values over defaults with type coercion.
+
+Signature:
+```
+applyDefaults(parsed: object) -> object
+```
+
+Normalization rules:
+- `dir`: string, trimmed
+- `filter`: string, trimmed
+- `maxDepth`: parsed to number, must be > 0
+- `exclude`: string, trimmed
+- `maxFiles`: parsed to number, must be > 0
+- `maxFileSize`: parsed to number, must be > 0
+- `include`: accepts `string[]` or comma-separated string, normalized to `string[]`
 
 ## Code Generation Guidelines
 - Parsing uses `parseKeyValueOptions` with:

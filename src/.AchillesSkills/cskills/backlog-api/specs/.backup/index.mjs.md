@@ -1,87 +1,100 @@
-# Backlog IO Skill - Implementation Specification
+# Backlog API Skill - Implementation Specification
 
 ## Purpose
-The backlog-api skill provides a complete interface to the BacklogManager module, enabling the Achilles agent to manage project backlogs (specs and docs) through structured operations for tracking issues, proposals, resolutions, and task management.
+Provides a complete interface to the BacklogManager module for managing specs/docs backlogs through structured operations.
 
-## Capabilities
+## Dependencies (Explicit Paths)
+- `../../../../BacklogManager.mjs`
+  - Namespace import as `BacklogManager`
+- `../../../../utils/ArgumentResolver.mjs`
+  - `extractArgumentsWithLLM`
 
-### Backlog Loading
-- **loadBacklog**: Load entire backlog with tasks and metadata
-- **getTask**: Retrieve specific task by numeric id
+## Public Exports
+- `action(context: { llmAgent: object, recursiveAgent?: object, promptText: string }) -> Promise<string>`
 
-### Task Updates
-- **proposeFix**: Add new proposal/option to a task
-- **approveResolution**: Set resolution text for a task
-- **addOptionsFromText**: Parse plain text list and add options to a task
-
-### Task Discovery
-- **findTasksByStatus**: Find all tasks by inferred status (needs_work, done)
-
-### Task Modification
-- **setStatus**: Only supports `done` to move to History
-- **markDone**: Move a task to History with optional `doneText`
-- **updateTask**: Apply partial updates to task
-- **appendTask**: Create new task in backlog with the next numeric id
+## Supported Operations
+- `createBacklog`
+- `loadBacklog`
+- `getTask`
+- `approveTask`
+- `getApprovedTasks`
+- `getNewTasks`
+- `markDone`
+- `addOptionsFromText`
+- `addTasksFromText`
+- `updateTask`
+- `addTask`
 
 ## Input Contract
 The skill parses a single text command from `promptText`:
-
 - First token: `operation`
-- Second token: `type` (`specs` or `docs`)
 - Second token: `type` (`specs` or `docs`) when provided
 - Remaining text: chained `key: value` parameters
 
-Supported keys: `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`, `doneText`.
-Supported keys: `taskId`, `proposal`, `resolution`, `status`, `updates`, `initialContent`, `doneText`, `optionsText`.
-Values for `proposal` and `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
+Supported keys:
+- `taskId`
+- `resolution`
+- `updates`
+- `initialContent`
+- `optionsText`
+- `tasksText`
+- `dependsOn` (ignored by parser, but recognized in the key scan)
+
+Values for `updates` may be JSON if the value starts with `{` or `[`. Other values are treated as raw strings.
 
 ## Output Contract
-- Objects for load/get operations: `{ tasks, history, meta }` or task object
-- Arrays for find operations: `[taskId1, taskId2, ...]`
-- Success strings for `setStatus`, `markDone`, `updateTask`, and `appendTask`
+- Returns a string for all operations
+- If the underlying BacklogManager result is not a string, it is JSON-stringified
 - Throws Error with descriptive message on failure
 
-## Implementation Details
+## Internal Functions
+- `parseKeyValueParams(text: string) -> object`
+- `parseMaybeJson(value: string) -> string | object | array`
+- `stringifyIfNeeded(value: unknown) -> string`
+- `executeBacklogOperation({ operation, type, taskId, resolution, updates, initialContent, optionsText, tasksText }) -> Promise<string>`
 
-### BacklogManager Integration
-- Direct import from `../../BacklogManager/BacklogManager.mjs`
-- Operations delegate to corresponding BacklogManager functions after parsing
+## Operation Routing
+`executeBacklogOperation` maps operations to BacklogManager calls:
+- `createBacklog(type)`
+- `loadBacklog(type)`
+- `getTask(type, taskId)`
+- `approveTask(type, taskId, resolution)`
+- `getApprovedTasks(type)`
+- `getNewTasks(type)`
+- `markDone(type, taskId)`
+- `addOptionsFromText(type, taskId, optionsText)`
+- `addTasksFromText(type, tasksText)`
+- `updateTask(type, taskId, updates)`
+- `addTask(type, initialContent)`
 
-### Operation Routing
-- Switch-case structure maps operation names to BacklogManager calls
-- Parameters are extracted from the text command before routing
-- Return values are passed back directly except for status/markDone/update/append, which return success strings
+All results are passed through `stringifyIfNeeded`.
 
-### Error Handling
-- Invalid operation or backlog type triggers LLM argument extraction when possible
-- BacklogManager errors propagate unchanged
-- Missing required parameters are handled by BacklogManager
+## Parsing Details
+- Token scan regex: `/^(\S+)(?:\s+(\S+))?(?:\s+([\s\S]*))?$/`
+- Key scan regex: `/\b(taskId|resolution|updates|initialContent|optionsText|tasksText|dependsOn)\s*:\s*/g`
+- `updates` value is parsed via `parseMaybeJson`
 
-### Regex Patterns (Hardcoded)
-- Token split: `/^(\S+)(?:\s+(\S+))?(?:\s+([\s\S]*))?$/`
-- Key/value scan: `/\b(taskId|proposal|resolution|status|updates|initialContent|doneText)\s*:\s*/g`
-- Key/value scan: `/\b(taskId|proposal|resolution|status|updates|initialContent|doneText|optionsText)\s*:\s*/g`
-- Operation trim: `/\s+/` (split on whitespace)
-
-### LLM Fallback (Hardcoded Signature)
-Triggered only when operation is not allowed or type is invalid.
+## LLM Fallback (Hardcoded Signature)
+Triggered only when operation is not allowed or `type` is invalid.
 
 Call signature (must match exactly):
-`extractArgumentsWithLLM(llmAgent, promptText, instructionText, ['operation', 'type', 'taskId', 'status', 'initialContent', 'doneText', 'optionsText'])`
+```
+extractArgumentsWithLLM(
+  llmAgent,
+  promptText,
+  `Extract backlog operation arguments. Allowed operations: ${Array.from(allowedOperations).join(', ')}`,
+  ['operation', 'type', 'taskId', 'resolution', 'initialContent', 'optionsText', 'tasksText']
+)
+```
 
-- `instructionText` must be: `Extract backlog operation arguments. Allowed operations: <comma-separated allowedOperations>`
-- Expected return: array in order `[operation, type, taskId, status, initialContent, doneText, optionsText]`
+Expected return:
+- Array `[operation, type, taskId, resolution, initialContent, optionsText, tasksText]`
 - If return is not an array, throw `Unknown operation: ${operation}`
 
-### Dependencies
-- `BacklogManager`: loadBacklog, getTask, proposeFix, approveResolution, addOptionsFromText, findTasksByStatus, setStatus, markDone, updateTask, appendTask
-
 ## Code Generation Guidelines
-When regenerating this skill:
-1. Maintain switch-case structure for operation routing
-2. Keep all operations async
-3. Import all BacklogManager functions as namespace
-4. Parse `promptText` into `operation`, `type`, and chained `key: value` parameters
-5. Parse JSON for `proposal` and `updates` only when the value starts with `{` or `[` 
-6. Return BacklogManager results unchanged except for status/markDone/update/append (return success strings)
-7. Use LLM fallback only if operation or type is invalid
+- Maintain the switch-case routing structure
+- Keep all operations async
+- Import BacklogManager as a namespace
+- Parse `promptText` into `operation`, `type`, and chained `key: value` parameters
+- Parse JSON only for `updates` when the value starts with `{` or `[` 
+- Use LLM fallback only if operation or type is invalid

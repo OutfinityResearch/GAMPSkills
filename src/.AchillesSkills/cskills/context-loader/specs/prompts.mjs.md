@@ -3,56 +3,64 @@
 ## Purpose
 Constructs LLM prompts for file selection and parses LLM responses. Injects active constraints into prompts.
 
-## Dependencies (Explicit Paths)
+## Dependencies
 - `llmAgent` (passed in)
   - `executePrompt(prompt: string, options: { mode: 'fast', responseShape: 'json' }) -> Promise<object | string>`
 
-## Exports
+## Public Exports
 - `askLLMForFiles(llmAgent: object, userRequest: string, directoryTree: string, currentContext: string | null, constraints: string) -> Promise<{ done: boolean, files: string[], reason: string }>`
 - `buildConstraintsSection(options: object) -> string`
 
-## `askLLMForFiles` Flow
+## `askLLMForFiles`
+Builds the prompt, calls the LLM, and normalizes the response.
+
+Signature:
+```
+askLLMForFiles(llmAgent: object, userRequest: string, directoryTree: string, currentContext: string | null, constraints: string) -> Promise<{ done: boolean, files: string[], reason: string }>
+```
+
+Parameters:
+- `llmAgent`: LLM agent with `executePrompt`
+- `userRequest`: user prompt
+- `directoryTree`: tree listing string
+- `currentContext`: existing context assigns or null
+- `constraints`: constraints text or empty string
+
+Returns:
+- `{ done, files, reason }` normalized
+
+Flow:
 1. Choose prompt builder: `buildFollowUpPrompt` if `currentContext` is truthy, else `buildInitialPrompt`
 2. Call `llmAgent.executePrompt(prompt, { mode: 'fast', responseShape: 'json' })`
 3. Parse response via `parseResponse(response)`
-4. Return normalized `{ done: boolean, files: string[], reason: string }`
+4. Return normalized `{ done, files, reason }`
 
 ## LLM Call Signature (Must Match Exactly)
 ```javascript
 llmAgent.executePrompt(prompt, { mode: 'fast', responseShape: 'json' })
 ```
 
-## `buildConstraintsSection(options)` Logic
-Builds an `## Active Constraints` section from options:
+## `buildConstraintsSection(options)`
+Builds an `## Active Constraints` section from options.
+
+Signature:
+```
+buildConstraintsSection(options: object) -> string
+```
+
+Rules:
 - `options.filter` → "ONLY select files whose name matches the pattern: ..."
 - `options.exclude` → "Do NOT select files whose name matches the pattern: ..."
 - `options.maxFiles` → "Maximum N files can be read in total. Be selective."
 - `options.include` → "The following files are already force-included and loaded. Do NOT request them again: ..."
 - `options.dir !== '.'` → "Only select files within the directory: ..."
-- Returns empty string if no constraints are active.
+- Returns empty string if no constraints are active
 
-## Prompt Templates
-
-### Initial Prompt Structure
-```
-Role: context-loading assistant
-## Request: user request
-## Project Directory Structure: tree text
-## Active Constraints: (if any)
-## Instructions: select relevant files (3-8), avoid binaries/locks, use exact paths
-## Response Format: JSON { done, files, reason }
-```
-
-### Follow-Up Prompt Structure
-```
-Role: context-loading assistant (has already read some files)
-## Original Request: user request
-## Project Directory Structure: tree text
-## Already Loaded Context: current context assigns
-## Active Constraints: (if any)
-## Instructions: check imports/references, don't re-request, mark done if sufficient
-## Response Format: JSON { done, files, reason }
-```
+## Internal Functions
+- `buildInitialPrompt(userRequest, directoryTree, constraints)`
+- `buildFollowUpPrompt(userRequest, directoryTree, currentContext, constraints)`
+- `parseResponse(response)`
+- `normalizeResponse(obj)`
 
 ## `parseResponse(response)` Logic
 1. If `response` is object (non-null) → `normalizeResponse(response)`

@@ -1,38 +1,38 @@
 # Load Spec Loader Skill - Implementation Specification
 
 ## Purpose
-The load-spec-loader skill provides the contents of a bundled `specsLoader.html` asset so that other skills can write it into the current working directory without needing access to the source repository path.
+Returns the contents of the bundled `specsLoader.html` asset as a string so other skills can write it into the current working directory without needing to know the repo path.
 
-## Capabilities
-- Returns the full HTML content of `specsLoader.html` as a string
-- Works independently of the current working directory
+## Dependencies (Native Libraries)
+- `fs/promises`
+- `url`
+- `path`
 
-## Input Contract
-- The context object may include `promptText`, but this skill ignores it.
+## Public Exports
+- `action() -> Promise<string>`
 
-## Output Contract
-- Returns a string containing the full HTML file contents
-- Throws on file read errors
+## `action()`
+Loads `specsLoader.html` from the same directory as this module.
 
-## Implementation Details
+Signature:
+```
+action() -> Promise<string>
+```
 
-### Asset Resolution
-The skill resolves the asset path relative to its own module file, using `import.meta.url`:
-1. Convert `import.meta.url` to a filesystem path
-2. Resolve the current directory
-3. Read `specsLoader.html` from that directory
+Returns:
+- The full HTML file contents as a string
 
-### Hardcoded Asset Path (Relative)
-`./specsLoader.html`
+Throws:
+- Any `readFile` error (no custom handling)
 
-### LLM Interaction
-- None (no LLM calls)
-
-## Dependencies
-- Node.js `fs/promises`, `url`, and `path`
+Implementation details:
+- Resolves `specsLoader.html` relative to `import.meta.url`
+- Uses:
+  - `fileURLToPath(import.meta.url)`
+  - `dirname(currentFile)`
+  - `join(currentDir, 'specsLoader.html')`
 
 ## Code Generation Guidelines
-When regenerating this skill:
-1. Resolve the module directory via `import.meta.url`
-2. Read the HTML asset from the same directory
-3. Return the full string contents without modification
+- Resolve the module directory via `import.meta.url`
+- Read the HTML asset from the same directory
+- Return the full string contents without modification

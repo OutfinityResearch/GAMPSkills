@@ -7,9 +7,9 @@ Lists directory contents recursively with configurable depth, filter, and exclud
 - `node:fs/promises`
 - `node:path`
 
-## Exports
+## Public Exports
 - `listDirectory(options: { dir?: string, filter?: string | null, maxDepth?: number, exclude?: string | null }) -> Promise<string[]>` — flat array of relative paths
-- `buildMatcher(globPattern: string) -> (value: string) => boolean` — glob-to-regex matcher
+- `buildMatcher(pattern: string) -> (value: string) => boolean` — glob-to-regex matcher
 
 ## Constants (Hardcoded)
 ```javascript
@@ -18,32 +18,64 @@ const EXCLUDED_DIRS = new Set([
 ]);
 ```
 
-## `listDirectory(options)` Flow
+## `listDirectory(options)`
+Recursively lists directory entries based on options.
+
+Signature:
+```
+listDirectory(options: { dir?: string, filter?: string | null, maxDepth?: number, exclude?: string | null }) -> Promise<string[]>
+```
+
+Parameters:
+- `dir`: base directory (default '.')
+- `filter`: optional glob-like pattern for files
+- `maxDepth`: recursion depth (default 2)
+- `exclude`: optional glob-like pattern for entries
+
+Returns:
+- `Promise<string[]>` of Unix-style relative paths
+
+Flow:
 1. Destructure options: `{ dir = '.', filter = null, maxDepth = 2, exclude = null }`
 2. Build matchers: `filterMatcher` from `filter`, `excludeMatcher` from `exclude` (both nullable)
 3. Resolve `dir` to absolute path via `resolve(dir)`
 4. Determine if default exclusions should apply via `shouldApplyExclusions(dir)`:
    - Split `dir` path into segments
    - If any segment matches an entry in `EXCLUDED_DIRS`, exclusions are disabled
-   - This allows `dir: "./node_modules"` or `dir: "./dist"` to work without filtering
 5. Recursive walk starting at depth 1:
-   a. Stop if `depth > maxDepth`
-   b. Try `readdir(currentDir, { withFileTypes: true })`, silently skip on error
-   c. For each entry:
-      - Skip if exclusions are active AND entry name is in `EXCLUDED_DIRS`
-      - Skip if entry is a hidden directory (starts with `.`)
-      - Skip if `excludeMatcher` matches entry name
-      - If directory: push to entries, recurse deeper
-      - If file: skip if `filterMatcher` exists and doesn't match entry name, otherwise push
+   - Stop if `depth > maxDepth`
+   - Try `readdir(currentDir, { withFileTypes: true })`, silently skip on error
+   - For each entry:
+     - Skip if exclusions are active AND entry name is in `EXCLUDED_DIRS`
+     - Skip if entry is a hidden directory (starts with `.`)
+     - Skip if `excludeMatcher` matches entry name
+     - If directory: push to entries, recurse deeper
+     - If file: skip if `filterMatcher` exists and doesn't match entry name, otherwise push
 6. Return flat array of relative paths (relative to `dir`)
 
-## `buildMatcher(pattern)` Logic
+## `buildMatcher(pattern)`
+Builds a glob-like matcher for a single pattern.
+
+Signature:
+```
+buildMatcher(pattern: string) -> (value: string) => boolean
+```
+
+Parameters:
+- `pattern`: glob-like string with `*` and `?` wildcards
+
+Returns:
+- A predicate function that tests a value string
+
+Logic:
 - If pattern is falsy → return `() => true`
 - Escape regex special characters: `.+^${}()|[]\`
 - Replace `*` → `.*`
 - Replace `?` → `.`
 - Wrap in `^...$` anchors
-- Return function that tests value against compiled regex
+
+## Internal Functions
+- `shouldApplyExclusions(dir: string) -> boolean`
 
 ## Key Behaviors
 - `filter` applies only to files, not directories (directories are always traversed)
@@ -52,7 +84,7 @@ const EXCLUDED_DIRS = new Set([
 - Unreadable directories are silently skipped (no error thrown)
 - Paths use `/` separator (Unix-style relative paths)
 - If `dir` targets an excluded directory (e.g., `node_modules`, `dist`), default exclusions are disabled for the entire walk
-- `include` files (handled by context.mjs) bypass listing entirely and read directly, so they always work regardless of EXCLUDED_DIRS
+- `include` files (handled by context.mjs) bypass listing entirely and read directly
 
 ## Code Generation Guidelines
 - EXCLUDED_DIRS must match the hardcoded set exactly
