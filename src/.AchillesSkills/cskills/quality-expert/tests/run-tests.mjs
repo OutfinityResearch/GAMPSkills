@@ -12,24 +12,28 @@ if (typeof action !== 'function') {
 
 const results = [];
 for (const test of tests) {
+  const { promptText, llmResponse } = test.input;
+
   const mockLlmAgent = {
     executePrompt: async (prompt, options) => {
-      // This mock simulates the LLM returning a specific JSON string response for the test
-      return Promise.resolve(test.llmResponse);
+      return Promise.resolve(llmResponse);
     }
   };
 
   let actual;
+  let pass;
+
   try {
-    actual = await action({ 
+    actual = await action({
       llmAgent: mockLlmAgent,
-      promptText: test.input 
+      promptText: promptText
     });
+    pass = JSON.stringify(actual) === JSON.stringify(test.expectedOutput);
   } catch (error) {
     actual = error?.message || String(error);
+    pass = false; // Any error in a positive test is a failure.
   }
-  
-  const pass = JSON.stringify(actual) === JSON.stringify(test.expectedOutput);
+
   results.push({
     name: test.name,
     input: test.input,

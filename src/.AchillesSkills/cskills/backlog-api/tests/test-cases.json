@@ -1,0 +1,60 @@
+{
+  "tests": [
+    {
+      "name": "Create a 'specs' backlog",
+      "input": {
+        "promptText": "createBacklog specs"
+      },
+      "expectedOutput": "{\"status\":\"created\",\"type\":\"specs\"}"
+    },
+    {
+      "name": "Add a new task to 'docs' backlog",
+      "input": {
+        "promptText": "addTask docs initialContent: Write the introduction."
+      },
+      "expectedOutput": "{\"id\":\"task-001\",\"content\":\"Write the introduction.\",\"status\":\"new\"}"
+    },
+    {
+      "name": "Update a task with JSON data",
+      "input": {
+        "promptText": "updateTask specs taskId: spec-123 updates: { \"priority\": \"high\", \"status\": \"in-progress\" }"
+      },
+      "expectedOutput": "{\"id\":\"spec-123\",\"priority\":\"high\",\"status\":\"in-progress\"}"
+    },
+    {
+      "name": "Approve a task with a resolution",
+      "input": {
+        "promptText": "approveTask docs taskId: doc-456 resolution: Approved by management"
+      },
+      "expectedOutput": "Task doc-456 approved."
+    },
+    {
+      "name": "Get all approved tasks for 'specs'",
+      "input": {
+        "promptText": "getApprovedTasks specs"
+      },
+      "expectedOutput": "[{\"id\":\"spec-101\",\"status\":\"approved\"},{\"id\":\"spec-102\",\"status\":\"approved\"}]"
+    },
+    {
+      "name": "Get all new tasks for 'docs'",
+      "input": {
+        "promptText": "getNewTasks docs"
+      },
+      "expectedOutput": "[{\"id\":\"doc-201\",\"status\":\"new\"}]"
+    },
+    {
+      "name": "Mark a task as done",
+      "input": {
+        "promptText": "markDone specs taskId: spec-123"
+      },
+      "expectedOutput": "{\"id\":\"spec-123\",\"status\":\"done\"}"
+    },
+    {
+      "name": "Add tasks from a multi-line text block",
+      "input": {
+        "promptText": "addTasksFromText docs tasksText: - Task A\n- Task B\n- Task C"
+      },
+      "expectedOutput": "{\"added\":3,\"ids\":[\"doc-901\",\"doc-902\",\"doc-903\"]}"
+    }
+  ]
+}

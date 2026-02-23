@@ -1,40 +1,36 @@
 {
   "tests": [
     {
-      "name": "DS profile review with changes",
-      "input": "fileContent: old ds content profile: ds context: some ds context",
-      "llmResponse": "{\"content\":\"new ds content\"}",
-      "expectedOutput": "new ds content"
+      "name": "DS profile review results in content update",
+      "input": {
+        "promptText": "fileContent: This is the original content. profile: ds context: Please fix this.",
+        "llmResponse": "{\"content\":\"This is the updated content.\"}"
+      },
+      "expectedOutput": "This is the updated content."
     },
     {
-      "name": "DS profile review with no changes",
-      "input": "fileContent: original ds content profile: ds context: some ds context",
-      "llmResponse": "{\"content\":\"\"}",
-      "expectedOutput": "original ds content"
+      "name": "FDS profile review results in no changes",
+      "input": {
+        "promptText": "fileContent: This content is perfect. profile: fds context: Review this.",
+        "llmResponse": "{\"content\":\"\"}"
+      },
+      "expectedOutput": "This content is perfect."
     },
     {
-      "name": "FDS profile review with changes",
-      "input": "fileContent: old fds content profile: fds context: some fds context",
-      "llmResponse": "{\"content\":\"new fds content\"}",
-      "expectedOutput": "new fds content"
+      "name": "Handles 'depends on' clause correctly",
+      "input": {
+        "promptText": "depends on: [\"some/file.js\"]\nfileContent: Some code. profile: ds context: No context.",
+        "llmResponse": "{\"content\":\"Some updated code.\"}"
+      },
+      "expectedOutput": "Some updated code."
     },
     {
-      "name": "FDS profile review with no changes (whitespace)",
-      "input": "fileContent: original fds content profile: fds context: some fds context",
-      "llmResponse": "{\"content\":\"  \"}",
-      "expectedOutput": "original fds content"
-    },
-    {
-      "name": "Strips 'depends_on' from prompt before processing",
-      "input": "depends_on: [\"file1.js\"]\n\nfileContent: some code to review profile: ds context: a simple review",
-      "llmResponse": "{\"content\":\"updated code\"}",
-      "expectedOutput": "updated code"
-    },
-    {
-      "name": "Handles multi-line file content correctly",
-      "input": "fileContent: line 1\nline 2\nline 3 profile: fds context: check formatting",
-      "llmResponse": "{\"content\":\"line 1\\nline 2\\nline 3 - updated\"}",
-      "expectedOutput": "line 1\nline 2\nline 3 - updated"
+      "name": "Handles multiline content and an empty context string",
+      "input": {
+        "promptText": "fileContent: First line.\nSecond line. profile: fds context: ",
+        "llmResponse": "{\"content\":\"First line fixed.\\nSecond line fixed.\"}"
+      },
+      "expectedOutput": "First line fixed.\nSecond line fixed."
     }
   ]
 }
