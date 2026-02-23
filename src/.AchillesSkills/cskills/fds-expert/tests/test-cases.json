@@ -1,0 +1,45 @@
+{
+  "tests": [
+    {
+      "name": "Resolves prompt from context.prompt",
+      "input": {
+        "prompt": "Create a user service"
+      },
+      "expectedOutput": "FDS for create a user service"
+    },
+    {
+      "name": "Resolves prompt from context.input",
+      "input": {
+        "input": "Create an auth module"
+      },
+      "expectedOutput": "FDS for create an auth module"
+    },
+    {
+      "name": "Prioritizes context.prompt over context.input",
+      "input": {
+        "prompt": "Use prompt field",
+        "input": "Do not use input field"
+      },
+      "expectedOutput": "FDS from prompt field"
+    },
+    {
+      "name": "Resolves prompt from first other property",
+      "input": {
+        "task": "Design a logger utility"
+      },
+      "expectedOutput": "FDS for design a logger utility"
+    },
+    {
+      "name": "Sanitizes prompt with Depends on",
+      "input": {
+        "prompt": "Create a database schema\nDepends on: #123"
+      },
+      "expectedOutput": "FDS for create a database schema"
+    },
+    {
+      "name": "Returns null when no prompt is resolved",
+      "input": {},
+      "expectedOutput": null
+    }
+  ]
+}

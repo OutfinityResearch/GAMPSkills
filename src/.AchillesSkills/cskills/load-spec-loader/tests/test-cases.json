@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {
+      "name": "Load spec loader HTML content",
+      "input": null,
+      "expectedOutput": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Spec Loader</title>\n</head>\n<body>\n    <h1>Spec Loader</h1>\n    <script>\n        // This script would load and display specifications.\n        console.log(\"Loading specs...\");\n    </script>\n</body>\n</html>"
+    }
+  ]
+}

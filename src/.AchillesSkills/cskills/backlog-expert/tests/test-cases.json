@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "tasks-basic",
+      "input": {
+        "promptText": "Generate backlog tasks for authentication module specs.md",
+        "llmResponse": "1. Update specs/auth.md to include login flow\n2. Update specs/api.md for auth endpoints"
+      },
+      "expectedOutput": "1. Update specs/auth.md to include login flow\n2. Update specs/api.md for auth endpoints"
+    },
+    {
+      "name": "options-list",
+      "input": {
+        "promptText": "Provide options for task about caching in specs/cache.md",
+        "llmResponse": "1. Use in-memory LRU\n2. Use Redis"
+      },
+      "expectedOutput": "1. Use in-memory LRU\n2. Use Redis"
+    },
+    {
+      "name": "resolution-text",
+      "input": {
+        "promptText": "Provide resolution for task in specs/deploy.md",
+        "llmResponse": "We will proceed with blue-green deployment."
+      },
+      "expectedOutput": "We will proceed with blue-green deployment."
+    },
+    {
+      "name": "trimming-response",
+      "input": {
+        "promptText": "Give update for specs/monitoring.md",
+        "llmResponse": "  Monitoring setup complete.  "
+      },
+      "expectedOutput": "Monitoring setup complete."
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Write a new file with multiline content",
+      "input": "writeFile ./temp-fs-test-data/file1.txt options: content: First line.\nSecond line.",
+      "expectedOutput": "Wrote file at /usr/src/app/temp-fs-test-data/file1.txt successfully."
+    },
+    {
+      "name": "Read the created file",
+      "input": "readFile ./temp-fs-test-data/file1.txt",
+      "expectedOutput": "FILE_CONTENT:\nFirst line.\nSecond line."
+    },
+    {
+      "name": "Append content to the file",
+      "input": "appendFile ./temp-fs-test-data/file1.txt options: content: \nThird line.",
+      "expectedOutput": "Appended content at /usr/src/app/temp-fs-test-data/file1.txt successfully."
+    },
+    {
+      "name": "Move the file to a new path",
+      "input": "moveFile ./temp-fs-test-data/file1.txt options: destination: ./temp-fs-test-data/file2.txt",
+      "expectedOutput": "Moved file from /usr/src/app/temp-fs-test-data/file1.txt to /usr/src/app/temp-fs-test-data/file2.txt successfully."
+    },
+    {
+      "name": "List the directory contents after move",
+      "input": "listDirectory ./temp-fs-test-data",
+      "expectedOutput": "Listed entries at /usr/src/app/temp-fs-test-data successfully: [\"file2.txt\"]."
+    },
+    {
+      "name": "Delete the final file",
+      "input": "deleteFile ./temp-fs-test-data/file2.txt",
+      "expectedOutput": "Deleted file at /usr/src/app/temp-fs-test-data/file2.txt successfully."
+    }
+  ]
+}

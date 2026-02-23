@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Generates DS for a simple feature",
+      "input": "Create a user login page",
+      "expectedOutput": "The system shall provide a user login page to authenticate users. This is necessary for securing access to protected areas of the application."
+    },
+    {
+      "name": "Trims whitespace from LLM response",
+      "input": "Design the main dashboard",
+      "expectedOutput": "The main dashboard will serve as the central hub for users after login. It will display key metrics and provide navigation to other sections."
+    },
+    {
+      "name": "Sanitizes 'Depends on' from prompt",
+      "input": "Create the user profile editing feature.\nDepends on: 123-user-login",
+      "expectedOutput": "Users must be able to edit their profile information. This includes changing their name, email, and password, which is a core requirement for account management."
+    },
+    {
+      "name": "Handles an empty prompt string",
+      "input": "",
+      "expectedOutput": "The purpose of this component is not yet defined. A detailed prompt is required to generate a meaningful design specification."
+    }
+  ]
+}

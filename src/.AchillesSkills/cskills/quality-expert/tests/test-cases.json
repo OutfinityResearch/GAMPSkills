@@ -1,0 +1,40 @@
+{
+  "tests": [
+    {
+      "name": "DS profile review with changes",
+      "input": "fileContent: old ds content profile: ds context: some ds context",
+      "llmResponse": "{\"content\":\"new ds content\"}",
+      "expectedOutput": "new ds content"
+    },
+    {
+      "name": "DS profile review with no changes",
+      "input": "fileContent: original ds content profile: ds context: some ds context",
+      "llmResponse": "{\"content\":\"\"}",
+      "expectedOutput": "original ds content"
+    },
+    {
+      "name": "FDS profile review with changes",
+      "input": "fileContent: old fds content profile: fds context: some fds context",
+      "llmResponse": "{\"content\":\"new fds content\"}",
+      "expectedOutput": "new fds content"
+    },
+    {
+      "name": "FDS profile review with no changes (whitespace)",
+      "input": "fileContent: original fds content profile: fds context: some fds context",
+      "llmResponse": "{\"content\":\"  \"}",
+      "expectedOutput": "original fds content"
+    },
+    {
+      "name": "Strips 'depends_on' from prompt before processing",
+      "input": "depends_on: [\"file1.js\"]\n\nfileContent: some code to review profile: ds context: a simple review",
+      "llmResponse": "{\"content\":\"updated code\"}",
+      "expectedOutput": "updated code"
+    },
+    {
+      "name": "Handles multi-line file content correctly",
+      "input": "fileContent: line 1\nline 2\nline 3 profile: fds context: check formatting",
+      "llmResponse": "{\"content\":\"line 1\\nline 2\\nline 3 - updated\"}",
+      "expectedOutput": "line 1\nline 2\nline 3 - updated"
+    }
+  ]
+}
