@@ -6,10 +6,8 @@ Reviews and fixes the content of a single file based on a selected profile and s
 ## Dependencies (Explicit Paths)
 - `../../../../utils/ArgumentResolver.mjs`
   - `stripDependsOn`
-- `../ds-expert/src/index.mjs`
-  - `DS_STRUCTURE_PROFILE`
-- `../fds-expert/src/index.mjs`
-  - `FDS_STRUCTURE_PROFILE`
+- `../../ds-expert/src/DS_structure.md`
+- `../../fds-expert/src/FDS_structure.md`
 
 ## Public Exports
 - `action(context: { llmAgent: object, promptText: string }) -> Promise<string>`

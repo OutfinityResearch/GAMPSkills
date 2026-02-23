@@ -1,6 +1,6 @@
 import {stripDependsOn} from '../../../../utils/ArgumentResolver.mjs';
-import {DS_STRUCTURE_PROFILE} from '../ds-expert/src/index.mjs';
-import {FDS_STRUCTURE_PROFILE} from '../fds-expert/src/index.mjs';
+import DS_STRUCTURE_PROFILE from '../../ds-expert/src/DS_structure.md';
+import FDS_STRUCTURE_PROFILE from '../../fds-expert/src/FDS_structure.md';
 
 function buildReviewPrompt({ fileContent, profile, context }) {
   const profilePrompt = getProfilePrompt(profile);
