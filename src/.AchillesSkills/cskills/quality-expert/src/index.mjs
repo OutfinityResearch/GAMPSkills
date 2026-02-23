@@ -1,6 +1,17 @@
 import {stripDependsOn} from '../../../../utils/ArgumentResolver.mjs';
-import DS_STRUCTURE_PROFILE from '../../ds-expert/src/DS_structure.md';
-import FDS_STRUCTURE_PROFILE from '../../fds-expert/src/FDS_structure.md';
+import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DS_STRUCTURE_PROFILE = await readFile(
+  join(__dirname, '../ds-expert/src/DS_structure.md'),
+  'utf8'
+);
+const FDS_STRUCTURE_PROFILE = await readFile(
+  join(__dirname, '../fds-expert/src/FDS_structure.md'),
+  'utf8'
+);
 
 function buildReviewPrompt({ fileContent, profile, context }) {
   const profilePrompt = getProfilePrompt(profile);

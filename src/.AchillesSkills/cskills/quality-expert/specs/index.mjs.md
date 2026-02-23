@@ -6,8 +6,9 @@ Reviews and fixes the content of a single file based on a selected profile and s
 ## Dependencies (Explicit Paths)
 - `../../../../utils/ArgumentResolver.mjs`
   - `stripDependsOn`
-- `../../ds-expert/src/DS_structure.md`
-- `../../fds-expert/src/FDS_structure.md`
+- `node:fs/promises`
+- `node:path`
+- `node:url`
 
 ## Public Exports
 - `action(context: { llmAgent: object, promptText: string }) -> Promise<string>`
@@ -37,6 +38,10 @@ Behavior:
 - `fds` → `FDS_STRUCTURE_PROFILE`
 - `docs` or `code` → throws `quality-expert: Unsupported profile "<profile>" (TBD).`
 - otherwise → throws `quality-expert: Unknown profile "<profile>".`
+
+Profile loading:
+- `DS_STRUCTURE_PROFILE` is loaded from `../ds-expert/src/DS_structure.md` (relative to this module) via `readFile`
+- `FDS_STRUCTURE_PROFILE` is loaded from `../fds-expert/src/FDS_structure.md` (relative to this module) via `readFile`
 
 ## `parseInput(rawInput)`
 Parses `fileContent`, `profile`, and `context` from a single string.
