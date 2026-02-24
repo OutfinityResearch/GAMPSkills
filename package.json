@@ -1,9 +1,0 @@
-{
-  "name": "gamp-skills",
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "postinstall": "cd node_modules; git clone https://github.com/OutfinityResearch/achillesAgentLib.git; cd achillesAgentLib; npm install"
-
-  }
-}
