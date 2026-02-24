@@ -32,5 +32,6 @@ It will also create initial DS files with content derived from the user prompt.
 ## Allowed Skills
 - file-system
 - ds-expert
+- quality-expert
 - backlog-api
 - load-spec-loader
