@@ -1,4 +1,5 @@
-import * as BacklogManager from '../../../../BacklogManager.mjs';
+import { resolve } from 'path';
+import * as BacklogManager from 'achillesAgentLib/BacklogManager';
 import { extractArgumentsWithLLM } from '../../../../utils/ArgumentResolver.mjs';
 
 export async function action(context) {
@@ -139,39 +140,41 @@ async function executeBacklogOperation({ operation, type, taskId, resolution, up
         throw new Error('Invalid input: operation is required.');
     }
 
+    const backlogPath = resolve(`./${type}_backlog.backlog`);
+
     switch (operation) {
         case 'createBacklog':
-            return stringifyIfNeeded(await BacklogManager.createBacklog(type));
+            return stringifyIfNeeded(await BacklogManager.createBacklog(backlogPath));
 
         case 'loadBacklog':
-            return stringifyIfNeeded(await BacklogManager.loadBacklog(type));
+            return stringifyIfNeeded(await BacklogManager.loadBacklog(backlogPath));
         
         case 'getTask':
-            return stringifyIfNeeded(await BacklogManager.getTask(type, taskId));
+            return stringifyIfNeeded(await BacklogManager.getTask(backlogPath, taskId));
         
         case 'approveTask':
-            return stringifyIfNeeded(await BacklogManager.approveTask(type, taskId, resolution));
+            return stringifyIfNeeded(await BacklogManager.approveTask(backlogPath, taskId, resolution));
         
         case 'getApprovedTasks':
-            return stringifyIfNeeded(await BacklogManager.getApprovedTasks(type));
+            return stringifyIfNeeded(await BacklogManager.getApprovedTasks(backlogPath));
         
         case 'getNewTasks':
-            return stringifyIfNeeded(await BacklogManager.getNewTasks(type));
+            return stringifyIfNeeded(await BacklogManager.getNewTasks(backlogPath));
         
         case 'markDone':
-            return stringifyIfNeeded(await BacklogManager.markDone(type, taskId));
+            return stringifyIfNeeded(await BacklogManager.markDone(backlogPath, taskId));
 
         case 'addOptionsFromText':
-            return stringifyIfNeeded(await BacklogManager.addOptionsFromText(type, taskId, optionsText));
+            return stringifyIfNeeded(await BacklogManager.addOptionsFromText(backlogPath, taskId, optionsText));
 
         case 'addTasksFromText':
-            return stringifyIfNeeded(await BacklogManager.addTasksFromText(type, tasksText));
+            return stringifyIfNeeded(await BacklogManager.addTasksFromText(backlogPath, tasksText));
 
         case 'updateTask':
-            return stringifyIfNeeded(await BacklogManager.updateTask(type, taskId, updates));
+            return stringifyIfNeeded(await BacklogManager.updateTask(backlogPath, taskId, updates));
 
         case 'addTask':
-            return stringifyIfNeeded(await BacklogManager.addTask(type, initialContent));
+            return stringifyIfNeeded(await BacklogManager.addTask(backlogPath, initialContent));
         
         default:
             throw new Error(`Unknown operation: ${operation}`);
