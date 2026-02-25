@@ -40,8 +40,8 @@ Behavior:
 - otherwise → throws `quality-expert: Unknown profile "<profile>".`
 
 Profile loading:
-- `DS_STRUCTURE_PROFILE` is loaded from `../ds-expert/src/DS_structure.md` (relative to this module) via `readFile`
-- `FDS_STRUCTURE_PROFILE` is loaded from `../fds-expert/src/FDS_structure.md` (relative to this module) via `readFile`
+- `DS_STRUCTURE_PROFILE` is loaded from `../../ds-expert/src/DS_structure.md` (relative to this module) via `readFile`
+- `FDS_STRUCTURE_PROFILE` is loaded from `../../fds-expert/src/FDS_structure.md` (relative to this module) via `readFile`
 
 ## `parseInput(rawInput)`
 Parses `fileContent`, `profile`, and `context` from a single string.

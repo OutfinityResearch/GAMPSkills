@@ -1,4 +1,4 @@
-import {stripDependsOn} from '../../../../utils/ArgumentResolver.mjs';
+import { stripDependsOn } from '../../../../utils/ArgumentResolver.mjs';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,25 +8,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let DS_STRUCTURE_PROFILE;
 let FDS_STRUCTURE_PROFILE;
 
-// Using Promise.all to load profiles in parallel at startup.
 await Promise.all([
-  readFile(
-    join(__dirname, '../ds-expert/src/DS_structure.md'),
-    'utf8'
-  ).then(content => DS_STRUCTURE_PROFILE = content),
-  readFile(
-    join(__dirname, '../fds-expert/src/FDS_structure.md'),
-    'utf8'
-  ).then(content => FDS_STRUCTURE_PROFILE = content)
+  readFile(join(__dirname, '../../ds-expert/src/DS_structure.md'), 'utf8').then(
+    content => (DS_STRUCTURE_PROFILE = content)
+  ),
+  readFile(join(__dirname, '../../fds-expert/src/FDS_structure.md'), 'utf8').then(
+    content => (FDS_STRUCTURE_PROFILE = content)
+  )
 ]);
 
-
-/**
- * Selects the structure profile string based on the profile name.
- * @param {string} profile - The name of the profile ('ds', 'fds').
- * @returns {string} The content of the selected profile.
- * @throws {Error} If the profile is unknown or unsupported.
- */
 function getProfilePrompt(profile) {
   const normalized = String(profile || '').trim().toLowerCase();
   switch (normalized) {
@@ -42,12 +32,6 @@ function getProfilePrompt(profile) {
   }
 }
 
-/**
- * Parses the raw input string to extract fileContent, profile, and context.
- * @param {string} rawInput - The raw input string.
- * @returns {{fileContent: string, profile: string, context: string}} The parsed components.
- * @throws {Error} If the input is invalid or missing required fields.
- */
 function parseInput(rawInput) {
   const text = String(rawInput || '').trim();
   if (!text) {
@@ -58,7 +42,9 @@ function parseInput(rawInput) {
   const match = text.match(regex);
 
   if (!match) {
-    throw new Error('quality-expert: Invalid input format. Expected: fileContent: ... profile: ... context: ...');
+    throw new Error(
+      'quality-expert: Invalid input format. Expected: fileContent: ... profile: ... context: ...'
+    );
   }
 
   const [, fileContent, profile, context] = match.map(m => m.trim());
@@ -69,20 +55,10 @@ function parseInput(rawInput) {
   if (!profile) {
     throw new Error('quality-expert: Missing required parameter profile.');
   }
-  // Context can be empty, so no check for it.
 
   return { fileContent, profile, context };
 }
 
-
-/**
- * Builds the LLM prompt for quality review.
- * @param {object} params
- * @param {string} params.fileContent - The content of the file to review.
- * @param {string} params.profile - The profile to use for the review.
- * @param {string} params.context - Additional context for the review.
- * @returns {string} The complete prompt for the LLM.
- */
 function buildReviewPrompt({ fileContent, profile, context }) {
   const profilePrompt = getProfilePrompt(profile);
   return `Review and, if needed, fix the file content using the structure defined by the selected profile above.
@@ -103,14 +79,6 @@ Context:
 ${context}`;
 }
 
-/**
- * Executes the quality review by interacting with the LLM.
- * @param {object} params
- * @param {string} params.prompt - The raw input prompt containing file content, profile, and context.
- * @param {object} params.llmAgent - The LLM agent for executing prompts.
- * @returns {Promise<string>} The updated file content or the original content if no changes were needed.
- * @throws {Error} If the LLM response is invalid.
- */
 async function executeQualityReview({ prompt, llmAgent }) {
   const { fileContent, profile, context } = parseInput(prompt);
   const reviewPrompt = buildReviewPrompt({ fileContent, profile, context });
@@ -132,22 +100,13 @@ async function executeQualityReview({ prompt, llmAgent }) {
     throw new Error('quality-expert: LLM JSON response must include a "content" field of type string.');
   }
 
-  // If content is empty string, return original content. Otherwise, return new content.
   return parsed.content || fileContent;
 }
 
-
-/**
- * Main action function for the Quality Expert skill.
- * @param {object} context - The action context.
- * @param {object} context.llmAgent - The LLM agent.
- * @param {string} context.promptText - The full prompt text for the action.
- * @returns {Promise<string>} The result of the quality review.
- */
 export async function action(context) {
   const { llmAgent, promptText } = context;
   if (!llmAgent || !promptText) {
-      throw new Error("quality-expert: Missing required 'llmAgent' or 'promptText' in context.");
+    throw new Error("quality-expert: Missing required 'llmAgent' or 'promptText' in context.");
   }
   const sanitizedPrompt = stripDependsOn(promptText);
   return await executeQualityReview({ prompt: sanitizedPrompt, llmAgent });
