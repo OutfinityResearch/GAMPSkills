@@ -4,7 +4,7 @@
 Generate file-level technical specifications (FDS) from existing DS files and the user prompt, creating one FDS per intended source file under `./docs/specs/src`.
 
 ## Preparation
-1. Using context-loader load all DS files that are only at the level `./docs/specs`. They have .md extension.
+1. Using context-loader load all DS files that are only at the level `./docs/specs`. They have .md extension. Include `./AGENTS.md`.
 
 ## Allowed Preparation Skills
 - context-loader
@@ -17,6 +17,7 @@ Generate file-level technical specifications (FDS) from existing DS files and th
     - When referencing other variables in this step always give a short explanation of the variables content. Example: Here are the DS files that you need to use as guidelines $dsFiles 
 2. Call quality-expert to review the result from step 1, use profile fds and provide as context the same one from step 1.
 3. Write the result from step 2 to `./docs/specs/src` using file-system.
+4. As a final step, using project-manifest-expert update `./AGENTS.md` once with the paths of the files created, add any extra general relevant information for the project
 
 - Create the source code folder structure as if you were implementing the project, but write FDS documents instead of code.
 - Note: FDS stands for File Design Specification
@@ -27,3 +28,4 @@ Generate file-level technical specifications (FDS) from existing DS files and th
 - fds-expert
 - quality-expert
 - fds-planner
+- project-manifest-expert

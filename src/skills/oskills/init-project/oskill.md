@@ -21,7 +21,7 @@ It will also create initial DS files with content derived from the user prompt.
 3. For each DS generated call quality-expert with profile ds.
 4. Write the result from step 3 to the same file path using file-system.
 5. Get specLoader content using load-spec-loader and then write it to `./docs/specLoader.html` using file-system.
-6. Add or update `./AGENTS.md` to include a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN).
+6. use file-system to add `./AGENTS.md` with the following content: a short specs map and a note that all documents, code, HTML docs, and specs are in English (even if interactive communication is RO/EN). General instructions about the project.
 
 - For any action that must run after a previous action, pass the previous action's result as a last parameter to the dependent action to enforce execution order.
   Example: @ds01 ds-expert "generate content for DS01"

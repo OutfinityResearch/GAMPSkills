@@ -1,7 +1,7 @@
-# backlog-specs-review
+# review-specs
 
 ## Intents
-The backlog-specs-review skill analyzes existing specification files for gaps, inconsistencies, errors, and areas needing improvement. It examines all markdown files under the project's specs directory, records findings as issues and proposed fixes in the specs backlog.
+The review-specs skill analyzes existing specification files for gaps, inconsistencies, errors, and areas needing improvement. It examines all markdown files under the project's specs directory, records findings as issues and proposed fixes in the specs backlog.
 
 ## Preparation
 
