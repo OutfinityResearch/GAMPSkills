@@ -1,0 +1,5 @@
+alpha
+--begin-context-abc--
+inside marker-like content
+--end-context-abc--
+omega
