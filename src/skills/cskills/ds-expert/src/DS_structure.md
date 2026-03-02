@@ -20,10 +20,6 @@ State what the product is responsible for and, equally important, what it is not
 
 Define the conditions under which the project is considered successful. These should be outcome oriented and, where feasible, measurable, while remaining free of implementation specifics. If measurement is not yet possible, state observable indicators of success and how they would be assessed.
 
-## Pointers to Supporting DS Files
-
-Optionally provide a brief map of other DS documents that carry detailed constraints and designs. The Global DS should remain short, stable, and authoritative, while the rest of the DS set provides modular depth.
-
 ## Affected Files
 
 This section is required. List the FDS files that relate to this DS and provide a short description of what each will export at a high level, such as key classes or major methods. Use the format: ./path/to/file - description about the role of the file, what it does,\n Exports - what it exports. An FDS (File Design Specification) is a concise technical spec for a single source file that defines its responsibilities and external contract. Keep this section as an implementation plan for the upcoming FDS set and avoid method input or output details.
