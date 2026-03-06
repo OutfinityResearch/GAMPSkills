@@ -7,7 +7,6 @@ import { parseKeyValueOptionsWithMultiline } from '../../../../utils/optionsPars
 export async function action(context) {
     const { llmAgent, promptText } = context;
 
-    // Otherwise, resolve from natural language input
     if (!promptText) {
         throw new Error('No input provided for file-system operation');
     }
@@ -93,7 +92,6 @@ export async function action(context) {
     }
     return JSON.stringify(result);
 }
-
 
 async function executeFileOperation({ operation, path, content, destination }) {
     if (!operation || !path) {
