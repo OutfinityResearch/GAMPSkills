@@ -7,7 +7,7 @@ Skills are the unit of capability used by intelligent LLM-based agents, similar 
 Typical layout:
 
 ```
-skills/<domain>/<skill_name>/
+<skill_name>/
   ├── <descriptor>.md
   └── optional code modules or generated artifacts depending on the family
 ```
@@ -35,6 +35,8 @@ Optimized for short, bounded computations or transformations. The descriptor pro
 
 ### Code skills (`cskill.md`)
 Specification-driven skills intended for more complex logic that benefits from explicit, auditable specs. The descriptor defines the public contract: Summary, Input Format, Output Format, and Constraints. The behavior itself is expressed in `specs/` files, each describing a module in natural language. A code generator turns those specs into actual code modules, and the subsystem executes the generated entrypoint on each request. Changes happen in specs, and the generated code is treated as an artifact.
+
+For cskills, an FDS file named `index.mjs.md` is mandatory to define the entrypoint. This FDS must describe the exported `action` function and its behavior.
 
 ## DS and FDS (Design Specs)
 In addition to the descriptor, skills can include a DS file in the skill folder that describes, at a high level, what the skill does (purpose, inputs, outputs, constraints, usage). The technical implementation is captured in FDS (file design spec) documents stored under `specs/`, one file per module or artifact that will be created.
