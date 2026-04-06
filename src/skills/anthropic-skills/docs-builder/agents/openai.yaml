@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Builder"
+  short_description: "Rebuild project technical docs"
+  default_prompt: "Use $docs-builder to rebuild a project's docs and specs."
